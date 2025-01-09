@@ -1,0 +1,39 @@
+.modal-det {
+  width: 794px; /* Largura de uma folha A4 (em pixels) */
+  height: 1123px; /* Altura de uma folha A4 (em pixels) */
+  padding: 20px;
+  background-color: #fff; /* Fundo branco */
+  box-sizing: border-box;
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+.modal-det h2 {
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+/* Divisões internas para separar seções de informações */
+.modal-det .section {
+  margin-top: 15px;
+  border-top: 1px solid #000;
+  padding-top: 10px;
+}
+
+.modal-det .footer {
+  margin-top: 20px;
+  border-top: 1px solid #000;
+  padding-top: 10px;
+  text-align: right;
+}
+
+/* Responsividade: Ajustes para telas menores */
+@media (max-width: 768px) {
+  .modal-det {
+    width: 100%;
+    height: auto;
+    padding: 15px;
+  }
+}

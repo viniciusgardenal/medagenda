@@ -1,0 +1,155 @@
+/* Estilos gerais para o container principal */
+.profissionais-crud {
+    max-width: 1200px;
+    margin: 5% auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    font-family: Arial, sans-serif;
+}
+
+.profissionais-crud h2 {
+    text-align: center;
+    color: #333;
+    font-size: 1.8em;
+    margin-bottom: 20px;
+}
+
+/* Estilos do formulário de profissionais */
+.profissional-form {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 30px;
+    border-radius: 10px;
+}
+
+.profissional-form input {
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1em;
+    background-color: #F8F9FA;
+    transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+
+.profissional-form input:focus {
+    border-color: #424B54;
+    background-color: #ffffff;
+    outline: none;
+}
+
+.profissional-form button {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    background-color: #424B54;
+    color: #fff;
+    font-weight: bold;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.profissional-form button:hover {
+    background-color: #57606a;
+    transform: scale(1.02);
+}
+
+/* Estilos da tabela de profissionais */
+.profissionais-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: center;
+    margin-top: 20px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.profissionais-table th, .profissionais-table td {
+    padding: 15px;
+    border-bottom: 1px solid #ddd;
+    font-size: 0.9em;
+    color: #333;
+}
+
+.profissionais-table th {
+    background-color: #f1f1f1;
+    color: #001233;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85em;
+}
+
+.profissionais-table td {
+    background-color: #ffffff;
+}
+
+.profissionais-table tr:nth-child(even) td {
+    background-color: #f9f9f9;
+}
+
+.profissionais-table tr:hover {
+    background-color: #f2f2f2;
+}
+
+/* Estilos dos botões de ação */
+.profissionais-table button {
+    padding: 8px 10px;
+    margin: 2px;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.profissionais-table button:first-child {
+    background-color: #001233;
+    color: white;
+}
+
+.profissionais-table button:first-child:hover {
+    background-color: #153a80;
+    transform: scale(1.05);
+}
+
+.profissionais-table button:last-child {
+    background-color: #f44336;
+    color: white;
+}
+
+.profissionais-table button:last-child:hover {
+    background-color: #e53935;
+    transform: scale(1.05);
+}
+
+/* Responsividade para telas menores */
+@media (max-width: 768px) {
+    .profissional-form {
+        grid-template-columns: 1fr;
+    }
+
+    .profissional-form button {
+        width: 100%;
+    }
+
+    .profissionais-table {
+        font-size: 0.9em;
+    }
+
+    .profissionais-table td, .profissionais-table th {
+        padding: 10px;
+    }
+}
+
+.btn {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: left;
+}

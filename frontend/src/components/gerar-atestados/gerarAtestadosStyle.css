@@ -1,0 +1,116 @@
+.gerar-atestados-container {
+    max-width: 1200px;
+    margin: 5% auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    font-family: Arial, sans-serif;
+  }
+  
+  .gerar-atestados-container h2 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .atestado-form {
+    max-width: 1200px;
+    margin: 5% auto;
+    padding: 20px;
+    background-color: #f4f5f6;
+    border-radius: 10px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    font-family: Arial, sans-serif;
+  }
+  
+  .form-group {
+    margin-bottom: 15px;
+  }
+  
+  .form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
+  
+  .form-group select,
+  .form-group input,
+  .form-group textarea {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+  }
+  
+  .gerar-button {
+    padding: 12px 40px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    border-radius: 8px;
+    background-color: #f1f1f1;
+    color: #001233;
+    border: 1px solid #001233;
+    font-weight: bold;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .gerar-button:hover {
+    background-color: #001233;
+    color: #fff;
+  }
+  
+  .atestado-form .form-group {
+    margin-bottom: 20px;
+  }
+  
+  .atestado-form .form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+  }
+  
+  .atestado-form .form-group input[type="date"] {
+    width: auto;
+    display: inline-block;
+  }
+  
+  .atestado-form select {
+    font-size: 1rem;
+  }
+  
+  .atestado-form .form-group label {
+    font-size: 1.1rem;
+  }
+  
+  .atestado-form .form-group textarea,
+  .atestado-form input {
+    font-size: 1rem;
+  }
+  
+  .atestado-form .form-group input[type="number"] {
+    -moz-appearance: textfield;
+  }
+  
+  .atestado-form select,
+  .atestado-form input,
+  .atestado-form textarea {
+    border-radius: 5px;
+    border: 1px solid #ccc;
+  }
+  
+  .atestado-form .form-group input:focus,
+  .atestado-form .form-group textarea:focus,
+  .atestado-form select:focus {
+    border-color: #0066cc;
+    outline: none;
+  }
+  
+  .gerar-atestados-container .form-group input {
+    font-family: Arial, sans-serif;
+  }
+  
+  .gerar-atestados-container .form-group select {
+    font-family: Arial, sans-serif;
+  }
+  

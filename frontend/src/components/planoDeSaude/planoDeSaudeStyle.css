@@ -1,0 +1,162 @@
+/* Estilos gerais para o container principal */
+.plano-de-saude-crud {
+    width: 100%;
+    max-width: 1200px;
+    margin: 5% auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    font-family: Arial, sans-serif;
+}
+
+.plano-de-saude-crud h2 {
+    text-align: center;
+    color: #333;
+    font-size: 1.8em;
+    margin-bottom: 20px;
+}
+
+/* Estilos do formulário de plano de saúde */
+.plano-de-saude-form {
+    width: 100%;
+    gap: 15px;
+    margin-bottom: 30px;
+    border-radius: 10px;
+}
+
+.plano-de-saude-form input {
+    padding: 20px;
+    width: 100%;
+    background-color: #F8F9FA;
+    border-radius: 10px;
+    border: 1px solid black;
+}
+
+.plano-de-saude-form button {
+    padding: 12px 40px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    border-radius: 8px;
+    background-color: #f1f1f1;
+    color: #001233;
+    border: 1px solid #001233;
+    font-weight: bold;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.plano-de-saude-form button:hover {
+    background-color: #001233;
+    color: #fff;
+}
+
+/* Estilos da tabela de planos de saúde */
+.plano-de-saude-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: center;
+    margin-top: 20px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.plano-de-saude-table th,
+.plano-de-saude-table td {
+    padding: 15px;
+    border-bottom: 1px solid #ddd;
+    font-size: 0.9em;
+    color: #333;
+}
+
+.plano-de-saude-table th {
+    background-color: #f1f1f1;
+    color: #001233;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85em;
+}
+
+.plano-de-saude-table td {
+    background-color: #ffffff;
+}
+
+.plano-de-saude-table tr:nth-child(even) td {
+    background-color: #f9f9f9;
+}
+
+.plano-de-saude-table tr:hover {
+    background-color: #f2f2f2;
+}
+
+/* Estilos dos botões de ação na tabela */
+.plano-de-saude-table button {
+    padding: 8px 10px;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.plano-de-saude-table button:first-child {
+    background-color: #001233;
+    color: white;
+    margin-right: 5px;
+}
+
+.plano-de-saude-table button:first-child:hover {
+    background-color: #153a80;
+}
+
+.plano-de-saude-table button:last-child {
+    background-color: #f44336;
+    color: white;
+}
+
+.plano-de-saude-table button:last-child:hover {
+    background-color: #e53935;
+}
+
+/* Responsividade para telas menores */
+@media (max-width: 480px) {
+    .plano-de-saude-table {
+        border-collapse: separate;
+    }
+
+    .plano-de-saude-table tbody {
+        display: block;
+        width: 100%;
+    }
+
+    .plano-de-saude-table tr {
+        display: flex;
+        flex-direction: column;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        padding: 10px;
+        background-color: #ffffff;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .plano-de-saude-table td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        font-size: 0.9em;
+    }
+
+    .plano-de-saude-table button {
+        padding: 6px 10px;
+        font-size: 0.8em;
+        margin-top: 5px;
+        border-radius: 5px;
+    }
+}

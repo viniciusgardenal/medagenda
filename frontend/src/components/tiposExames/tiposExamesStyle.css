@@ -1,0 +1,162 @@
+/* Estilos gerais para o container principal */
+.tipos-exames-crud {
+    width: 100%;
+    max-width: 1200px;
+    margin: 5% auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    font-family: Arial, sans-serif;
+}
+
+.tipos-exames-crud h2 {
+    text-align: center;
+    color: #333;
+    font-size: 1.8em;
+    margin-bottom: 20px;
+}
+
+/* Estilos do formulário de tipos de exames */
+.tipo-exame-form {
+    width: 100%;
+    gap: 15px;
+    margin-bottom: 30px;
+    
+    border-radius: 10px;
+}
+
+.tipo-exame-form input {
+   padding: 20px;
+   width: 100%;
+   background-color: #F8F9FA;
+   border-radius: 10px;
+   border: 1px solid black;
+}
+
+.tipo-exame-form button {
+    padding: 12px 40px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    border-radius: 8px;
+    background-color:#f1f1f1 ;
+    color: #001233;
+    border: 1px solid #001233;
+    font-weight: bold;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.tipo-exame-form button:hover {
+    background-color:#001233 ;
+    color: #fff;
+}
+
+/* Estilos da tabela de tipos de exames */
+.tipos-exames-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: center;
+    margin-top: 20px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.tipos-exames-table th, .tipos-exames-table td {
+    padding: 15px;
+    border-bottom: 1px solid #ddd;
+    font-size: 0.9em;
+    color: #333;
+}
+
+.tipos-exames-table th {
+    background-color: #f1f1f1;
+    color: #001233;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85em;
+}
+
+.tipos-exames-table td {
+    background-color: #ffffff;
+}
+
+.tipos-exames-table tr:nth-child(even) td {
+    background-color: #f9f9f9;
+}
+
+.tipos-exames-table tr:hover {
+    background-color: #f2f2f2;
+}
+
+/* Estilos dos botões de ação na tabela */
+.tipos-exames-table button {
+    padding: 8px 10px;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.tipos-exames-table button:first-child {
+    background-color: #001233;
+    color: white;
+    margin-right: 5px;
+}
+
+.tipos-exames-table button:first-child:hover {
+    background-color: #153a80;
+}
+
+.tipos-exames-table button:last-child {
+    background-color: #f44336;
+    color: white;
+}
+
+.tipos-exames-table button:last-child:hover {
+    background-color: #e53935;
+}
+
+/* Responsividade para telas menores */
+@media (max-width: 480px) {
+    .tipos-exames-table {
+        border-collapse: separate;
+    }
+
+    .tipos-exames-table tbody {
+        display: block;
+        width: 100%;
+    }
+
+    .tipos-exames-table tr {
+        display: flex;
+        flex-direction: column;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        padding: 10px;
+        background-color: #ffffff;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .tipos-exames-table td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        font-size: 0.9em;
+    }
+
+    .tipos-exames-table button {
+        padding: 6px 10px;
+        font-size: 0.8em;
+        margin-top: 5px;
+        border-radius: 5px;
+    }
+}

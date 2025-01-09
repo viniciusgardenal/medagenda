@@ -1,0 +1,153 @@
+/* Estilos gerais para o container principal
+.pacientes-crud {
+    max-width: 1200px;
+    margin: 5% auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    font-family: Arial, sans-serif;
+}
+
+h2 {
+    text-align: center;
+    color: #333;
+    font-size: 1.8em;
+    margin-bottom: 20px;
+}
+
+/* Estilos do formulário de pacientes */
+.paciente-form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+    margin-bottom: 30px;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    box-shadow: inset 0px 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.paciente-form div {
+    display: flex;
+    flex-direction: column;
+}
+
+.paciente-form label {
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: #333;
+}
+
+.paciente-form input, select {
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1em;
+    transition: border-color 0.3s ease;
+}
+
+.paciente-form input:focus {
+    border-color: #424B54;
+    outline: none;
+}
+
+
+/* Ajuste para telas pequenas */
+@media (max-width: 768px) {
+    .paciente-form {
+        grid-template-columns: 1fr;
+    }
+
+    .paciente-form button {
+        grid-column: span 1;
+    }
+}
+
+.pesquisar-input {
+    padding: 20px;
+   width: 100%;
+   background-color: #F8F9FA;
+   border-radius: 10px;
+   border: 1px solid black;
+   margin-bottom: 20px;
+}
+
+/* Estilos para a tabela de pacientes */
+.pacientes-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    margin-top: 20px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.pacientes-table th, .pacientes-table td {
+    padding: 15px;
+    border-bottom: 1px solid #e0e0e0;
+    font-size: 0.9em;
+    color: #333;
+}
+
+.pacientes-table th {
+    background-color: #f5f5f5;
+    color: #424B54;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85em;
+}
+
+.pacientes-table tr:hover {
+    background-color: #f9f9f9;
+}
+
+.pacientes-table td {
+    background-color: #ffffff;
+}
+
+/* Alterna a cor de fundo das linhas */
+.pacientes-table tr:nth-child(even) td {
+    background-color: #f7f7f7;
+}
+
+/* Estilos dos botões de ação na tabela */
+.pacientes-table button {
+
+    padding: 8px 8px;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.pacientes-table button:first-child {
+    background-color: #001233;
+    color: white;
+    margin: 2px;
+}
+
+.pacientes-table button:first-child:hover {
+    background-color: #153a80;
+}
+
+.pacientes-table button:last-child {
+    background-color: #f44336;
+    color: white;
+}
+
+.pacientes-table button:last-child:hover {
+    background-color: #e53935;
+}
+
+/* Responsividade para a tabela */
+@media (max-width: 768px) {
+    .pacientes-table th, .pacientes-table td {
+        padding: 10px;
+        font-size: 0.85em;
+    }
+} */

@@ -1,0 +1,83 @@
+/* Estilos principais para a modal */
+.modal-overlay {
+  margin: 0 auto;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5); /* fundo semi-transparente */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #ffffff;
+  border-radius: 8px;
+  max-width: 500px;
+  width: 100%;
+  padding: 20px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 0.3s ease; /* animação de entrada */
+  position: relative;
+}
+
+/* Botão de fechar */
+.modal-close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 20px;
+  color: #001233; /* Cor ajustada para #001233 */
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* Estilos para os elementos de título e formulário */
+.modal-content h2 {
+  font-size: 24px;
+  color: #001233; /* Cor ajustada para #001233 */
+  margin-bottom: 20px;
+}
+
+.modal-content input,
+.modal-content select,
+.modal-content textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+  color: #001233; /* Cor ajustada para #001233 */
+}
+
+/* Estilos para o botão de ação */
+.modal-content button {
+  background-color: #001233; /* Cor ajustada para #001233 */
+  color: #ffffff;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.modal-content button:hover {
+  background-color: #002a50; /* Cor de hover ajustada para um tom mais claro de #001233 */
+}
+
+/* Animação de entrada */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

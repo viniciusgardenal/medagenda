@@ -1,0 +1,96 @@
+.emitir-receitas-container {
+    max-width: 1200px;
+    margin: 5% auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    font-family: Arial, sans-serif;
+  }
+  
+  .emitir-receitas-container h2 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .receitas-form {
+    max-width: 1200px;
+    margin: 5% auto;
+    padding: 20px;
+    background-color: #f4f5f6;
+    border-radius: 10px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    font-family: Arial, sans-serif;
+}
+
+  .form-group {
+    margin-bottom: 15px;
+  }
+  
+  .form-group orientacoes {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
+  
+  .form-group select,
+  .form-group input,
+  .form-group textarea {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+  }
+  
+  .medicamento-group {
+    border: 1px solid #ccc;
+    padding: 15px;
+    margin-bottom: 15px;
+    position: relative;
+  }
+  
+  .remover-medicamento {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #ca0202;
+    border: none;
+    color: white;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 8px
+  }
+  
+  .adicionar-medicamento {
+    background-color: #001233;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    margin-bottom: 20px;
+    border-radius: 8px
+  }
+  
+  .emitir-button {
+    padding: 12px 40px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    border-radius: 8px;
+    background-color:#f1f1f1 ;
+    color: #001233;
+    border: 1px solid #001233;
+    font-weight: bold;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .emitir-button:hover {
+    background-color:#001233 ;
+    color: #fff;
+}

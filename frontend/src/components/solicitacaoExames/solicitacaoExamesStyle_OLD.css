@@ -1,0 +1,200 @@
+/* Estilos gerais para o container principal */
+.exames-crud {
+    width: 100%;
+    max-width: 800px;
+    margin: 5% auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    font-family: Arial, sans-serif;
+}
+
+h2 {
+    text-align: center;
+    color: #333;
+    font-size: 1.8em;
+    margin-bottom: 20px;
+}
+
+/* Estilos do formulário de exames */
+.exame-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+.exame-form label {
+    display: flex;
+    flex-direction: column;
+    font-weight: bold;
+    color: #333;
+}
+
+.exame-form input,
+.exame-form select {
+    display: flex;
+    width: 300px;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1em;
+    background-color: #f8f9fa;
+    margin-top: 5px;
+    transition: border-color 0.3s ease;
+}
+
+.exame-form input:focus,
+.exame-form select:focus {
+    border-color: #001233;
+    outline: none;
+}
+
+.exame-form button {
+    width: 300px;
+    padding: 12px 40px;
+    border-radius: 8px;
+    background-color: #f1f1f1;
+    color: #001233;
+    border: 1px solid #001233;
+    font-weight: bold;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    align-self: center;
+}
+
+.exame-form button:hover {
+    background-color: #001233;
+    color: #fff;
+}
+
+/* Estilos da tabela de exames */
+.exames-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: center;
+    margin-top: 20px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.exames-table th, .exames-table td {
+    padding: 15px;
+    border-bottom: 1px solid #ddd;
+    font-size: 0.9em;
+    color: #333;
+}
+
+.exames-table th {
+    background-color: #f1f1f1;
+    color: #001233;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85em;
+}
+
+.exames-table td {
+    background-color: #ffffff;
+}
+
+.exames-table tr:nth-child(even) td {
+    background-color: #f9f9f9;
+}
+
+.exames-table tr:hover {
+    background-color: #f2f2f2;
+}
+
+/* Estilos dos botões de ação */
+.exames-table button {
+    padding: 8px 8px;
+    gap: 5px;
+    margin: 5px;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.exames-table button:first-child {
+    background-color: #001233;
+    color: white;
+}
+
+.exames-table button:first-child:hover {
+    background-color: #153a80;
+}
+
+.exames-table button:last-child {
+    background-color: #f44336;
+    color: white;
+}
+
+.exames-table button:last-child:hover {
+    background-color: #e53935;
+}
+
+/* Responsividade */
+@media (max-width: 480px) {
+    .exame-form {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        padding: 15px;
+    }
+
+    .exame-form label {
+        font-size: 0.9em;
+    }
+
+    .exame-form input,
+    .exame-form select {
+        padding: 10px;
+        font-size: 0.9em;
+    }
+
+    .exame-form button {
+        grid-column: span 1;
+        font-size: 0.9em;
+        padding: 10px;
+    }
+
+    .exames-table tbody {
+        display: block;
+        width: 100%;
+    }
+
+    .exames-table tr {
+        display: flex;
+        flex-direction: column;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        padding: 10px;
+        background-color: #ffffff;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .exames-table td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        font-size: 0.9em;
+    }
+
+    .exames-table button {
+        padding: 6px 10px;
+        font-size: 0.8em;
+        margin-top: 5px;
+        border-radius: 5px;
+    }
+}

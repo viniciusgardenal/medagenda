@@ -1,9 +1,9 @@
 // src/routes/routesConfig.js
 import TiposExames from "../tiposExames/tiposExames2";
 import SolicitacaoExames from "../solicitacaoExames/solicitacaoExames";
-import Medicamentos from "../medicamentos2/medicamentos";
+import Medicamentos from "../medicamentos/medicamentos";
 import Profissionais from "../profissionais/profissionais";
-import Pacientes from "../pacientes2/pacientes";
+import Pacientes from "../pacientes/pacientes";
 import HomeScreen from "../home/homeScreen";
 import EmitirReceitas from "../receitas/emitirReceitas";
 import GerarAtestados from "../gerar-atestados/gerarAtestados";

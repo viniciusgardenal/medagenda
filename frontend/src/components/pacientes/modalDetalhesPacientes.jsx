@@ -23,7 +23,7 @@ const ModalDetalhesPacientes = ({ isOpen, onClose, pacientes }) => {
         <button className="modal-close-button" onClick={onClose}>
           X
         </button>
-        <h2>Detalhes do Medicamento</h2>
+        <h2>Detalhes do Paciente</h2>
 
         {loading ? (
           <p className="loading">Carregando dados...</p>

@@ -1,212 +1,205 @@
-// import React, { useState, useEffect } from "react";
-// import './medicamentosStyle.css';
+import React, { useState, useEffect } from "react";
+import FiltroMedicamentos from "./filtroMedicamentos";
+import "./medicamentosStyle.css";
+import ConfirmationModal from "../util/confirmationModal";
+import AlertMessage from "../util/alertMessage";
+import SuccessAlert from "../util/successAlert";
+import {
+  getMedicamentos,
+  getMedicamentosId,
+  excluirMedicamentos,
+} from "../../config/apiServices";
+import ModalMedicamentos from "./modalMedicamentos";
+import TabelaMedicamentos from "./tabelaMedicamentos";
+import ModalEditarMedicamentos from "./modalEditarMedicamentos";
+import ModalDetalhesMedicamentos from "./modalDetalhesMedicamentos";
 
-// const Medicamentos = () => {
-//     const [medicamentos, setMedicamentos] = useState([]);
-//     const [formData, setFormData] = useState({
-//         idMedicamento: '',
-//         nomeMedicamento: '',
-//         dosagem: '',
-//         controlado: '',
-//         nomeFabricante: '',
-//         descricao: '',
-//         instrucaoUso: '',
-//         interacao: ''
-//     });
-//     const [isEditing, setIsEditing] = useState(false);
+const Medicamentos = () => {
+  const [medicamentos, setMedicamentos] = useState([]);
+  const [filtro, setFiltro] = useState(""); // Filtro agora é uma string simples
+  const [isModalOpenAdd, setIsModalOpenAdd] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [idToDelete, setIdToDelete] = useState(null);
+  const [showAlert, setShowAlert] = useState(false);
+  const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+  const [showEditSuccessAlert, setShowEditSuccessAlert] = useState(false);
+  const [isModalOpenEditar, setIsModalOpenEditar] = useState(false);
+  const [medicamentosSelecionado, setMedicamentosSelecionado] = useState(null);
+  const [isModalOpenDetalhes, setIsModalOpenDetalhes] = useState(false);
 
-//     useEffect(() => {
-//         fetch('http://localhost:5000/medicamentos')
-//             .then(response => response.json())
-//             .then(data => {
-//                 if (Array.isArray(data)) {
-//                     setMedicamentos(data);
-//                 } else {
-//                     console.error('Resposta da API não é um array:', data);
-//                 }
-//             })
-//             .catch(error => console.error('Erro ao buscar medicamento:', error));
-//     }, []);
+  // Função para carregar medicamentos
+  const loadMedicamentos = async () => {
+    const response = await getMedicamentos();
+    setMedicamentos(response.data);
+  };
 
-//     const handleInputChange = (e) => {
-//         const { name, value } = e.target;
-//         setFormData({
-//             ...formData,
-//             [name]: value
-//         });
-//     };
+  useEffect(() => {
+    loadMedicamentos();
+  }, []);
 
-//     const handleAddMedicamento = () => {
-//         const url = isEditing 
-//             ? `http://localhost:5000/medicamentos/${formData.idMedicamento}` 
-//             : 'http://localhost:5000/medicamentos';
+  // Função para lidar com a mudança no filtro
+  const handleFiltroChange = (e) => {
+    setFiltro(e.target.value); // Atualiza o filtro com o valor digitado
+  };
 
-//         fetch(url, {
-//             method: isEditing ? 'PUT' : 'POST',
-//             headers: {
-//                 'Content-Type': 'application/json',
-//             },
-//             body: JSON.stringify(formData),
-//         })
-//         .then(response => response.json())
-//         .then(data => {
-//             //console.log('Medicamento adicionado/atualizado:', data);
-//             setFormData({
-//                 idMedicamento: '',
-//                 nomeMedicamento: '',
-//                 dosagem: '',
-//                 controlado: '',
-//                 nomeFabricante: '',
-//                 descricao: '',
-//                 instrucaoUso: '',
-//                 interacao: ''
-//             });
-//             setIsEditing(false);
-//             setMedicamentos(prevMedicamentos => isEditing 
-//                 ? prevMedicamentos.map(medicamento => medicamento.idMedicamento === data.idMedicamento ? data : medicamento)
-//                 : [...prevMedicamentos, data]);
-//         })
-//         .catch(error => console.error('Erro ao adicionar/atualizar medicamento:', error));
-//     };
+  // Filtro dos medicamentos
+  const medicamentosFiltrados = medicamentos.filter((medicamento) => {
+    const pesquisa = filtro.toLowerCase(); // Convertendo o filtro para minúsculo
+    return (
+      medicamento.nomeMedicamento.toLowerCase().includes(pesquisa) || // Filtra pelo nome do medicamento
+      // medicamento.dosagem?.toLowerCase().includes(pesquisa) || // Considera que `dosagem` pode ser nulo
+      medicamento.nomeFabricante?.toLowerCase().includes(pesquisa) || // Considera que `nomeFabricante` pode ser nulo
+      medicamento.descricao?.toLowerCase().includes(pesquisa) // Considera que `descricao` pode ser nulo
+    );
+  });
 
-//     const handleEditMedicamento = (medicamento) => {
-//         setFormData(medicamento);
-//         setIsEditing(true);
-//     };
+  // Deletar medicamento
+  const handleDelete = (id) => {
+    setIdToDelete(id);
+    setIsModalOpen(true);
+  };
 
-//     const handleDeleteMedicamento = (id) => {
-//         fetch(`http://localhost:5000/medicamentos/${id}`, {
-//             method: 'DELETE',
-//         })
-//         .then(response => {
-//             if (!response.ok) {
-//                 throw new Error('Erro ao deletar o medicamento');
-//             }
-//             return response;
-//         })
-//         .then(() => {
-//             //console.log('Medicamento deletado com sucesso');
-//             setMedicamentos(prevMedicamentos => prevMedicamentos.filter(medicamento => medicamento.idMedicamento !== id));
-//         })
-//         .catch(error => console.error('Erro ao deletar medicamento:', error));
-//     };
+  const confirmDelete = async () => {
+    try {
+      await excluirMedicamentos(idToDelete);
+      setShowAlert(true);
+      await loadMedicamentos();
+    } catch (error) {
+      console.error("Erro ao excluir:", error);
+    } finally {
+      setIsModalOpen(false);
+      setIdToDelete(null);
+    }
+  };
 
-//     return (
-//         <div className="medicamentos-crud">
-//             <h2>Gerenciamento de Medicamentos</h2>
-//             <form className="medicamento-form" onSubmit={(e) => e.preventDefault()}>
-//                 <div>
-//                     <label>Nome medicamento</label>
-//                     <input 
-//                         type="text" 
-//                         name="nomeMedicamento" 
-//                         placeholder="Nome do Medicamento" 
-//                         value={formData.nomeMedicamento} 
-//                         onChange={handleInputChange} 
-//                         required />
-//                 </div>
-//                 <div>
-//                     <label>Dosagem</label>
-//                     <input 
-//                         type="text" 
-//                         name="dosagem" 
-//                         placeholder="Dosagem" 
-//                         value={formData.dosagem} 
-//                         onChange={handleInputChange} 
-//                         required />
-//                 </div>
-//                 <div>
-//                     <label>Controle</label>
-//                     <select 
-//                         name="controlado" 
-//                         value={formData.controlado} 
-//                         onChange={handleInputChange} 
-//                         required>
-//                         <option value="">Selecione</option>
-//                         <option value="Medicamento Controlado">Medicamento Controlado</option>
-//                         <option value="Medicamento Não Controlado">Medicamento Não Controlado</option>
-//                     </select>
-//                 </div>
-//                 <div>
-//                     <label>Nome do Fabricante</label>                
-//                     <input 
-//                         type="text" 
-//                         name="nomeFabricante" 
-//                         placeholder="Nome do Fabricante" 
-//                         value={formData.nomeFabricante} 
-//                         onChange={handleInputChange} 
-//                         required />
-//                 </div>
-//                 <div>
-//                     <label>Descrição</label> 
-//                     <input 
-//                         type="text" 
-//                         name="descricao" 
-//                         placeholder="Descrição" 
-//                         value={formData.descricao} 
-//                         onChange={handleInputChange} 
-//                         required />
-//                 </div>
-//                 <div>
-//                     <label>Instrução de Uso</label> 
-//                     <input 
-//                         type="text" 
-//                         name="instrucaoUso" 
-//                         placeholder="Instrução de uso" 
-//                         value={formData.instrucaoUso} 
-//                         onChange={handleInputChange} 
-//                         equired />
-//                 </div>
-//                 <div>
-//                     <label>Interação Medicamentosa</label> 
-//                     <input 
-//                         type="text" 
-//                         name="interacao" 
-//                         placeholder="Interação medicamentosa" 
-//                         value={formData.interacao} 
-//                         onChange={handleInputChange} 
-//                         required />
-//                 </div>
-//                 <button
-//                     type="button" 
-//                     onClick={handleAddMedicamento}>{isEditing ? "Atualizar Medicamento" : "+ Adicionar Medicamento"}
-//                 </button>
-//             </form>
-//             <table className="medicamentos-table">
-//                 <thead>
-//                     <tr>
-//                         <th>ID</th>
-//                         <th>Nome do Medicamento</th>
-//                         <th>Dosagem</th>
-//                         <th>Controlado</th>
-//                         <th>Nome do Fabricante</th>
-//                         <th>Descrição</th>
-//                         <th>Instrução de Uso</th>
-//                         <th>Interação medicamentosa</th>
-//                         <th>Ações</th>
-//                     </tr>
-//                 </thead>
-//                 <tbody>
-//                     {Array.isArray(medicamentos) && medicamentos.map((medicamento) => (
-//                         <tr key={medicamento.idMedicamento}>
-//                             <td>{medicamento.idMedicamento + 1}</td>
-//                             <td>{medicamento.nomeMedicamento}</td>
-//                             <td>{medicamento.dosagem}</td>
-//                             <td>{medicamento.controlado}</td>
-//                             <td>{medicamento.nomeFabricante}</td>
-//                             <td>{medicamento.descricao}</td>
-//                             <td>{medicamento.instrucaoUso}</td>
-//                             <td>{medicamento.interacao}</td>
-//                             <td>
-//                                 <button onClick={() => handleEditMedicamento(medicamento)}>Editar</button>
-//                                 <button onClick={() => handleDeleteMedicamento(medicamento.idMedicamento)}>Deletar</button>
-//                             </td>
-//                         </tr>
-//                     ))}
-//                 </tbody>
-//             </table>
-//         </div>
-//     );
-// };
+  // Salvar medicamento
+  const handleSave = async () => {
+    await loadMedicamentos();
+    setShowSuccessAlert(true);
+  };
 
-// export default Medicamentos;
+  const handleEditar = async (idMedicamento) => {
+    try {
+      const response = await getMedicamentosId(idMedicamento);
+      const medicamento = response.data;
+
+      //console.log(`Editar Medicamento`, medicamento);
+
+      setMedicamentosSelecionado(medicamento); // Atualiza o estado com o medicamento selecionado
+      setIsModalOpenEditar(true); // Abre o modal de edição
+    } catch (error) {
+      console.error("Erro ao editar medicamento:", error);
+    }
+  };
+
+  const handleDetalhes = async (idMedicamento) => {
+    try {
+      const response = await getMedicamentosId(idMedicamento);
+      const medicamento = response.data;
+
+      setMedicamentosSelecionado(medicamento); // Atualiza o estado com os detalhes do medicamento
+      setIsModalOpenDetalhes(true); // Abre o modal de detalhes
+    } catch (error) {
+      console.error("Erro ao visualizar detalhes do medicamento:", error);
+    }
+  };
+
+  // Fechar modal de edição
+  const handleCloseModal = () => {
+    setIsModalOpenEditar(false);
+    setMedicamentosSelecionado(null);
+  };
+
+  const handleUpdateMedicamentos = () => {
+    loadMedicamentos();
+    setShowEditSuccessAlert(true);
+    handleCloseModal();
+  };
+
+  return (
+    <div className="medicamentos-crud">
+      <h2>Pesquisar Medicamentos</h2>
+
+      {showAlert && (
+        <AlertMessage
+          message="Item excluído com sucesso."
+          onClose={() => setShowAlert(false)}
+        />
+      )}
+
+      {showSuccessAlert && (
+        <SuccessAlert
+          message="Medicamento adicionado com sucesso!"
+          onClose={() => setShowSuccessAlert(false)}
+        />
+      )}
+
+      {showEditSuccessAlert && (
+        <SuccessAlert
+          message="Medicamento editado com sucesso!"
+          onClose={() => setShowEditSuccessAlert(false)}
+        />
+      )}
+
+      <FiltroMedicamentos
+        filtros={filtro}
+        onFiltroChange={handleFiltroChange}
+      />
+      <form className="medicamentos-form">
+        <button type="button" onClick={() => setIsModalOpenAdd(true)}>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="size-6"
+          >
+            <path
+              stroleLinecap="round"
+              stroke-linejoin="round"
+              d="M12 4.5v15m7.5-7.5h-15"
+            />
+          </svg>
+          Adicionar Medicamento
+        </button>
+      </form>
+
+      <ModalMedicamentos
+        isOpen={isModalOpenAdd}
+        onClose={() => setIsModalOpenAdd(false)}
+        onSave={handleSave}
+      />
+
+      <TabelaMedicamentos
+        medicamentos={medicamentosFiltrados}
+        onExcluir={handleDelete}
+        onEditar={handleEditar}
+        onDetalhes={handleDetalhes}
+      />
+
+      {isModalOpenEditar && medicamentosSelecionado && (
+        <ModalEditarMedicamentos
+          isOpen={isModalOpenEditar}
+          onClose={handleCloseModal}
+          medicamentos={medicamentosSelecionado}
+          onUpdate={handleUpdateMedicamentos}
+        />
+      )}
+
+      <ConfirmationModal
+        isOpen={isModalOpen}
+        onConfirm={confirmDelete}
+        onCancel={() => setIsModalOpen(false)}
+      />
+
+      <ModalDetalhesMedicamentos
+        isOpen={isModalOpenDetalhes}
+        onClose={() => setIsModalOpenDetalhes(false)}
+        medicamentos={medicamentosSelecionado}
+      />
+    </div>
+  );
+};
+
+export default Medicamentos;

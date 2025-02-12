@@ -1,0 +1,239 @@
+/* Estilos gerais para o container principal */
+.medicamentos-crud {
+    width: 100%;
+    max-width: 1200px;
+    margin: 5% auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    font-family: Arial, sans-serif;
+}
+
+.medicamentos-crud h2 {
+    text-align: center;
+    color: #333;
+    font-size: 1.8em;
+    margin-bottom: 20px;
+}
+
+/* Estilos do formulário de medicamentoss */
+.medicamentos-form {
+    width: 100%;
+    gap: 15px;
+    margin-bottom: 30px;
+    border-radius: 10px;
+}
+
+.medicamentos-form input {
+    padding: 20px;
+    width: 100%;
+    background-color: #F8F9FA;
+    border-radius: 10px;
+    border: 1px solid black;
+}
+
+.medicamentos-form button {
+    padding: 12px 40px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    border-radius: 8px;
+    background-color: #f1f1f1;
+    color: #001233;
+    border: 1px solid #001233;
+    font-weight: bold;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.medicamentos-form button:hover {
+    background-color: #001233;
+    color: #fff;
+}
+
+/* Estilos da tabela de medicamentoss */
+.medicamentos-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: center;
+    margin-top: 20px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.medicamentos-table th, .medicamentos-table td {
+    padding: 15px;
+    border-bottom: 1px solid #ddd;
+    font-size: 0.9em;
+    color: #333;
+}
+
+.medicamentos-table th {
+    background-color: #f1f1f1;
+    color: #001233;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85em;
+}
+
+.medicamentos-table td {
+    background-color: #ffffff;
+}
+
+.medicamentos-table tr:nth-child(even) td {
+    background-color: #f9f9f9;
+}
+
+.medicamentos-table tr:hover {
+    background-color: #f2f2f2;
+}
+
+/* Estilos dos botões de ação na tabela */
+.medicamentos-table button {
+    padding: 8px 10px;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.medicamentos-table button:first-child {
+    background-color: #001233;
+    color: white;
+    margin-right: 5px;
+}
+
+.medicamentos-table button:first-child:hover {
+    background-color: #153a80;
+}
+
+.medicamentos-table button:last-child {
+    background-color: #f44336;
+    color: white;
+}
+
+.medicamentos-table button:last-child:hover {
+    background-color: #e53935;
+}
+
+/* Responsividade para telas menores */
+@media (max-width: 480px) {
+    .medicamentos-table {
+        border-collapse: separate;
+    }
+
+    .medicamentos-table tbody {
+        display: block;
+        width: 100%;
+    }
+
+    .medicamentos-table tr {
+        display: flex;
+        flex-direction: column;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        padding: 10px;
+        background-color: #ffffff;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .medicamentos-table td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        font-size: 0.9em;
+    }
+
+    .medicamentos-table button {
+        padding: 6px 10px;
+        font-size: 0.8em;
+        margin-top: 5px;
+        border-radius: 5px;
+    }
+}
+
+/* Estilos para o formulário de adicionar medicamentos */
+.medicamentos-add-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Duas colunas iguais por padrão */
+    gap: 20px;
+    margin-bottom: 30px;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    box-shadow: inset 0px 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Elementos internos */
+.medicamentos-add-form > div {
+    display: flex;
+    flex-direction: column;
+}
+
+.medicamentos-add-form label {
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.medicamentos-add-form input,
+.medicamentos-add-form select {
+    padding: 12px; /* Uniformizar padding */
+    width: 100%;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    background-color: #f8f9fa;
+    transition: border-color 0.3s ease;
+}
+
+.medicamentos-add-form input:focus,
+.medicamentos-add-form select:focus {
+    border-color: #424b54;
+    outline: none;
+}
+
+.medicamentos-add-form small.error {
+    color: red;
+    font-size: 12px;
+}
+
+/* Botões */
+.medicamentos-add-form button {
+    padding: 12px 20px;
+    border-radius: 8px;
+    background-color: #f1f1f1;
+    color: #001233;
+    border: 1px solid #001233;
+    font-weight: bold;
+    font-size: 1em;
+    cursor: pointer;
+    width: 100%;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    margin-top: 10px;
+}
+
+.medicamentos-add-form button:hover {
+    background-color: #001233;
+    color: #fff;
+    transform: scale(1.05);
+}
+
+.medicamentos-add-form button:active {
+    background-color: #001233cc;
+    transform: scale(1);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .medicamentos-add-form {
+        grid-template-columns: 1fr; /* Coluna única em telas pequenas */
+    }
+}

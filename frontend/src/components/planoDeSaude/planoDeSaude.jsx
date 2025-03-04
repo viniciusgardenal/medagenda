@@ -48,6 +48,7 @@ const PlanoDeSaude = () => {
     const pesquisa = filtro.toLowerCase();
     return (
       plano.nomePlanoDeSaude.toLowerCase().includes(pesquisa) ||
+      plano.descricao.toLowerCase().includes(pesquisa) ||
       plano.tipoPlanoDeSaude.toLowerCase().includes(pesquisa) ||
       plano.status.toLowerCase().includes(pesquisa)
     );

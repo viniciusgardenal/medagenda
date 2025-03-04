@@ -7,7 +7,7 @@ const FiltroTiposExames = ({ filtro, onFiltroChange }) => {
       <input
         type="text"
         name="filtro"
-        placeholder="Pesquisar por nome, material, tempo de jejum, observação ou categoria"
+        placeholder="Pesquisar por Nome, Material ou Categoria"
         value={filtro}
         onChange={onFiltroChange}
       />

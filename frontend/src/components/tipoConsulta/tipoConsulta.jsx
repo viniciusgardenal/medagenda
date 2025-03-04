@@ -51,13 +51,14 @@ const TipoConsulta = () => {
   const tipoConsultaFiltrados = tipoConsulta.filter((tpc) => {
     const pesquisa = filtro.toLowerCase(); // Convertendo o filtro para minúsculo
     return (
-      tpc.idTipoConsulta.toString().includes(pesquisa) || // Filtra pelo id (como string)
+      // tpc.idTipoConsulta.toString().includes(pesquisa) || // Filtra pelo id (como string)
       tpc.nomeTipoConsulta.toLowerCase().includes(pesquisa) ||
-      tpc.especialidade?.toLowerCase().includes(pesquisa) || // Considera que `especialidade` pode ser nulo
-      tpc.duracaoEstimada?.toLowerCase().includes(pesquisa) || // Considera que `duracaoEstimada` pode ser nulo
-      tpc.requisitosEspecificos?.toLowerCase().includes(pesquisa) || // Considera que `requisitosEspecificos` pode ser nulo
-      tpc.prioridade?.toLowerCase().includes(pesquisa) || // Considera que `prioridade` pode ser nulo
-      tpc.status?.toLowerCase().includes(pesquisa) // Considera que `status` pode ser nulo
+      // tpc.especialidade?.toLowerCase().includes(pesquisa) || // Considera que `especialidade` pode ser nulo
+      // tpc.duracaoEstimada?.toLowerCase().includes(pesquisa) || // Considera que `duracaoEstimada` pode ser nulo
+      // tpc.requisitosEspecificos?.toLowerCase().includes(pesquisa) || // Considera que `requisitosEspecificos` pode ser nulo
+      tpc.descricao?.toLowerCase().includes(pesquisa) // Considera que `requisitosEspecificos` pode ser nulo
+      // tpc.prioridade?.toLowerCase().includes(pesquisa) || // Considera que `prioridade` pode ser nulo
+      // tpc.status?.toLowerCase().includes(pesquisa) // Considera que `status` pode ser nulo
     );
   });
 

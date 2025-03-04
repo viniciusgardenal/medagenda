@@ -6,7 +6,7 @@ const FiltroPlanoDeSaude = ({ filtro, onFiltroChange }) => {
       <input
         type="text"
         name="filtro"
-        placeholder="Pesquisar por nome do plano, tipo do plano, status"
+        placeholder="Pesquisar por Nome, Descrição, Tipo, Status"
         value={filtro}
         onChange={onFiltroChange}
       />

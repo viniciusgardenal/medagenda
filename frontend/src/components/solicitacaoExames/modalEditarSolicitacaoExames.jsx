@@ -17,21 +17,30 @@ const ModalEditarSolicitacaoExames = ({
   const [tExame, setTExame] = useState(
     solicitacaoExames?.tiposExame.idTipoExame || ""
   );
-  
+
   const [periodo, setPeriodo] = useState(solicitacaoExames?.periodo || "");
   const [matriculaProfissional, setMatriculaProfissional] = useState(
     solicitacaoExames?.Profissional || ""
   );
-  const [cpfPaciente, setPacienteCpf] = useState(solicitacaoExames?.Paciente || "");
-  const [createdAt, setCreatedAt] = useState(
-    solicitacaoExames?.createdAt
-      ? moment(solicitacaoExames.createdAt, "DD/MM/YYYY").format("YYYY-MM-DD")
+  const [cpfPaciente, setPacienteCpf] = useState(
+    solicitacaoExames?.Paciente || ""
+  );
+  console.log(solicitacaoExames)
+  const [dataSolicitacao, setDataSolicitacao] = useState(
+    solicitacaoExames?.dataSolicitacao
+      ? moment(solicitacaoExames.dataSolicitacao, "DD/MM/YYYY").format(
+          "YYYY-MM-DD"
+        )
       : ""
   );
   const [dataRetorno, setDataRetorno] = useState(
     solicitacaoExames?.dataRetorno
       ? moment(solicitacaoExames.dataRetorno, "DD/MM/YYYY").format("YYYY-MM-DD")
       : ""
+  );
+
+  const [justificativa, setJustificativa] = useState(
+    solicitacaoExames?.justificativa || ""
   );
 
   const [status, setStatus] = useState(solicitacaoExames?.status || "Ativo");
@@ -45,8 +54,9 @@ const ModalEditarSolicitacaoExames = ({
     if (!tExame) newErros.tipoExame = "Tipo de exame é obrigatório!";
     if (!periodo) newErros.periodo = "Período é obrigatório!";
     if (!dataRetorno) newErros.dataRetorno = "Data de retorno é obrigatória!";
-    if (new Date(dataRetorno) < new Date(createdAt)) {
-      newErros.dataRetorno = "A data de retorno não pode ser anterior à data da solicitação!";
+    if (new Date(dataRetorno) < new Date(dataSolicitacao)) {
+      newErros.dataRetorno =
+        "A data de retorno não pode ser anterior à data da solicitação!";
     }
 
     setErros(newErros);
@@ -62,8 +72,9 @@ const ModalEditarSolicitacaoExames = ({
       periodo,
       matriculaProfissional: matriculaProfissional.matricula,
       cpfPaciente: cpfPaciente.cpf,
-      createdAt,
+      dataSolicitacao,
       dataRetorno,
+      justificativa,
       status,
     };
 
@@ -112,7 +123,11 @@ const ModalEditarSolicitacaoExames = ({
         <form className="modal-add" onSubmit={handleSubmit}>
           <div>
             <label>Tipo de Exame:</label>
-            <select value={tExame} onChange={(e) => setTExame(e.target.value)} required>
+            <select
+              value={tExame}
+              onChange={(e) => setTExame(e.target.value)}
+              required
+            >
               <option value="">Selecione o tipo de exame</option>
               {tiposExameSelecionado.map((tipo) => (
                 <option key={tipo.idTipoExame} value={tipo.idTipoExame}>
@@ -120,7 +135,9 @@ const ModalEditarSolicitacaoExames = ({
                 </option>
               ))}
             </select>
-            {erros.tipoExame && <small className="erro">{erros.tipoExame}</small>}
+            {erros.tipoExame && (
+              <small className="erro">{erros.tipoExame}</small>
+            )}
           </div>
 
           <div>
@@ -150,20 +167,15 @@ const ModalEditarSolicitacaoExames = ({
 
           <div>
             <label>Paciente (Apenas visível):</label>
-            <input
-              type="text"
-              value={cpfPaciente.nome}
-              readOnly
-              disabled
-            />
+            <input type="text" value={cpfPaciente.nome} readOnly disabled />
           </div>
 
           <div>
             <label>Solicitação (Apenas visível):</label>
             <input
               type="date"
-              value={createdAt}
-              onChange={(e) => setCreatedAt(e.target.value)} // Atualiza o estado corretamente
+              value={dataSolicitacao}
+              onChange={(e) => setDataSolicitacao(e.target.value)} // Atualiza o estado corretamente
               disabled
             />
           </div>
@@ -174,14 +186,37 @@ const ModalEditarSolicitacaoExames = ({
               type="date"
               value={dataRetorno}
               onChange={(e) => setDataRetorno(e.target.value)} // Atualiza o estado corretamente
+              min={new Date().toISOString().split("T")[0]}
               required
             />
-            {erros.dataRetorno && <small style={{color: "red"}} className="erro">{erros.dataRetorno}</small>}
+            {erros.dataRetorno && (
+              <small style={{ color: "red" }} className="erro">
+                {erros.dataRetorno}
+              </small>
+            )}
+          </div>
+
+          {/* justificativa */}
+          <div>
+            <label>Justificativa:</label>
+            <input
+              type="text-area"
+              value={justificativa}
+              onChange={(e) => setJustificativa(e.target.value)}
+              required
+            />
+            {erros.dataRetorno && (
+              <small style={{ color: "red" }}>{erros.dataRetorno}</small>
+            )}
           </div>
 
           <div>
             <label>Status:</label>
-            <select value={status} onChange={(e) => setStatus(e.target.value)} required>
+            <select
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+              required
+            >
               <option value="Ativo">Ativo</option>
               <option value="Inativo">Inativo</option>
             </select>

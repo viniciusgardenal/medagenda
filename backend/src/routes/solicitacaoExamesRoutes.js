@@ -23,7 +23,7 @@ router.get("/solicitacaoExames", async (req, res) => {
 
     examesFormatados = exames.map((e) => ({
       ...e.dataValues,
-      createdAt: moment.utc(e.createdAt).add(1, "day").local().format("L"),
+      dataSolicitacao: moment.utc(e.createdAt).add(1, "day").local().format("L"),
       dataRetorno: moment.utc(e.dataRetorno).add(1, "day").local().format("L"),
     }));
 
@@ -58,7 +58,7 @@ router.get("/solicitacaoExames/:id", async (req, res) => {
 
     const examesFormatados = {
       ...exames.dataValues,
-      createdAt: moment.utc(exames.createdAt).add(1, "day").local().format("L"),
+      dataSolicitacao: moment.utc(exames.createdAt).add(1, "day").local().format("L"),
       dataRetorno: moment
         .utc(exames.dataRetorno)
         .add(1, "day")

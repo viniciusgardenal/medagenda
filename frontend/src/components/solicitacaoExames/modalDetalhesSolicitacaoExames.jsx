@@ -80,11 +80,14 @@ const ModalDetalhesSolicitacaoExames = ({
             </p>
             <p>
               <strong>Data de Solicitação:</strong>{" "}
-              {solicitacaoExames.createdAt}{" "}
+              {solicitacaoExames.dataSolicitacao}{" "}
             </p>
 
             <p>
               <strong>Data de Retorno:</strong> {solicitacaoExames.dataRetorno}{" "}
+            </p>
+            <p>
+              <strong>Justificativa:</strong> {solicitacaoExames.justificativa}{" "}
             </p>
             <p>
               <strong>Status:</strong> {solicitacaoExames.status}{" "}

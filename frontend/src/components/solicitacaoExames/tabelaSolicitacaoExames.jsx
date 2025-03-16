@@ -10,6 +10,7 @@ const TabelaSolicitacaoExames = ({ tse, onEditar, onExcluir, onDetalhes }) => {
           <th>Período</th>
           <th>Data de Solicitação</th>
           <th>Data de Retorno</th>
+          <th>Justificativa</th>
           <th>Status</th>
           <th>Ações</th>
         </tr>
@@ -22,8 +23,9 @@ const TabelaSolicitacaoExames = ({ tse, onEditar, onExcluir, onDetalhes }) => {
               {se.Paciente.nome} {se.Paciente.sobrenome}
             </td>
             <td>{se.periodo}</td>
-            <td>{se.createdAt}</td>
+            <td>{se.dataSolicitacao}</td>
             <td>{se.dataRetorno}</td>
+            <td>{se.justificativa}</td>
             <td>{se.status}</td>
             <td>
               <button onClick={() => onDetalhes(se.idSolicitacaoExame)}>

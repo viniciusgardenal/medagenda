@@ -17,7 +17,7 @@ solicitacaoExames.init(
       type: DataTypes.STRING,
       allowNull: true,
     },
-    dataSolicitao: {
+    dataSolicitacao: {
       type: DataTypes.DATE,
       allowNull: true,
     },

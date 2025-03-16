@@ -13,8 +13,11 @@ const ModalSolicitacaoExames = ({ isOpen, onClose, onSave }) => {
   const [matriculaProfissional, setMatriculaProfissional] = useState("");
   const [cpfPaciente, setCpfPaciente] = useState("");
   const [periodo, setPeriodo] = useState("");
-  const [dataCriacao, setDataCriacao] = useState("");
+  const [dataSolicitacao, setDataSolicitacao] = useState(
+    new Date().toISOString().split("T")[0]
+  );
   const [dataRetorno, setDataRetorno] = useState("");
+  const [justificativa, setJustificativa] = useState("");
   const [erros, setErros] = useState({});
 
   const [pacienteSelecionado, setPacienteSelecionado] = useState("");
@@ -50,13 +53,17 @@ const ModalSolicitacaoExames = ({ isOpen, onClose, onSave }) => {
 
   const validarCampos = () => {
     const newErros = {};
-    if (!tipoExameSelecionado) newErros.tipoExame = "Tipo de exame é obrigatório!";
+    if (!tipoExameSelecionado)
+      newErros.tipoExame = "Tipo de exame é obrigatório!";
     if (!pacienteSelecionado) newErros.paciente = "Paciente é obrigatório!";
     if (!periodo) newErros.periodo = "Período é obrigatório!";
-    if (!dataCriacao) newErros.dataCriacao = "Data da solicitação é obrigatória!";
+    if (!dataSolicitacao)
+      newErros.dataSolicitacao = "Data da solicitação é obrigatória!";
     if (!dataRetorno) newErros.dataRetorno = "Data de retorno é obrigatória!";
-    if (new Date(dataRetorno) < new Date(dataCriacao)) {
-      newErros.dataRetorno = "A data de retorno não pode ser anterior à data da solicitação!";
+    if (!justificativa) newErros.justificativa = "Justificariva é obrigatória!";
+    if (new Date(dataRetorno) < new Date(dataSolicitacao)) {
+      newErros.dataRetorno =
+        "A data de retorno não pode ser anterior à data da solicitação!";
     }
     setErros(newErros);
     return Object.keys(newErros).length === 0;
@@ -70,9 +77,10 @@ const ModalSolicitacaoExames = ({ isOpen, onClose, onSave }) => {
     const dados = {
       idTipoExame: tipoExameSelecionado,
       periodo,
-      dataCriacao,
+      dataSolicitacao,
       dataRetorno,
       status: "Ativo",
+      justificativa,
       matriculaProfissional: matriculaProfissional,
       cpfPaciente: pacienteSelecionado,
     };
@@ -85,7 +93,7 @@ const ModalSolicitacaoExames = ({ isOpen, onClose, onSave }) => {
       // Limpa os campos
       setIdTipoExame("");
       setPeriodo("");
-      setDataCriacao("");
+      setDataSolicitacao("");
       setDataRetorno("");
       setCpfPaciente("");
     } catch (error) {
@@ -119,7 +127,9 @@ const ModalSolicitacaoExames = ({ isOpen, onClose, onSave }) => {
                   </option>
                 ))}
             </select>
-            {erros.tipoExame && <small style={{ color: "red" }}>{erros.tipoExame}</small>}
+            {erros.tipoExame && (
+              <small style={{ color: "red" }}>{erros.tipoExame}</small>
+            )}
           </div>
 
           {/* Matricula Profissional */}
@@ -141,7 +151,9 @@ const ModalSolicitacaoExames = ({ isOpen, onClose, onSave }) => {
                   </option>
                 ))}
             </select>
-            {erros.paciente && <small style={{ color: "red" }}>{erros.paciente}</small>}
+            {erros.paciente && (
+              <small style={{ color: "red" }}>{erros.paciente}</small>
+            )}
           </div>
 
           {/* Período */}
@@ -157,7 +169,9 @@ const ModalSolicitacaoExames = ({ isOpen, onClose, onSave }) => {
               <option value="Tarde">Tarde</option>
               <option value="Noite">Noite</option>
             </select>
-            {erros.periodo && <small style={{ color: "red" }}>{erros.periodo}</small>}
+            {erros.periodo && (
+              <small style={{ color: "red" }}>{erros.periodo}</small>
+            )}
           </div>
 
           {/* Data da Solicitação */}
@@ -165,11 +179,14 @@ const ModalSolicitacaoExames = ({ isOpen, onClose, onSave }) => {
             <label>Data da Solicitação:</label>
             <input
               type="date"
-              value={dataCriacao}
-              onChange={(e) => setDataCriacao(e.target.value)}
+              value={dataSolicitacao}
+              readOnly
+              className="read-only-date"
               required
             />
-            {erros.dataCriacao && <small style={{ color: "red" }}>{erros.dataCriacao}</small>}
+            {erros.dataSolicitacao && (
+              <small style={{ color: "red" }}>{erros.dataSolicitacao}</small>
+            )}
           </div>
 
           {/* Data de Retorno */}
@@ -179,9 +196,26 @@ const ModalSolicitacaoExames = ({ isOpen, onClose, onSave }) => {
               type="date"
               value={dataRetorno}
               onChange={(e) => setDataRetorno(e.target.value)}
+              min={new Date().toISOString().split('T')[0]}
               required
             />
-            {erros.dataRetorno && <small style={{ color: "red" }}>{erros.dataRetorno}</small>}
+            {erros.dataRetorno && (
+              <small style={{ color: "red" }}>{erros.dataRetorno}</small>
+            )}
+          </div>
+
+          {/* justificativa */}
+          <div>
+            <label>Justificativa:</label>
+            <input
+              type="text-area"
+              value={justificativa}
+              onChange={(e) => setJustificativa(e.target.value)}
+              required
+            />
+            {erros.dataRetorno && (
+              <small style={{ color: "red" }}>{erros.dataRetorno}</small>
+            )}
           </div>
 
           <button type="submit">Adicionar Solicitação de Exame</button>

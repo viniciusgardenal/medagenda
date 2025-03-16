@@ -17,8 +17,16 @@ solicitacaoExames.init(
       type: DataTypes.STRING,
       allowNull: true,
     },
+    dataSolicitao: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
     dataRetorno: {
       type: DataTypes.DATE,
+      allowNull: true,
+    },
+    justificativa: {
+      type: DataTypes.STRING,
       allowNull: true,
     },
     status: {

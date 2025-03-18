@@ -49,12 +49,15 @@ const SolicitacaoExames = () => {
 
   // Filtragem de dados
   const solicitacaoExamesFiltrados = solicitacaoExames.filter((tse) => {
+    console.log(tse);
     const pesquisa = filtro.toLowerCase();
     return (
       tse.tiposExame?.nomeTipoExame?.toLowerCase().includes(pesquisa) ||
-      tse.cpfPaciente?.nome?.toLowerCase().includes(pesquisa) ||
+      tse.Paciente?.nome?.toLowerCase().includes(pesquisa) ||
       tse.periodo?.toLowerCase().includes(pesquisa) ||
-      tse.retorno?.toLowerCase().includes(pesquisa)
+      tse.dataSolicitacao?.toLowerCase().includes(pesquisa) ||
+      tse.retorno?.toLowerCase().includes(pesquisa)||
+      tse.justificativa?.toLowerCase().includes(pesquisa)
     );
   });
 
@@ -169,7 +172,7 @@ const SolicitacaoExames = () => {
       </div>
 
       {/* Área de filtro */}
-      <div className="mb-2 bg-gray-50 p-2 rounded-md">
+      <div className="mb-2 p-2 rounded-md">
         <FiltroSolicitacaoExames
           filtros={filtro}
           onFiltroChange={handleFiltroChange}

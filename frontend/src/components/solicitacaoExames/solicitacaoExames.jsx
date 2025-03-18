@@ -1,65 +1,69 @@
 import React, { useState, useEffect } from "react";
+import { 
+  getSolicitacaoExames, 
+  getSolicitacaoExamesId, 
+  excluirSolicitacaoExames 
+} from "../../config/apiServices";
+
+// Componentes
 import FiltroSolicitacaoExames from "./filtroSolicitacaoExames";
-import "./solicitacaoExamesStyle.css";
+import TabelaSolicitacaoExames from "./tabelaSolicitacaoExames";
+import ModalSolicitacaoExames from "./modalSolicitacaoExames";
+import ModalEditarSolicitacaoExames from "./modalEditarSolicitacaoExames";
+import ModalDetalhesSolicitacaoExames from "./modalDetalhesSolicitacaoExames";
 import ConfirmationModal from "../util/confirmationModal";
 import AlertMessage from "../util/alertMessage";
 import SuccessAlert from "../util/successAlert";
-import {
-  getSolicitacaoExames,
-  getSolicitacaoExamesId,
-  excluirSolicitacaoExames,
-} from "../../config/apiServices";
-import ModalSolicitacaoExames from "./modalSolicitacaoExames";
-import TabelaSolicitacaoExames from "./tabelaSolicitacaoExames";
-import ModalEditarSolicitacaoExames from "./modalEditarSolicitacaoExames";
-import ModalDetalhesSolicitacaoExames from "./modalDetalhesSolicitacaoExames";
 
 const SolicitacaoExames = () => {
+  // Estados
   const [solicitacaoExames, setSolicitacaoExames] = useState([]);
-  const [filtro, setFiltro] = useState(""); // Filtro agora é uma string simples
-  const [isModalOpenAdd, setIsModalOpenAdd] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [filtro, setFiltro] = useState("");
+  const [solicitacaoExamesSelecionado, setSolicitacaoExamesSelecionado] = useState(null);
   const [idToDelete, setIdToDelete] = useState(null);
+  
+  // Estados para controle de modais
+  const [isModalOpenAdd, setIsModalOpenAdd] = useState(false);
+  const [isModalOpenEditar, setIsModalOpenEditar] = useState(false);
+  const [isModalOpenDetalhes, setIsModalOpenDetalhes] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  // Estados para alertas
   const [showAlert, setShowAlert] = useState(false);
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const [showEditSuccessAlert, setShowEditSuccessAlert] = useState(false);
-  const [isModalOpenEditar, setIsModalOpenEditar] = useState(false);
-  const [solicitacaoExamesSelecionado, setSolicitacaoExamesSelecionado] =
-    useState(null);
-  const [isModalOpenDetalhes, setIsModalOpenDetalhes] = useState(false);
 
+  // Carregar dados
   const loadSolicitacaoExames = async () => {
-    const response = await getSolicitacaoExames(); // Certifique-se de que getSolicitacaoExames está funcionando
-    // console.log(response.data);
-
-    setSolicitacaoExames(response.data); // Certifique-se de que setSolicitacaoExames está acessível
+    try {
+      const response = await getSolicitacaoExames();
+      setSolicitacaoExames(response.data);
+    } catch (error) {
+      console.error("Erro ao carregar solicitações:", error);
+    }
   };
 
   useEffect(() => {
     loadSolicitacaoExames();
   }, []);
 
-  // Função para lidar com a mudança no filtro
-  const handleFiltroChange = (e) => {
-    setFiltro(e.target.value); // Atualiza o filtro com o valor digitado
-  };
-
-  // Filtro dos tipoConsultas
+  // Filtragem de dados
   const solicitacaoExamesFiltrados = solicitacaoExames.filter((tse) => {
     const pesquisa = filtro.toLowerCase();
     return (
-      tse.tiposExame?.nomeTipoExame?.toLowerCase().includes(pesquisa) || // Verifica se tiposExame e nomeTipoExame existem
-      tse.cpfPaciente?.nome?.toLowerCase().includes(pesquisa) || // Verifica se cpfPaciente e nome existem
-      tse.periodo?.toLowerCase().includes(pesquisa) || // Verifica se periodo existe
-      tse.retorno?.toLowerCase().includes(pesquisa) // Verifica se retorno existe
+      tse.tiposExame?.nomeTipoExame?.toLowerCase().includes(pesquisa) ||
+      tse.cpfPaciente?.nome?.toLowerCase().includes(pesquisa) ||
+      tse.periodo?.toLowerCase().includes(pesquisa) ||
+      tse.retorno?.toLowerCase().includes(pesquisa)
     );
   });
-  
 
-  // Deletar solicitacaoExames
+  // Handlers
+  const handleFiltroChange = (e) => {
+    setFiltro(e.target.value);
+  };
+
   const handleDelete = (id) => {
-    //console.log(id);
-
     setIdToDelete(id);
     setIsModalOpen(true);
   };
@@ -67,8 +71,8 @@ const SolicitacaoExames = () => {
   const confirmDelete = async () => {
     try {
       await excluirSolicitacaoExames(idToDelete);
-      setShowAlert(true);
       await loadSolicitacaoExames();
+      setShowAlert(true);
     } catch (error) {
       console.error("Erro ao excluir:", error);
     } finally {
@@ -77,33 +81,31 @@ const SolicitacaoExames = () => {
     }
   };
 
-  // Salvar solicitacaoExames
   const handleSave = async () => {
     await loadSolicitacaoExames();
     setShowSuccessAlert(true);
   };
 
-  // Editar solicitacaoExames
   const handleEditar = async (idSolicitacaoExames) => {
-    const response = await getSolicitacaoExamesId(idSolicitacaoExames);
-    const solicitacaoExames = response.data;
-    // console.log(solicitacaoExames);
-
-    setSolicitacaoExamesSelecionado(solicitacaoExames);
-    setIsModalOpenEditar(true);
+    try {
+      const response = await getSolicitacaoExamesId(idSolicitacaoExames);
+      setSolicitacaoExamesSelecionado(response.data);
+      setIsModalOpenEditar(true);
+    } catch (error) {
+      console.error("Erro ao carregar dados para edição:", error);
+    }
   };
 
-  // Exibir detalhes do tipo Consulta
   const handleDetalhes = async (idSolicitacaoExames) => {
-    const response = await getSolicitacaoExamesId(idSolicitacaoExames);
-    const solicitacaoExames = response.data;
-    setSolicitacaoExamesSelecionado({
-      ...solicitacaoExames,
-    });
-    setIsModalOpenDetalhes(true); // Abrir o modal de detalhes
+    try {
+      const response = await getSolicitacaoExamesId(idSolicitacaoExames);
+      setSolicitacaoExamesSelecionado({...response.data});
+      setIsModalOpenDetalhes(true);
+    } catch (error) {
+      console.error("Erro ao carregar detalhes:", error);
+    }
   };
 
-  // Fechar modal de edição
   const handleCloseModal = () => {
     setIsModalOpenEditar(false);
     setSolicitacaoExamesSelecionado(null);
@@ -116,65 +118,79 @@ const SolicitacaoExames = () => {
   };
 
   return (
-    <div className="tipos-exames-crud">
-      <h2>Pesquisar Solicitações de Exames</h2>
-
-      {showAlert && (
-        <AlertMessage
-          message="Item excluído com sucesso."
-          onClose={() => setShowAlert(false)}
-        />
-      )}
-
-      {showSuccessAlert && (
-        <SuccessAlert
-          message="Solicitação de exame adicionado com sucesso!"
-          onClose={() => setShowSuccessAlert(false)}
-        />
-      )}
-
-      {showEditSuccessAlert && (
-        <SuccessAlert
-          message="Solicitação de exame editado com sucesso!"
-          onClose={() => setShowEditSuccessAlert(false)}
-        />
-      )}
-
-      <FiltroSolicitacaoExames
-        filtros={filtro}
-        onFiltroChange={handleFiltroChange}
-      />
-      <form className="tipo-exame-form">
-        <button type="button" onClick={() => setIsModalOpenAdd(true)}>
+    <div className="bg-white mt-12 rounded-lg shadow-md p-6 max-w-6xl mx-auto">
+      {/* Cabeçalho */}
+      <div className="flex justify-between items-center mb-6 border-b pb-4">
+        <h2 className="text-2xl font-semibold text-gray-800">Solicitações de Exames</h2>
+        <button 
+          className="flex items-center bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md transition-colors duration-200"
+          onClick={() => setIsModalOpenAdd(true)}
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
-            stroke-width="1.5"
+            strokeWidth="1.5"
             stroke="currentColor"
-            class="size-6"
+            className="w-5 h-5 mr-2"
           >
             <path
-              stroleLinecap="round"
-              stroke-linejoin="round"
+              strokeLinecap="round"
+              strokeLinejoin="round"
               d="M12 4.5v15m7.5-7.5h-15"
             />
           </svg>
-          Adicionar Solicitações de Exames
+          Adicionar Solicitação
         </button>
-      </form>
+      </div>
 
+      {/* Zona de alertas */}
+      <div className="mb-4">
+        {showAlert && (
+          <AlertMessage
+            message="Item excluído com sucesso."
+            onClose={() => setShowAlert(false)}
+          />
+        )}
+
+        {showSuccessAlert && (
+          <SuccessAlert
+            message="Solicitação de exame adicionada com sucesso!"
+            onClose={() => setShowSuccessAlert(false)}
+          />
+        )}
+
+        {showEditSuccessAlert && (
+          <SuccessAlert
+            message="Solicitação de exame editada com sucesso!"
+            onClose={() => setShowEditSuccessAlert(false)}
+          />
+        )}
+      </div>
+
+      {/* Área de filtro */}
+      <div className="mb-2 bg-gray-50 p-2 rounded-md">
+        <FiltroSolicitacaoExames
+          filtros={filtro}
+          onFiltroChange={handleFiltroChange}
+        />
+      </div>
+
+      {/* Tabela de dados */}
+      <div className="overflow-x-auto">
+        <TabelaSolicitacaoExames
+          tse={solicitacaoExamesFiltrados}
+          onExcluir={handleDelete}
+          onEditar={handleEditar}
+          onDetalhes={handleDetalhes}
+        />
+      </div>
+
+      {/* Modais */}
       <ModalSolicitacaoExames
         isOpen={isModalOpenAdd}
         onClose={() => setIsModalOpenAdd(false)}
         onSave={handleSave}
-      />
-
-      <TabelaSolicitacaoExames
-        tse={solicitacaoExamesFiltrados}
-        onExcluir={handleDelete}
-        onEditar={handleEditar}
-        onDetalhes={handleDetalhes}
       />
 
       {isModalOpenEditar && solicitacaoExamesSelecionado && (

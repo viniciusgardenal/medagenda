@@ -262,7 +262,7 @@ const Sidebar = () => {
                 <a
                   href={item.path}
                   className={`
-                    flex items-center p-2 rounded-md hover:bg-[#f2f2f2] transition-colors text-[#001233] no-underline
+                    flex items-center p-2 rounded-md hover:bg-[#f2f2f2] transition-colors text-gray-700 no-underline
                     ${!isOpen && "justify-center"}
                   `}
                 >

@@ -50,7 +50,7 @@ const ModalDetalhesSolicitacaoExames = ({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-3xl mx-4 overflow-auto max-h-screen">
         {/* Cabeçalho */}
-        <div className="flex justify-between items-center px-6 py-4 bg-green-50 border-b border-green-100">
+        <div className="flex justify-between items-center px-6 py-4 bg-gray-50 border-b border-green-100">
           <h2 className="text-lg font-semibold text-green-800">
             Detalhes da Solicitação de Exame
           </h2>
@@ -77,10 +77,10 @@ const ModalDetalhesSolicitacaoExames = ({
         {/* Conteúdo */}
         <div className="p-6 overflow-auto" style={{ maxHeight: "70vh" }}>
           {solicitacaoExames ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Coluna Esquerda */}
-              <div className="space-y-4">
-                <div className="bg-green-50 p-4 rounded-lg border border-green-100">
+            <div>
+              <div className="grid grid-cols-2 gap-4">
+                {/* Bloco 1: Informações da Solicitação */}
+                <div className="bg-gray-50 p-4 rounded-lg border border-green-100 h-full">
                   <h3 className="text-green-700 font-medium mb-3 border-b border-green-100 pb-2">
                     Informações da Solicitação
                   </h3>
@@ -124,7 +124,8 @@ const ModalDetalhesSolicitacaoExames = ({
                   </div>
                 </div>
 
-                <div className="bg-green-50 p-4 rounded-lg border border-green-100">
+                {/* Bloco 2: Datas */}
+                <div className="bg-gray-50 p-4 rounded-lg border border-green-100 h-full">
                   <h3 className="text-green-700 font-medium mb-3 border-b border-green-100 pb-2">
                     Datas
                   </h3>
@@ -149,11 +150,9 @@ const ModalDetalhesSolicitacaoExames = ({
                     </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Coluna Direita */}
-              <div className="space-y-4">
-                <div className="bg-green-50 p-4 rounded-lg border border-green-100">
+                {/* Bloco 3: Pessoas Envolvidas */}
+                <div className="bg-gray-50 p-4 rounded-lg border border-green-100 h-full">
                   <h3 className="text-green-700 font-medium mb-3 border-b border-green-100 pb-2">
                     Pessoas Envolvidas
                   </h3>
@@ -181,7 +180,8 @@ const ModalDetalhesSolicitacaoExames = ({
                   </div>
                 </div>
 
-                <div className="bg-green-50 p-4 rounded-lg border border-green-100">
+                {/* Bloco 4: Justificativa */}
+                <div className="bg-gray-50 p-4 rounded-lg border border-green-100 h-full">
                   <h3 className="text-green-700 font-medium mb-3 border-b border-green-100 pb-2">
                     Justificativa
                   </h3>
@@ -197,7 +197,7 @@ const ModalDetalhesSolicitacaoExames = ({
               </div>
 
               {/* Botão de Download (largura total) */}
-              <div className="col-span-1 md:col-span-2 mt-2">
+              <div className="mt-6">
                 <button
                   onClick={handleDownload}
                   className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors flex items-center justify-center"

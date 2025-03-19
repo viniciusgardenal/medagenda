@@ -65,12 +65,12 @@ const TabelaSolicitacaoExames = ({ tse, onEditar, onExcluir, onDetalhes }) => {
                     className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
                   ${
                     se.status === "Concluído"
-                      ? "bg-green-100 text-green-800"
+                      ? "bg-blue-100 text-blue-800"
                       : se.status === "Pendente"
                       ? "bg-yellow-100 text-yellow-800"
                       : se.status === "Cancelado"
                       ? "bg-red-100 text-red-800"
-                      : "bg-blue-100 text-blue-800"
+                      : "bg-green-100 text-green-800"
                   }`}
                   >
                     {se.status || "Em análise"}

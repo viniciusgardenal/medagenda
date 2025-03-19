@@ -232,7 +232,7 @@ const Sidebar = () => {
     <div className="relative min-h-screen">
       {/* Mobile menu button */}
       <button
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-md bg-[#001233] text-white"
+        className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-md bg-green-800 text-white"
         onClick={() => setIsOpen(!isOpen)}
       >
         {isOpen ? <X size={24} /> : <Menu size={24} />}
@@ -244,11 +244,11 @@ const Sidebar = () => {
           fixed top-0 left-0 h-full bg-white text-white transition-all duration-300 ease-in-out
           ${isOpen ? "w-64" : "w-0 lg:w-64"}
           ${isOpen ? "overflow-visible" : "overflow-hidden"}
-          lg:relative lg:block
+          lg:relative lg:block shadow-md
         `}
       >
         {/* Logo area */}
-        <div className="flex items-center justify-center h-16 bg-[#001233] text-white">
+        <div className="flex items-center justify-center h-16 bg-green-800 text-white">
           <span className={`font-bold text-xl ${!isOpen && "hidden lg:block"}`}>
             MedAgenda
           </span>
@@ -262,7 +262,7 @@ const Sidebar = () => {
                 <a
                   href={item.path}
                   className={`
-                    flex items-center p-2 rounded-md hover:bg-[#f2f2f2] transition-colors text-gray-700 no-underline
+                    flex items-center p-2 rounded-md hover:bg-[#f2f2f2] transition-colors text-gray-800 no-underline font-medium
                     ${!isOpen && "justify-center"}
                   `}
                 >

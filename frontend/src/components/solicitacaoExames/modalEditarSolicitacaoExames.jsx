@@ -104,7 +104,7 @@ const ModalEditarSolicitacaoExames = ({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-3xl mx-4 overflow-auto max-h-screen">
         {/* Cabeçalho */}
-        <div className="flex justify-between items-center px-6 py-4 bg-green-50 border-b border-green-100">
+        <div className="flex justify-between items-center px-6 py-4 bg-gray-50 border-b border-green-100">
           <h2 className="text-lg font-semibold text-green-800">
             Editar Solicitação de Exame
           </h2>
@@ -129,7 +129,7 @@ const ModalEditarSolicitacaoExames = ({
         </div>
 
         {showSuccessAlert && (
-          <div className="bg-green-50 border-l-4 border-green-500 p-4 m-6">
+          <div className="bg-gray-50 border-l-4 border-green-500 p-4 m-6">
             <div className="flex">
               <div className="flex-shrink-0">
                 <svg
@@ -170,12 +170,11 @@ const ModalEditarSolicitacaoExames = ({
             </div>
           </div>
         )}
-
-        <form onSubmit={handleSubmit} className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Coluna Esquerda */}
-            <div className="space-y-4">
-              <div className="bg-green-50 p-4 rounded-lg border border-green-100">
+        <div className="p-6 overflow-auto" style={{ maxHeight: "80vh" }}>
+          <form onSubmit={handleSubmit} className="p-6">
+            <div className="grid grid-cols-2 gap-4">
+              {/* Bloco 1: Informações Básicas */}
+              <div className="bg-gray-50 p-4 rounded-lg border border-green-100 h-full">
                 <h3 className="text-green-700 font-medium mb-3 border-b border-green-100 pb-2">
                   Informações Básicas
                 </h3>
@@ -244,7 +243,8 @@ const ModalEditarSolicitacaoExames = ({
                 </div>
               </div>
 
-              <div className="bg-green-50 p-4 rounded-lg border border-green-100">
+              {/* Bloco 2: Datas */}
+              <div className="bg-gray-50 p-4 rounded-lg border border-green-100 h-full">
                 <h3 className="text-green-700 font-medium mb-3 border-b border-green-100 pb-2">
                   Datas
                 </h3>
@@ -283,11 +283,9 @@ const ModalEditarSolicitacaoExames = ({
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Coluna Direita */}
-            <div className="space-y-4">
-              <div className="bg-green-50 p-4 rounded-lg border border-green-100">
+              {/* Bloco 3: Pessoas Envolvidas */}
+              <div className="bg-gray-50 p-4 rounded-lg border border-green-100 h-full">
                 <h3 className="text-green-700 font-medium mb-3 border-b border-green-100 pb-2">
                   Pessoas Envolvidas
                 </h3>
@@ -321,7 +319,8 @@ const ModalEditarSolicitacaoExames = ({
                 </div>
               </div>
 
-              <div className="bg-green-50 p-4 rounded-lg border border-green-100">
+              {/* Bloco 4: Justificativa */}
+              <div className="bg-gray-50 p-4 rounded-lg border border-green-100 h-full">
                 <h3 className="text-green-700 font-medium mb-3 border-b border-green-100 pb-2">
                   Justificativa
                 </h3>
@@ -341,31 +340,31 @@ const ModalEditarSolicitacaoExames = ({
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Botão de Salvar (largura total) */}
-          <div className="col-span-1 md:col-span-2 mt-6">
-            <button
-              type="submit"
-              className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors flex items-center justify-center"
-            >
-              <svg
-                className="h-5 w-5 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+            {/* Botão de Salvar (largura total) */}
+            <div className="mt-6">
+              <button
+                type="submit"
+                className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors flex items-center justify-center"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
-              Salvar Alterações
-            </button>
-          </div>
-        </form>
+                <svg
+                  className="h-5 w-5 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+                Salvar Alterações
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

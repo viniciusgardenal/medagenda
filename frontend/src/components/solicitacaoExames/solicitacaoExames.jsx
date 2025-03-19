@@ -124,9 +124,9 @@ const SolicitacaoExames = () => {
     <div className="bg-white mt-12 rounded-lg shadow-md p-6 max-w-6xl mx-auto">
       {/* Cabeçalho */}
       <div className="flex justify-between items-center mb-6 border-b pb-4">
-        <h2 className="text-2xl font-semibold text-gray-800">Solicitações de Exames</h2>
+        <h2 className="text-2xl font-semibold text-green-800">Solicitações de Exames</h2>
         <button 
-          className="flex items-center bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md transition-colors duration-200"
+          className="flex items-center bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200"
           onClick={() => setIsModalOpenAdd(true)}
         >
           <svg

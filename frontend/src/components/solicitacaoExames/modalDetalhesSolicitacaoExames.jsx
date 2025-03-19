@@ -4,40 +4,49 @@ import html2canvas from "html2canvas";
 
 const handleDownload = () => {
   // Selecionando o conteúdo da modal
-  const content = document.querySelector(".modal-det");
-
-  // Certificando-se de que não capturamos o botão de fechar ou outros elementos indesejados
+  const content = document.querySelector(".modal-detalhes");
   const allElements = content.querySelectorAll("*");
+  
+  // Esconder o botão de fechar temporariamente
   allElements.forEach((el) => {
     if (
       el.tagName === "BUTTON" ||
       el.classList.contains("modal-close-button")
     ) {
-      el.style.display = "none"; // Escondendo o botão de fechar
+      el.style.visibility = "hidden";
     }
   });
 
   // Usando html2canvas para capturar o conteúdo da modal
   html2canvas(content, {
-    scrollX: 0, // Não considerar o scroll horizontal
-    scrollY: -window.scrollY, // Para garantir que a captura inicie do topo da tela
-    x: 0, // Alinhamento horizontal
-    y: 0, // Alinhamento vertical
-    scale: 2, // Aumentar a resolução para maior qualidade (ajustável conforme necessário)
+    scrollX: 0,
+    scrollY: -window.scrollY,
+    x: 0,
+    y: 0,
+    scale: 2,
   }).then((canvas) => {
-    // Gerando o link para download da imagem no formato PNG
     const dataUrl = canvas.toDataURL("image/png");
     const link = document.createElement("a");
     link.href = dataUrl;
-    link.download = "detalhes_solicitacao.png"; // Nome do arquivo para download
+    link.download = "detalhes_solicitacao.png";
+  
+    // Assegura que o link seja clicado programaticamente
+    document.body.appendChild(link);
     link.click();
-
-    // Após o download, restaura a visibilidade dos elementos ocultados
+    document.body.removeChild(link);
+  
+    // Restaurar a visibilidade dos botões após o download
     allElements.forEach((el) => {
-      el.style.display = ""; // Restaura o estilo original
+      if (
+        el.tagName === "BUTTON" ||
+        el.classList.contains("modal-close-button")
+      ) {
+        el.style.visibility = "visible";
+      }
     });
   });
 };
+
 
 const ModalDetalhesSolicitacaoExames = ({
   isOpen,
@@ -47,8 +56,8 @@ const ModalDetalhesSolicitacaoExames = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-3xl mx-4 overflow-auto max-h-screen">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 ">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-3xl mx-4 overflow-auto max-h-screen modal-detalhes">
         {/* Cabeçalho */}
         <div className="flex justify-between items-center px-6 py-4 bg-gray-50 border-b border-green-100">
           <h2 className="text-lg font-semibold text-green-800">

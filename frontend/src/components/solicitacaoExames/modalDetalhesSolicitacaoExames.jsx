@@ -95,14 +95,14 @@ const ModalDetalhesSolicitacaoExames = ({
                   </h3>
 
                   <div className="space-y-3">
-                    <div className="flex justify-between">
+                    {/* <div className="flex justify-between">
                       <span className="text-sm font-medium text-green-600">
                         ID da Solicitação:
                       </span>
                       <span className="text-sm text-gray-700">
                         {solicitacaoExames.idSolicitacaoExame}
                       </span>
-                    </div>
+                    </div> */}
 
                     <div className="flex justify-between">
                       <span className="text-sm font-medium text-green-600">

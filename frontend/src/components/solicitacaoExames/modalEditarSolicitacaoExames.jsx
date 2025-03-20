@@ -173,10 +173,44 @@ const ModalEditarSolicitacaoExames = ({
         <div className="p-6 overflow-auto" style={{ maxHeight: "80vh" }}>
           <form onSubmit={handleSubmit} className="p-6">
             <div className="grid grid-cols-2 gap-4">
+              {/* Bloco 3: Pessoas Envolvidas */}
+              <div className="bg-gray-50 p-4 rounded-lg border border-green-100 h-full">
+                <h3 className="text-green-700 font-medium mb-3 border-b border-green-100 pb-2">
+                  Pessoas
+                </h3>
+
+                <div className="space-y-3">
+                  <div>
+                    <label className="text-sm font-medium text-green-600 block mb-1">
+                      Médico:
+                    </label>
+                    <input
+                      type="text"
+                      value={matriculaProfissional.nome}
+                      className="w-full px-3 py-2 bg-white border border-green-100 rounded-md text-gray-700"
+                      readOnly
+                      disabled
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-green-600 block mb-1">
+                      Paciente:
+                    </label>
+                    <input
+                      type="text"
+                      value={cpfPaciente.nome}
+                      className="w-full px-3 py-2 bg-white border border-green-100 rounded-md text-gray-700"
+                      readOnly
+                      disabled
+                    />
+                  </div>
+                </div>
+              </div>
               {/* Bloco 1: Informações Básicas */}
               <div className="bg-gray-50 p-4 rounded-lg border border-green-100 h-full">
                 <h3 className="text-green-700 font-medium mb-3 border-b border-green-100 pb-2">
-                  Informações Básicas
+                  Info. Básicas
                 </h3>
 
                 <div className="space-y-3">
@@ -284,40 +318,7 @@ const ModalEditarSolicitacaoExames = ({
                 </div>
               </div>
 
-              {/* Bloco 3: Pessoas Envolvidas */}
-              <div className="bg-gray-50 p-4 rounded-lg border border-green-100 h-full">
-                <h3 className="text-green-700 font-medium mb-3 border-b border-green-100 pb-2">
-                  Pessoas Envolvidas
-                </h3>
-
-                <div className="space-y-3">
-                  <div>
-                    <label className="text-sm font-medium text-green-600 block mb-1">
-                      Médico:
-                    </label>
-                    <input
-                      type="text"
-                      value={matriculaProfissional.nome}
-                      className="w-full px-3 py-2 bg-white border border-green-100 rounded-md text-gray-700"
-                      readOnly
-                      disabled
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-medium text-green-600 block mb-1">
-                      Paciente:
-                    </label>
-                    <input
-                      type="text"
-                      value={cpfPaciente.nome}
-                      className="w-full px-3 py-2 bg-white border border-green-100 rounded-md text-gray-700"
-                      readOnly
-                      disabled
-                    />
-                  </div>
-                </div>
-              </div>
+              
 
               {/* Bloco 4: Justificativa */}
               <div className="bg-gray-50 p-4 rounded-lg border border-green-100 h-full">

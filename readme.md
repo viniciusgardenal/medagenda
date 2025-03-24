@@ -70,7 +70,7 @@ Siga os passos abaixo para rodar o projeto localmente:
     - Crie um banco de dados MySQL chamado medagenda.
     - Importe o arquivo database.sql (disponível no diretório /backend) para criar as tabelas necessárias.
     - Atualize as credenciais no arquivo  com suas configurações locais
-    ```env
+    ```bash
     DB_HOST=localhost
     DB_USER=seu_usuario
     DB_PASS=sua_senha
@@ -91,3 +91,8 @@ Siga os passos abaixo para rodar o projeto localmente:
     npm start
 
 7. Acesse o sistema em http://localhost:3000 no seu navegador.
+
+8. Use o login e senha abaixo para acessar o sistema:
+    ```bash
+    E-mail: diretor@medagenda.com
+    Senha: abc123

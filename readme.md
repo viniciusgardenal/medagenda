@@ -66,7 +66,7 @@ Siga os passos abaixo para rodar o projeto localmente:
     npm install
 
 3. Configure o banco de dados:
-    ```bash
+    
     - Crie um banco de dados MySQL chamado medagenda.
     - Importe o arquivo database.sql (disponível no diretório /backend) para criar as tabelas necessárias.
     - Atualize as credenciais no arquivo  com suas configurações locais
@@ -75,6 +75,7 @@ Siga os passos abaixo para rodar o projeto localmente:
     DB_USER=seu_usuario
     DB_PASS=sua_senha
     DB_NAME=medagenda
+    
 4. Instale as dependências do front-end:
     ```bash
     cd ../frontend

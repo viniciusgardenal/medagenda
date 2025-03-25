@@ -15,7 +15,8 @@
 
 .content-container {
   flex-grow: 1;
-  background-color: #e9e9e9;
+  background-color: #f4f4f9;
+  /* background-image: url(assets/background.png); */
   background-attachment: fixed;
 }
 

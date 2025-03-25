@@ -1,82 +1,102 @@
 import React from "react";
-import "./homeStyle.css";
 
 const HomeScreen = () => {
-    return (
-        <div className="home-container mt-5 mb-5 bg-[#001233] flex items-center justify-center">
-            <div className="bg-[#001233] mb-0 rounded-lg ">
-                <header className="text-center mb-8">
-                    <h1 className="text-3xl font-bold mb-2">Bem-vindo ao MedAgenda</h1>
-                    <p className="text-1xl">
-                        Seu sistema de gerenciamento de agendas médicas, desenvolvido para
-                        otimizar o atendimento e garantir qualidade e eficiência no cuidado
-                        dos pacientes.
-                    </p>
-                </header>
+  // Simulação de papel do usuário (pode vir do useAuthContext)
+  const userRole = "Atendente";
 
-                <section className="mb-4">
-                    <h2 className="text-2xl text-white font-semibold mb-4">Links Rápidos</h2>
-                    <div className="flex flex-wrap gap-4 justify-center">
-                        <a
-                            href="/profissionais"
-                            className="bg-[#f1f1f1] no-underline text-[#001233] px-6 py-3 rounded-md text-lg"
-                        >
-                            Profissionais
-                        </a>
-                        <a
-                            href="/pacientes"
-                            className="bg-[#f1f1f1] no-underline text-[#001233] px-6 py-3 rounded-md text-lg"
-                        >
-                            Pacientes
-                        </a>
-                        <a
-                            href="/medicamentos"
-                            className="bg-[#f1f1f1] no-underline text-[#001233] px-6 py-3 rounded-md text-lg"
-                        >
-                            Medicamentos
-                        </a>
-                        <a
-                            href="/tiposExames"
-                            className="bg-[#f1f1f1] no-underline text-[#001233] px-6 py-3 rounded-md text-lg"
-                        >
-                            Tipos de Exames
-                        </a>
-                        <a
-                            href="/planoDeSaude"
-                            className="bg-[#f1f1f1] no-underline text-[#001233] px-6 py-3 rounded-md text-lg"
-                        >
-                            Planos de Saúde
-                        </a>
-                        <a
-                            href="/tipoConsulta"
-                            className="bg-[#f1f1f1] no-underline text-[#001233] px-6 py-3 rounded-md text-lg"
-                        >
-                            Tipos de Consultas
-                        </a>
-                    </div>
-                </section>
+  // Links rápidos baseados no papel do usuário
+  const quickLinks = {
+    Atendente: [
+      { title: "Pacientes", path: "/pacientes" },
+      { title: "Solicitação de Exames", path: "/solicitacaoExames" },
+      { title: "Tipos de Consultas", path: "/tipoConsulta" },
+    ],
+    Médico: [
+      { title: "Pacientes", path: "/pacientes" },
+      { title: "Emitir Receitas", path: "/emitir-receitas" },
+      { title: "Registrar Resultados Exames", path: "/registrar-resultados-exames" },
+    ],
+    Diretor: [
+      { title: "Profissionais", path: "/profissionais" },
+      { title: "Pacientes", path: "/pacientes" },
+      { title: "Planos de Saúde", path: "/planoDeSaude" },
+    ],
+  };
 
-                <section className="mb-4">
-                    <h2 className="text-2xl text-white font-semibold mb-4">Benefícios do MedAgenda</h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className="bg-[#F1F1F1] p-8 rounded-lg shadow-lg text-[#001233]">
-                            <h3 className="text-xl font-semibold mb-2">Gestão Eficiente de Consultas</h3>
-                            <p className="text-1lg mb-4 text-[#001233]">
-                                Com MedAgenda, o agendamento de consultas torna-se mais ágil e organizado, garantindo que cada paciente receba o atendimento adequado no momento certo.
-                            </p>
-                        </div>
-                        <div className="bg-[#F1F1F1] p-8 rounded-lg shadow-lg text-[#001233]">
-                            <h3 className="text-xl font-semibold mb-2">Controle de Medicamentos e Exames</h3>
-                            <p className="text-1lg mb-4 text-[#001233]">
-                                O MedAgenda facilita a solicitação de exames, prescrição de medicamentos e acompanhamento dos resultados, garantindo que nenhuma informação importante se perca.
-                            </p>
-                        </div>
-                    </div>
-                </section>
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-gray-100 to-gray-200 flex items-center justify-center py-8 px-4">
+      <div className="w-full max-w-4xl bg-white p-6 rounded-lg shadow-md">
+        {/* Cabeçalho */}
+        <header className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">
+            Bem-vindo ao MedAgenda
+          </h1>
+          <p className="text-lg text-gray-600">
+            Organize e gerencie o atendimento médico com eficiência.
+          </p>
+        </header>
+
+        {/* Links Rápidos */}
+        <section className="mb-8">
+          <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+            Ações Rápidas
+          </h2>
+          <div className="flex flex-wrap gap-4 justify-center">
+            {quickLinks[userRole].map((link, index) => (
+              <a
+                key={index}
+                href={link.path}
+                className="bg-blue-600 text-white px-6 py-3 rounded-md text-lg font-medium hover:bg-blue-700 transition-all duration-150 no-underline"
+              >
+                {link.title}
+              </a>
+            ))}
+          </div>
+        </section>
+
+        {/* Recursos Úteis */}
+        <section>
+          <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+            Recursos Úteis
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="bg-gray-100 p-6 rounded-lg">
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                Cadastros Essenciais
+              </h3>
+              <p className="text-gray-600">
+                Gerencie pacientes, profissionais e planos de saúde em poucos cliques para manter tudo atualizado.
+              </p>
             </div>
-        </div>
-
-    );
+            <div className="bg-gray-100 p-6 rounded-lg">
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                Documentação Rápida
+              </h3>
+              <p className="text-gray-600">
+                Emita receitas, atestados e solicitações de exames diretamente no sistema.
+              </p>
+            </div>
+            <div className="bg-gray-100 p-6 rounded-lg">
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                Organização Simplificada
+              </h3>
+              <p className="text-gray-600">
+                Classifique consultas e exames por tipo para facilitar o controle diário.
+              </p>
+            </div>
+            <div className="bg-gray-100 p-6 rounded-lg">
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                Suporte ao Atendimento
+              </h3>
+              <p className="text-gray-600">
+                Acesse ferramentas que ajudam no planejamento e execução do cuidado ao paciente.
+              </p>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  );
 };
 
 export default HomeScreen;

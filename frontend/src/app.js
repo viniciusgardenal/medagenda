@@ -17,7 +17,7 @@ function App() {
   return (
     <div className="app-container flex">
       {showSidebar && <Sidebar />}
-      <div className="content-container flex-grow ">
+      <div className="content-container flex-grow bg-gradient-to-b from-gray-100 to-gray-200 ">
         <Routes>
           {routes.map((route, index) => {
             // Verifica o que está sendo passado para cada rota

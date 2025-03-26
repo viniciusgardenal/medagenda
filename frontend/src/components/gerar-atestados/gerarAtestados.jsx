@@ -1,132 +1,186 @@
 import React, { useState, useEffect } from "react";
-import { criarAtestado, getPacientes, getProfissionais } from "../../config/apiServices";
-import AtestadoForm from "./gerarAtestadoForm";
+import { useAuthContext } from "../../context/authContext";
+import { criarAtestado, getPacientes } from "../../config/apiServices";
+import { FileText, Save } from "lucide-react";
 
 const GerarAtestados = () => {
-    const [cpfPaciente, setCpfPaciente] = useState([]);
-    const [matriculaProfissional, setMatriculaProfissional] = useState([]);
-    const [tipoAtestado, setTipoAtestado] = useState("");
-    const [pacienteSelecionado, setPacienteSelecionado] = useState("");
+  const { user } = useAuthContext();
+  const [cpfPaciente, setCpfPaciente] = useState([]);
+  const [pacienteSelecionado, setPacienteSelecionado] = useState("");
+  const [tipoAtestado, setTipoAtestado] = useState("");
+  const [matriculaProfissional, setMatriculaProfissional] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-    // Função para carregar dados de pacientes e profissionais
+  useEffect(() => {
     const loadDados = async () => {
-        try {
-            const paciente = await getPacientes();
-            if (Array.isArray(paciente.data)) {
-                setCpfPaciente(paciente.data);
-            } else {
-                console.error("Os dados de pacientes não são um array", paciente.data);
-            }
-
-            const profissional = await getProfissionais();
-            setMatriculaProfissional(profissional.data);
-        } catch (error) {
-            console.error("Erro ao carregar dados", error);
+      try {
+        const pacienteResponse = await getPacientes();
+        if (Array.isArray(pacienteResponse.data)) {
+          setCpfPaciente(pacienteResponse.data);
+        } else {
+          console.error("Os dados de pacientes não são um array", pacienteResponse.data);
+          setError("Erro ao carregar lista de pacientes.");
         }
+      } catch (error) {
+        console.error("Erro ao carregar dados de pacientes", error);
+        setError("Erro ao carregar pacientes. Tente novamente.");
+      }
     };
 
-    useEffect(() => {
-        loadDados();
-    }, []);
+    loadDados();
 
-    const handlePacienteChange = (event) => {
-        setPacienteSelecionado(event.target.value);
+    if (user?.id) {
+      setMatriculaProfissional(user.id);
+    } else {
+      setError("Profissional não autenticado. Faça login novamente.");
+    }
+  }, [user]);
+
+  const handlePacienteChange = (event) => {
+    setPacienteSelecionado(event.target.value);
+    setError(null);
+  };
+
+  const handleTipoAtestadoChange = (event) => {
+    setTipoAtestado(event.target.value);
+    setError(null);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError(null);
+
+    // Validação no frontend
+    if (!pacienteSelecionado || !matriculaProfissional || !tipoAtestado) {
+      setError("Por favor, preencha todos os campos.");
+      setIsLoading(false);
+      return;
+    }
+
+    const dados = {
+      cpfPaciente: pacienteSelecionado,
+      matriculaProfissional,
+      tipoAtestado,
     };
 
-    const handleProfissionalChange = (event) => {
-        setMatriculaProfissional(event.target.value);
-    };
+    console.log("Dados enviados:", dados); // Debug para verificar os dados
 
-    const handleTipoAtestadoChange = (event) => {
-        setTipoAtestado(event.target.value);
-    };
+    try {
+      const response = await criarAtestado(dados);
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+      // Verifica se houve erro no status
+      if (response.status !== 200) {
+        const errorBlob = response.data;
+        const errorText = await errorBlob.text(); // Converte Blob para texto
+        const errorJson = JSON.parse(errorText);
+        throw new Error(errorJson.error || "Erro desconhecido no servidor");
+      }
 
-        const dados = {
-            cpfPaciente: pacienteSelecionado,
-            matriculaProfissional: matriculaProfissional,
-            tipoAtestado, // Tipo de atestado
-        };
+      const blob = response.data;
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.style.display = "none";
+      a.href = url;
+      a.download = `atestado_${dados.cpfPaciente}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
 
-        try {
-            const response = await criarAtestado(dados);
-            const blob = response.data;
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.style.display = 'none';
-            a.href = url;
-            a.download = `atestado_${dados.cpfPaciente}.pdf`;
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
+      setPacienteSelecionado("");
+      setTipoAtestado("");
+    } catch (error) {
+      console.error("Erro ao gerar atestado:", error);
+      setError(error.message || "Erro ao gerar o atestado. Tente novamente.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-            setPacienteSelecionado("");
-            setMatriculaProfissional("");
-            setTipoAtestado("");
-        } catch (error) {
-            console.error("Erro ao gerar atestado", error);
-        }
-    };
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="bg-white rounded-xl shadow-md border border-gray-100 p-6">
+        <div className="flex items-center mb-8">
+          <FileText className="mr-4 text-indigo-600" size={36} />
+          <h2 className="text-3xl font-bold text-gray-900">Gerar Atestados Médicos</h2>
+        </div>
 
-    return (
-        <section className="container mx-auto my-10 p-4 bg-white rounded-lg shadow-md max-w-2xl">
-            <h2 className="text-2xl text-gray-800 font-bold text-center mb-4">
-                Gerar Atestados Médicos
-            </h2>
-            <form onSubmit={handleSubmit} className="space-y-4 bg-gray-50 p-4 rounded-md">
-                <div className="flex flex-col space-y-1">
-                    <label className="text-gray-700 font-semibold text-sm">
-                        Paciente:
-                    </label>
-                    <select
-                        name="PacienteCpf"
-                        value={pacienteSelecionado}
-                        onChange={handlePacienteChange}
-                        required
-                        className="border border-gray-300 rounded-md p-1.5 text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-[#001233] transition-colors"
-                    >
-                        <option value="">Selecione o Paciente</option>
-                        {Array.isArray(cpfPaciente) &&
-                            cpfPaciente.map((pac) => (
-                                <option value={pac.cpf} key={pac.cpf}>
-                                    {pac.nome} {pac.sobrenome} (CPF: {pac.cpf})
-                                </option>
-                            ))}
-                    </select>
-                </div>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Paciente
+            </label>
+            <select
+              value={pacienteSelecionado}
+              onChange={handlePacienteChange}
+              required
+              disabled={isLoading}
+              className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all text-gray-700 placeholder-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <option value="">Selecione o Paciente</option>
+              {Array.isArray(cpfPaciente) &&
+                cpfPaciente.map((pac) => (
+                  <option value={pac.cpf} key={pac.cpf}>
+                    {pac.nome} {pac.sobrenome} (CPF: {pac.cpf})
+                  </option>
+                ))}
+            </select>
+          </div>
 
-                <AtestadoForm onMatriculaChange={setMatriculaProfissional} />
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Profissional
+            </label>
+            <input
+              type="text"
+              value={`${user?.nome || "Nome não disponível"} (Matrícula: ${user?.id || "Matrícula não disponível"})`}
+              readOnly
+              required
+              className="w-full p-3 border border-gray-200 rounded-lg bg-gray-50 text-gray-700 cursor-not-allowed"
+            />
+          </div>
 
-                <div className="flex flex-col space-y-1">
-                    <label className="text-gray-700 font-semibold text-sm">
-                        Tipo de Atestado:
-                    </label>
-                    <select
-                        name="tipoAtestado"
-                        value={tipoAtestado}
-                        onChange={handleTipoAtestadoChange}
-                        required
-                        className="border border-gray-300 rounded-md p-1.5 text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-[#001233] transition-colors"
-                    >
-                        <option value="">Selecione o Tipo de Atestado</option>
-                        <option value="Médico">Médico</option>
-                        <option value="Odontológico">Odontológico</option>
-                        <option value="Psicológico">Psicológico</option>
-                        <option value="Outros">Outros</option>
-                    </select>
-                </div>
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Tipo de Atestado
+            </label>
+            <select
+              value={tipoAtestado}
+              onChange={handleTipoAtestadoChange}
+              required
+              disabled={isLoading}
+              className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all text-gray-700 placeholder-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <option value="">Selecione o Tipo de Atestado</option>
+              <option value="Médico">Médico</option>
+              <option value="Odontológico">Odontológico</option>
+              <option value="Psicológico">Psicológico</option>
+              <option value="Outros">Outros</option>
+            </select>
+          </div>
 
-                <button
-                    type="submit"
-                    className="bg-[#001233] text-white px-4 py-1.5 rounded-md font-semibold text-sm hover:bg-[#153a80] transition-colors w-full"
-                >
-                    Gerar Atestado
-                </button>
-            </form>
-        </section>
-    );
+          {error && (
+            <div className="text-red-600 text-sm font-medium bg-red-50 p-3 rounded-lg border border-red-200">
+              {error}
+            </div>
+          )}
+
+          <div className="flex justify-end">
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all duration-150 flex items-center font-medium disabled:bg-indigo-400 disabled:cursor-not-allowed"
+            >
+              <Save className="mr-2" size={18} />
+              {isLoading ? "Gerando..." : "Gerar Atestado"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
 };
 
 export default GerarAtestados;

@@ -101,7 +101,7 @@ const SolicitacaoExames = () => {
       <div className="bg-white rounded-xl shadow-md border border-gray-100 p-6">
         {/* Cabeçalho */}
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-3xl font-bold text-gray-900">Solicitações de Exames</h2>
+          <h2 className="text-3xl font-bold text-gray-900">Pesquisar Solicitações de Exames</h2>
         </div>
 
         {/* Alertas */}

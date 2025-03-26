@@ -2,9 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useAuthContext } from "../../context/authContext";
 import { criarAtestado, getPacientes } from "../../config/apiServices";
 import { FileText, Save } from "lucide-react";
-import { useAuthContext } from "../../context/authContext";
-import { criarAtestado, getPacientes } from "../../config/apiServices";
-import { FileText, Save } from "lucide-react";
 
 const GerarAtestados = () => {
   const { user } = useAuthContext();
@@ -106,6 +103,7 @@ const GerarAtestados = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="bg-white rounded-xl shadow-md border border-gray-100 p-6">
         <div className="flex items-center mb-8">
+          <FileText className="mr-4 text-indigo-600" size={36} />
           <h2 className="text-3xl font-bold text-gray-900">Gerar Atestados Médicos</h2>
         </div>
 

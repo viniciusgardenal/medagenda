@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useAuthContext } from "../../context/authContext";
 import { criarAtestado, getPacientes } from "../../config/apiServices";
 import { FileText, Save } from "lucide-react";
+import { useAuthContext } from "../../context/authContext";
+import { criarAtestado, getPacientes } from "../../config/apiServices";
+import { FileText, Save } from "lucide-react";
 
 const GerarAtestados = () => {
   const { user } = useAuthContext();
@@ -99,34 +102,27 @@ const GerarAtestados = () => {
     }
   };
 
-  return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="bg-white rounded-xl shadow-md border border-gray-100 p-6">
-        <div className="flex items-center mb-8">
-          <h2 className="text-3xl font-bold text-gray-900">Gerar Atestados Médicos</h2>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Paciente
-            </label>
-            <select
-              value={pacienteSelecionado}
-              onChange={handlePacienteChange}
-              required
-              disabled={isLoading}
-              className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all text-gray-700 placeholder-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <option value="">Selecione o Paciente</option>
-              {Array.isArray(cpfPaciente) &&
-                cpfPaciente.map((pac) => (
-                  <option value={pac.cpf} key={pac.cpf}>
-                    {pac.nome} {pac.sobrenome} (CPF: {pac.cpf})
-                  </option>
-                ))}
-            </select>
-          </div>
+    return (
+        <div className="gerar-atestados-container">
+            <h2>Gerar Atestados Médicos</h2>
+            <form className="atestado-form" onSubmit={handleSubmit}>
+                <div className="form-group">
+                    <label>Paciente:</label>
+                    <select
+                        name="PacienteCpf"
+                        value={pacienteSelecionado}
+                        onChange={handlePacienteChange}
+                        required
+                    >
+                        <option value="">Selecione o Paciente</option>
+                        {Array.isArray(cpfPaciente) &&
+                            cpfPaciente.map((pac) => (
+                                <option value={pac.cpf} key={pac.cpf}>
+                                    {pac.nome} {pac.sobrenome} (CPF: {pac.cpf})
+                                </option>
+                            ))}
+                    </select>
+                </div>
 
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">

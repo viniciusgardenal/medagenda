@@ -90,7 +90,7 @@ const ModalDetalhesSolicitacaoExames = ({
               <strong>Justificativa:</strong> {solicitacaoExames.justificativa}{" "}
             </p>
             <p>
-              <strong>Status:</strong> {solicitacaoExames.status}{" "}
+              <strong>Situação:</strong> {solicitacaoExames.status}{" "}
             </p>
 
             <button type="submit" onClick={handleDownload}>

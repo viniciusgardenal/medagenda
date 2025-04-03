@@ -43,7 +43,7 @@ const ModalEditarSolicitacaoExames = ({
     solicitacaoExames?.justificativa || ""
   );
 
-  const [status, setStatus] = useState(solicitacaoExames?.status || "Ativo");
+  const [status, setStatus] = useState(solicitacaoExames?.status || "Solicitado");
   const [erros, setErros] = useState({});
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const [tiposExameSelecionado, setTExameSelecionado] = useState([]);
@@ -211,14 +211,14 @@ const ModalEditarSolicitacaoExames = ({
           </div>
 
           <div>
-            <label>Status:</label>
+            <label>Situação:</label>
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value)}
               required
             >
-              <option value="Ativo">Ativo</option>
-              <option value="Inativo">Inativo</option>
+              <option value="Ativo">Solicitado</option>
+              <option value="Inativo">Registrado</option>
             </select>
           </div>
 

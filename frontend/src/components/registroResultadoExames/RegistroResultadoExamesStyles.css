@@ -1,130 +1,218 @@
+/* Estilos gerais para o container principal */
 .registro-resultados-exames {
-    width: 100%;
-    max-width: 1200px;
-    margin: 5% auto;
-    padding: 20px;
-    background-color: #ffffff;
-    border-radius: 10px;
-    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
-    font-family: Arial, sans-serif;
+  width: 100%;
+  max-width: 1200px;
+  margin: 5% auto;
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  font-family: Arial, sans-serif;
 }
 
-.registro-resultados-exames h2 {
-    font-size: 24px;
-    color: #333;
-    margin-bottom: 20px;
-    text-align: center;
+.registro-resultados=exames h2 {
+  text-align: center;
+  color: #333;
+  font-size: 1.8em;
+  margin-bottom: 20px;
 }
 
+/* Estilos da tabela de resultados de exames */
 .registro-resultados-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 20px;
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+  margin-top: 20px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
 }
 
-.registro-resultados-table th,
+.registro-resultados-table th, 
 .registro-resultados-table td {
-    padding: 12px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
+  padding: 15px;
+  border-bottom: 1px solid #ddd;
+  font-size: 0.9em;
+  color: #333;
 }
 
 .registro-resultados-table th {
-    background-color: #f4f4f4;
-    color: #333;
+  background-color: #f1f1f1;
+  color: #001233;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.85em;
 }
 
 .registro-resultados-table td {
-    font-size: 14px;
-    color: #555;
+  background-color: #ffffff;
+}
+
+.registro-resultados-table tr:nth-child(even) td {
+  background-color: #f9f9f9;
+}
+
+.registro-resultados-table tr:hover {
+  background-color: #f2f2f2;
 }
 
 .registro-resultados-table input[type="text"] {
-    padding: 8px;
-    font-size: 14px;
-    width: 100%;
-    max-width: 200px;
-    margin-right: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+  padding: 10px;
+  width: 100%;
+  max-width: 200px;
+  background-color: #F8F9FA;
+  border-radius: 10px;
+  border: 1px solid #001233;
+  font-size: 0.9em;
+  color: #333;
 }
 
+/* Estilos dos botões na tabela */
 .registro-resultados-table button {
-    padding: 8px 12px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  font-size: 0.9em;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
-.registro-resultados-table button:hover {
-    background-color: #0056b3;
+.registro-resultados-table button:first-child {
+  background-color: #001233;
+  color: white;
+  margin-right: 5px;
 }
 
+.registro-resultados-table button:first-child:hover {
+  background-color: #153a80;
+}
+
+.registro-resultados-table button:last-child {
+  background-color: #f44336;
+  color: white;
+}
+
+.registro-resultados-table button:last-child:hover {
+  background-color: #e53935;
+}
 
 /* Estilos principais para a modal */
 .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5); /* fundo semi-transparente */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #ffffff;
+  border-radius: 10px;
+  max-width: 500px;
+  width: 100%;
+  padding: 20px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  font-family: Arial, sans-serif;
+}
+
+.modal-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #f44336;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 50%;
+  font-size: 20px;
+  padding: 5px 10px;
+  transition: background-color 0.3s ease;
+}
+
+.modal-close:hover {
+  background-color: #e53935;
+}
+
+.modal-content h2 {
+  font-size: 1.8em;
+  color: #333;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.modal-content textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  font-size: 0.9em;
+  color: #333;
+  background-color: #F8F9FA;
+}
+
+.modal-content button {
+  padding: 12px 40px;
+  border-radius: 8px;
+  background-color: #f1f1f1;
+  color: #001233;
+  border: 1px solid #001233;
+  font-weight: bold;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.modal-content button:hover {
+  background-color: #001233;
+  color: #fff;
+}
+
+/* Responsividade para telas menores */
+@media (max-width: 480px) {
+  .registro-resultados-table {
+      border-collapse: separate;
   }
-  
+
+  .registro-resultados-table tbody {
+      display: block;
+      width: 100%;
+  }
+
+  .registro-resultados-table tr {
+      display: flex;
+      flex-direction: column;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      padding: 10px;
+      background-color: #ffffff;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.05);
+  }
+
+  .registro-resultados-table td {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      font-size: 0.9em;
+  }
+
+  .registro-resultados-table button {
+      padding: 6px 10px;
+      font-size: 0.8em;
+      margin-top: 5px;
+      border-radius: 5px;
+  }
+
   .modal-content {
-    background: #ffffff;
-    border-radius: 8px;
-    max-width: 500px;
-    width: 100%;
-    padding: 20px;
-    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+      max-width: 90%;
   }
-  
-  .modal-close {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: red;
-    color: white;
-    border: none;
-    cursor: pointer;
-    border-radius: 50%;
-    font-size: 20px;
-    padding: 5px 10px;
-  }
-  
-  .modal-content h2 {
-    font-size: 24px;
-    color: #333;
-    margin-bottom: 20px;
-  }
-  
-  .modal-content textarea {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 16px;
-    color: #333;
-  }
-  
-  .modal-content button {
-    padding: 10px 15px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  
-  .modal-content button:hover {
-    background-color: #0056b3;
-  }
-  
+}

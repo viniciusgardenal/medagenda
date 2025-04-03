@@ -11,7 +11,7 @@ const TabelaSolicitacaoExames = ({ tse, onEditar, onExcluir, onDetalhes }) => {
           <th>Data de Solicitação</th>
           <th>Data de Retorno</th>
           <th>Justificativa</th>
-          <th>Status</th>
+          <th>Situação</th>
           <th>Ações</th>
         </tr>
       </thead>

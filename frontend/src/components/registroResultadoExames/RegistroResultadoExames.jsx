@@ -14,11 +14,11 @@ const TableRow = ({ registro, onAdd, onEdit, onView }) => {
 
     return (
         <tr className="odd:bg-white even:bg-gray-50 hover:bg-gray-100 transition-colors text-left">
-            <td className="py-4 px-2 text-gray-700 text-sm">{registro.idRegistro}</td>
-            <td className="py-4 px-2 text-gray-700 text-sm">{registro.solicitacaoExame.idSolicitacaoExame}</td>
-            <td className="py-4 px-2 text-gray-700 text-sm">{registro.profissional.nome}</td>
-            <td className="py-4 px-2 text-gray-700 text-sm">{registro.paciente.nome}</td>
-            <td className="py-4 px-2">
+            <td className="py-3 px-2 text-gray-700 text-sm">{registro.idRegistro}</td>
+            <td className="py-3 px-2 text-gray-700 text-sm">{registro.solicitacaoExame.idSolicitacaoExame}</td>
+            <td className="py-3 px-2 text-gray-700 text-sm">{registro.profissional.nome}</td>
+            <td className="py-3 px-2 text-gray-700 text-sm">{registro.paciente.nome}</td>
+            <td className="py-3 px-2">
                 {resultadoDefinido ? (
                     <span className="bg-green-500 text-white px-3 py-1.5 rounded-md font-semibold text-sm flex items-center gap-1">
                         <svg
@@ -40,8 +40,9 @@ const TableRow = ({ registro, onAdd, onEdit, onView }) => {
                 ) : (
                     <button
                         onClick={() => onAdd(registro)}
-                        className="bg-[#001233] text-white px-3 py-1.5 rounded-md font-semibold text-sm hover:bg-[#153a80] transition-colors flex items-center text-left gap-1"
+                        className="bg-orange-500 text-white px-3 py-1.5 rounded-md font-semibold text-sm hover:bg-orange-600 transition-colors flex items-center text-left gap-1"
                         title="Definir Resultado"
+                        aria-label="Definir resultado do exame"
                     >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -61,18 +62,20 @@ const TableRow = ({ registro, onAdd, onEdit, onView }) => {
                     </button>
                 )}
             </td>
-            <td className="py-4 px-2 flex gap-2 justify-center">
+            <td className="py-3 px-2 flex gap-2 justify-center">
                 <button
                     onClick={() => onEdit(registro)}
                     className="bg-[#001233] text-white p-2 rounded-md hover:bg-[#153a80] transition-colors"
                     title="Editar Resultado"
+                    aria-label="Editar resultado do exame"
                 >
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4"
                         fill="none"
                         viewBox="0 0 24 24"
+                        strokeWidth="1.5"
                         stroke="currentColor"
+                        className="size-6"
                     >
                         <path
                             strokeLinecap="round"
@@ -86,27 +89,22 @@ const TableRow = ({ registro, onAdd, onEdit, onView }) => {
                     onClick={() => onView(registro)}
                     className="bg-[#001233] text-white p-2 rounded-md hover:bg-[#153a80] transition-colors"
                     title="Visualizar Resultado"
+                    aria-label="Visualizar resultado do exame"
                 >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                    >
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                        />
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542-7-4.477 0-8.268-2.943-9.542-7z"
-                        />
-                    </svg>
+                     <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth="1.5"
+                  stroke="currentColor"
+                  className="size-6"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
+                  />
+                </svg>
                 </button>
             </td>
         </tr>
@@ -121,14 +119,21 @@ const RegistroResultadoExames = () => {
     const [registroSelecionado, setRegistroSelecionado] = useState(null);
     const [observacaoEditada, setObservacaoEditada] = useState("");
     const [filtros, setFiltros] = useState({ filtroId: '', filtroNome: '' });
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         const fetchData = async () => {
+            setIsLoading(true);
+            setError(null);
             try {
                 const response = await getRegistrosInativosResultadoExames();
                 setRegistros(response.data.data || []);
             } catch (error) {
                 console.error("Erro ao carregar registros:", error);
+                setError("Erro ao carregar os registros. Tente novamente mais tarde.");
+            } finally {
+                setIsLoading(false);
             }
         };
         fetchData();
@@ -153,6 +158,7 @@ const RegistroResultadoExames = () => {
     });
 
     const handleUpdateObservacao = async (idRegistro) => {
+        setError(null);
         try {
             await atualizarRegistroResultadoExame(idRegistro, { observacoes: observacaoEditada });
             const response = await getRegistrosInativosResultadoExames();
@@ -163,6 +169,7 @@ const RegistroResultadoExames = () => {
             setRegistroSelecionado(null);
         } catch (error) {
             console.error("Erro ao atualizar observação:", error);
+            setError("Erro ao atualizar o resultado. Tente novamente.");
         }
     };
 
@@ -197,40 +204,60 @@ const RegistroResultadoExames = () => {
 
             <FiltroRegistroResultadoExames onFiltroChange={handleFiltroChange} />
 
-            <div className="overflow-x-auto rounded-lg shadow-md">
-                <table className="min-w-full bg-white rounded-lg shadow-md">
-                    <thead className="bg-gray-100">
-                        <tr>
-                            {[
-                                "ID Registro",
-                                "Solicitação de Exame",
-                                "Profissional",
-                                "Paciente",
-                                "Definir Resultado",
-                                "Ações"
-                            ].map((header) => (
-                                <th
-                                    key={header}
-                                    className="py-4 px-2 text-[#001233] font-semibold text-xs uppercase tracking-wider"
-                                >
-                                    {header}
-                                </th>
-                            ))}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {registrosFiltrados.map((registro) => (
-                            <TableRow
-                                key={registro.idRegistro}
-                                registro={registro}
-                                onAdd={openAddModal}
-                                onEdit={openEditModal}
-                                onView={openViewModal}
-                            />
-                        ))}
-                    </tbody>
-                </table>
-            </div>
+            {error && (
+                <div className="mb-4 p-4 bg-red-100 text-red-700 rounded-md">
+                    {error}
+                </div>
+            )}
+
+            {isLoading ? (
+                <div className="text-center py-3">
+                    <p className="text-gray-600">Carregando registros...</p>
+                </div>
+            ) : (
+                <div className="overflow-x-auto rounded-lg shadow-md">
+                    <table className="min-w-full bg-white rounded-lg shadow-md">
+                        <thead className="bg-gray-100">
+                            <tr>
+                                {[
+                                    "ID Registro",
+                                    "Solicitação de Exame",
+                                    "Profissional",
+                                    "Paciente",
+                                    "Definir Resultado",
+                                    "Ações"
+                                ].map((header) => (
+                                    <th
+                                        key={header}
+                                        className="py-3 px-2 text-[#001233] font-semibold text-xs uppercase tracking-wider"
+                                    >
+                                        {header}
+                                    </th>
+                                ))}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {registrosFiltrados.length === 0 ? (
+                                <tr>
+                                    <td colSpan="6" className="py-3 px-2 text-center text-gray-500">
+                                        Nenhum registro encontrado.
+                                    </td>
+                                </tr>
+                            ) : (
+                                registrosFiltrados.map((registro) => (
+                                    <TableRow
+                                        key={registro.idRegistro}
+                                        registro={registro}
+                                        onAdd={openAddModal}
+                                        onEdit={openEditModal}
+                                        onView={openViewModal}
+                                    />
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            )}
 
             {modalAddOpen && registroSelecionado && (
                 <ModalAddObservacao

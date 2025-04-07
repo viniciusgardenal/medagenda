@@ -9,86 +9,109 @@ import ModalViewObservacao from './ModalViewObservacao';
 import FiltroRegistroResultadoExames from './filtroRegistroResultadoExames';
 
 // Componente para cada linha da tabela
-const TableRow = ({ registro, onAdd, onEdit, onView }) => (
-    <tr className="odd:bg-white even:bg-gray-50 hover:bg-gray-100 transition-colors text-left">
-        <td className="py-4 px-2 text-gray-700 text-sm">{registro.idRegistro}</td>
-        <td className="py-4 px-2 text-gray-700 text-sm">{registro.solicitacaoExame.idSolicitacaoExame}</td>
-        <td className="py-4 px-2 text-gray-700 text-sm">{registro.profissional.nome}</td>
-        <td className="py-4 px-2 text-gray-700 text-sm">{registro.paciente.nome}</td>
-        <td className="py-4 px-2 text-gray-700 text-sm">{registro.observacoes}</td>
-        <td className="py-4 px-2">
-            <button
-                onClick={() => onAdd(registro)}
-                className="bg-[#001233] text-white px-3 py-1.5 rounded-md font-semibold text-sm hover:bg-[#153a80] transition-colors flex items-center text-left gap-1"
-                title="Definir Resultado"
-            >
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-4 w-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
+const TableRow = ({ registro, onAdd, onEdit, onView }) => {
+    const resultadoDefinido = registro.observacoes && registro.observacoes.trim() !== "";
+
+    return (
+        <tr className="odd:bg-white even:bg-gray-50 hover:bg-gray-100 transition-colors text-left">
+            <td className="py-4 px-2 text-gray-700 text-sm">{registro.idRegistro}</td>
+            <td className="py-4 px-2 text-gray-700 text-sm">{registro.solicitacaoExame.idSolicitacaoExame}</td>
+            <td className="py-4 px-2 text-gray-700 text-sm">{registro.profissional.nome}</td>
+            <td className="py-4 px-2 text-gray-700 text-sm">{registro.paciente.nome}</td>
+            <td className="py-4 px-2">
+                {resultadoDefinido ? (
+                    <span className="bg-green-500 text-white px-3 py-1.5 rounded-md font-semibold text-sm flex items-center gap-1">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-4 w-4"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M5 13l4 4L19 7"
+                            />
+                        </svg>
+                        Registrado
+                    </span>
+                ) : (
+                    <button
+                        onClick={() => onAdd(registro)}
+                        className="bg-[#001233] text-white px-3 py-1.5 rounded-md font-semibold text-sm hover:bg-[#153a80] transition-colors flex items-center text-left gap-1"
+                        title="Definir Resultado"
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-4 w-4"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M12 4v16m8-8H4"
+                            />
+                        </svg>
+                        Definir
+                    </button>
+                )}
+            </td>
+            <td className="py-4 px-2 flex gap-2 justify-center">
+                <button
+                    onClick={() => onEdit(registro)}
+                    className="bg-[#001233] text-white p-2 rounded-md hover:bg-[#153a80] transition-colors"
+                    title="Editar Resultado"
                 >
-                    <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 4v16m8-8H4"
-                    />
-                </svg>
-                Definir
-            </button>
-        </td>
-        <td className="py-4 px-2 flex gap-2 justify-center">
-            <button
-                onClick={() => onEdit(registro)}
-                className="bg-[#001233] text-white p-2 rounded-md hover:bg-[#153a80] transition-colors"
-                title="Editar Resultado"
-            >
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-4 w-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-4 w-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                        />
+                    </svg>
+                </button>
+                <button
+                    onClick={() => onView(registro)}
+                    className="bg-[#001233] text-white p-2 rounded-md hover:bg-[#153a80] transition-colors"
+                    title="Visualizar Resultado"
                 >
-                    <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                    />
-                </svg>
-            </button>
-            <button
-                onClick={() => onView(registro)}
-                className="bg-[#001233] text-white p-2 rounded-md hover:bg-[#153a80] transition-colors"
-                title="Visualizar Resultado"
-            >
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-4 w-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                >
-                    <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                    <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542-7-4.477 0-8.268-2.943-9.542-7z"
-                    />
-                </svg>
-            </button>
-        </td>
-    </tr>
-);
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-4 w-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                        />
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542-7-4.477 0-8.268-2.943-9.542-7z"
+                        />
+                    </svg>
+                </button>
+            </td>
+        </tr>
+    );
+};
 
 const RegistroResultadoExames = () => {
     const [registros, setRegistros] = useState([]);
@@ -183,7 +206,6 @@ const RegistroResultadoExames = () => {
                                 "Solicitação de Exame",
                                 "Profissional",
                                 "Paciente",
-                                "Resultado",
                                 "Definir Resultado",
                                 "Ações"
                             ].map((header) => (

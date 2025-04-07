@@ -10,7 +10,7 @@
   font-family: Arial, sans-serif;
 }
 
-.registro-resultados=exames h2 {
+.registro-resultados-exames h2 {
   text-align: center;
   color: #333;
   font-size: 1.8em;
@@ -147,16 +147,7 @@
   text-align: center;
 }
 
-.modal-content textarea {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 15px;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  font-size: 0.9em;
-  color: #333;
-  background-color: #F8F9FA;
-}
+
 
 .modal-content button {
   padding: 12px 40px;

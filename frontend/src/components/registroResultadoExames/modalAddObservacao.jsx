@@ -1,6 +1,6 @@
 import React from 'react';
 
-const ModalEditObservacao = ({ isOpen, onClose, registro, observacaoEditada, setObservacaoEditada, onSave }) => {
+const ModalAddObservacao = ({ isOpen, onClose, registro, observacaoEditada, setObservacaoEditada, onSave }) => {
     if (!isOpen || !registro) return null;
 
     return (
@@ -12,9 +12,9 @@ const ModalEditObservacao = ({ isOpen, onClose, registro, observacaoEditada, set
                 >
                     X
                 </button>
-                <h2 className="text-2xl text-gray-800 font-semibold text-center mb-5">Editar Resultado</h2>
+                <h2 className="text-2xl text-gray-800 font-semibold text-center mb-5">Definir Resultado</h2>
                 <div className="space-y-4">
-                    <label className="block text-gray-700 font-medium">Editar Observações:</label>
+                    <label className="block text-gray-700 font-medium">Definir Observações:</label>
                     <textarea
                         value={observacaoEditada}
                         onChange={(e) => setObservacaoEditada(e.target.value)}
@@ -33,4 +33,4 @@ const ModalEditObservacao = ({ isOpen, onClose, registro, observacaoEditada, set
     );
 };
 
-export default ModalEditObservacao;
+export default ModalAddObservacao;

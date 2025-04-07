@@ -174,7 +174,7 @@ const RegistroResultadoExames = () => {
 
             <FiltroRegistroResultadoExames onFiltroChange={handleFiltroChange} />
 
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto rounded-lg shadow-md">
                 <table className="min-w-full bg-white rounded-lg shadow-md">
                     <thead className="bg-gray-100">
                         <tr>

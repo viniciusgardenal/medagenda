@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import "./gerarAtestadosStyle.css";
 import { criarAtestado, getPacientes, getProfissionais } from "../../config/apiServices";
 import AtestadoForm from "./gerarAtestadoForm";
 
@@ -44,56 +43,49 @@ const GerarAtestados = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-      
+
         const dados = {
-          cpfPaciente: pacienteSelecionado,
-          matriculaProfissional: matriculaProfissional,
-          tipoAtestado, // Tipo de atestado
+            cpfPaciente: pacienteSelecionado,
+            matriculaProfissional: matriculaProfissional,
+            tipoAtestado, // Tipo de atestado
         };
-      
+
         try {
-          // Chama a função que cria o atestado e retorna o PDF (como blob)
-          const response = await criarAtestado(dados);
-      
-          // Certifique-se de que a resposta é do tipo blob (arquivo PDF)
-          const blob = response.data; // O arquivo PDF estará na propriedade "data" da resposta
-      
-          // Cria uma URL temporária para o blob
-          const url = window.URL.createObjectURL(blob);
-      
-          // Cria um link e dispara o download do PDF
-          const a = document.createElement('a');
-          a.style.display = 'none';
-          a.href = url;
-          a.download = `atestado_${dados.cpfPaciente}.pdf`; // Define o nome do arquivo
-          document.body.appendChild(a);
-          a.click();
-      
-          // Limpeza após o download
-          window.URL.revokeObjectURL(url);
-      
-          // Opcional: Resetar os campos
-          setPacienteSelecionado("");
-          setMatriculaProfissional("");
-          setTipoAtestado("");
-      
+            const response = await criarAtestado(dados);
+            const blob = response.data;
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = `atestado_${dados.cpfPaciente}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+
+            setPacienteSelecionado("");
+            setMatriculaProfissional("");
+            setTipoAtestado("");
         } catch (error) {
-          console.error("Erro ao gerar atestado", error);
+            console.error("Erro ao gerar atestado", error);
         }
-      };
-      
+    };
 
     return (
-        <div className="gerar-atestados-container">
-            <h2>Gerar Atestados Médicos</h2>
-            <form className="atestado-form" onSubmit={handleSubmit}>
-                <div className="form-group">
-                    <label>Paciente:</label>
+        <section className="container mx-auto my-10 p-4 bg-white rounded-lg shadow-md max-w-2xl">
+            <h2 className="text-2xl text-gray-800 font-bold text-center mb-4">
+                Gerar Atestados Médicos
+            </h2>
+            <form onSubmit={handleSubmit} className="space-y-4 bg-gray-50 p-4 rounded-md">
+                <div className="flex flex-col space-y-1">
+                    <label className="text-gray-700 font-semibold text-sm">
+                        Paciente:
+                    </label>
                     <select
                         name="PacienteCpf"
                         value={pacienteSelecionado}
                         onChange={handlePacienteChange}
                         required
+                        className="border border-gray-300 rounded-md p-1.5 text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-[#001233] transition-colors"
                     >
                         <option value="">Selecione o Paciente</option>
                         {Array.isArray(cpfPaciente) &&
@@ -107,13 +99,16 @@ const GerarAtestados = () => {
 
                 <AtestadoForm onMatriculaChange={setMatriculaProfissional} />
 
-                <div className="form-group">
-                    <label>Tipo de Atestado:</label>
+                <div className="flex flex-col space-y-1">
+                    <label className="text-gray-700 font-semibold text-sm">
+                        Tipo de Atestado:
+                    </label>
                     <select
                         name="tipoAtestado"
                         value={tipoAtestado}
                         onChange={handleTipoAtestadoChange}
                         required
+                        className="border border-gray-300 rounded-md p-1.5 text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-[#001233] transition-colors"
                     >
                         <option value="">Selecione o Tipo de Atestado</option>
                         <option value="Médico">Médico</option>
@@ -123,11 +118,14 @@ const GerarAtestados = () => {
                     </select>
                 </div>
 
-                <button type="submit" className="gerar-button">
+                <button
+                    type="submit"
+                    className="bg-[#001233] text-white px-4 py-1.5 rounded-md font-semibold text-sm hover:bg-[#153a80] transition-colors w-full"
+                >
                     Gerar Atestado
                 </button>
             </form>
-        </div>
+        </section>
     );
 };
 

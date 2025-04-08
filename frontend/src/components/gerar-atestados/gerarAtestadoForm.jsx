@@ -12,16 +12,19 @@ const AtestadoForm = ({ onMatriculaChange }) => {
   }, [user, onMatriculaChange]);
 
   return (
-    <div className="form-group">
-      <label>Profissional:</label>
+    <div className="flex flex-col space-y-1">
+      <label className="text-gray-700 font-semibold text-sm">
+        Profissional:
+      </label>
       <input
         type="text"
         name="matriculaProfissional"
         value={`${user?.nome || "Nome não disponível"} (Matrícula: ${
           user?.id || "Matrícula não disponível"
         })`}
-        readOnly // Torna o campo somente leitura
+        readOnly
         required
+        className="border border-gray-300 rounded-md p-1.5 text-gray-700 text-sm bg-gray-100 cursor-not-allowed"
       />
     </div>
   );

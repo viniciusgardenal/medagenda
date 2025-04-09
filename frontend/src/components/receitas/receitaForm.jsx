@@ -11,7 +11,10 @@ const ReceitaForm = ({ onMatriculaChange }) => {
   }, [user, onMatriculaChange]);
 
   return (
-    <div className="form-group">
+    <div className="mb-4">
+      <label className="block text-sm font-semibold text-gray-600 mb-1">
+        Profissional
+      </label>
       <input
         type="text"
         name="ProfissionalCRM"

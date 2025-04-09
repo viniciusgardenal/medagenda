@@ -1,230 +1,222 @@
-import React, { useState, useEffect, useRef } from "react";
-import html2canvas from "html2canvas";
-import "./emitirReceitasStyle.css";
+import React, { useState, useEffect } from "react";
+import { useAuthContext } from "../../context/authContext";
 import {
   criarReceita,
   getMedicamentos,
   getPacientes,
 } from "../../config/apiServices";
-import ReceitaForm from "./receitaForm";
 
 const EmitirReceitas = () => {
-  const [cpfPaciente, setCpfPaciente] = useState([]);
-  const [idMedicamentos, setIdMedicamentos] = useState([]);
-  const [medicamentosSelecionados, setMedicamentosSelecionados] = useState([]);
-  const [matriculaProfissional, setMatriculaProfissional] = useState("");
-  const [dosagem, setDosagem] = useState([]);
-  const [instrucaoUso, setInstrucaoUso] = useState([]);
-
+  const { user } = useAuthContext();
+  const [pacientes, setPacientes] = useState([]);
+  const [medicamentos, setMedicamentos] = useState([]);
   const [pacienteSelecionado, setPacienteSelecionado] = useState("");
-  const receitaRef = useRef(null); // Referência para captura
+  const [medicamentosSelecionados, setMedicamentosSelecionados] = useState([
+    { idMedicamento: "", dosagem: "", instrucaoUso: "" },
+  ]);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
 
-  const loadDados = async () => {
-    try {
-      const paciente = await getPacientes();
-      if (Array.isArray(paciente.data)) {
-        setCpfPaciente(paciente.data);
-      } else {
-        console.error("Os dados de pacientes não são um array", paciente.data);
-      }
-
-      const medicamento = await getMedicamentos();
-      setIdMedicamentos(medicamento.data);
-    } catch (error) {
-      console.error("Erro ao carregar dados", error);
-    }
-  };
-
+  // Carregar dados de pacientes e medicamentos ao montar o componente
   useEffect(() => {
+    const loadDados = async () => {
+      try {
+        const pacientesData = await getPacientes();
+        setPacientes(pacientesData.data);
+        const medicamentosData = await getMedicamentos();
+        setMedicamentos(medicamentosData.data);
+      } catch (error) {
+        console.error("Erro ao carregar dados", error);
+        setError("Erro ao carregar dados. Tente novamente.");
+      }
+    };
     loadDados();
   }, []);
 
-  const handlePacienteChange = (event) => {
-    const cpfSelecionado = event.target.value;
-    setPacienteSelecionado(cpfSelecionado);
-  };
-
-  const handleMedicamentoChange = (index, value) => {
-    const medicamentoSelecionado = idMedicamentos.find(
-      (med) => med.idMedicamento == value
-    );
-
-    if (medicamentoSelecionado) {
-      const updatedMedicamentos = [...medicamentosSelecionados];
-      updatedMedicamentos[index] = {
-        ...updatedMedicamentos[index],
-        idMedicamento: medicamentoSelecionado.idMedicamento,
-        nomeMedicamento: medicamentoSelecionado.nomeMedicamento,
-        controlado: medicamentoSelecionado.controlado,
-        interacao: medicamentoSelecionado.interacao,
-      };
-      setMedicamentosSelecionados(updatedMedicamentos);
-    }
-  };
-
+  // Adicionar um novo medicamento ao formulário
   const handleAddMedicamento = () => {
-    setMedicamentosSelecionados((prev) => [
-      ...prev,
-      { idMedicamento: "", dosagem: "", interacao: "", controlado: "" },
+    setMedicamentosSelecionados([
+      ...medicamentosSelecionados,
+      { idMedicamento: "", dosagem: "", instrucaoUso: "" },
     ]);
   };
 
+  // Remover um medicamento do formulário
   const handleRemoveMedicamento = (index) => {
+    setMedicamentosSelecionados(
+      medicamentosSelecionados.filter((_, i) => i !== index)
+    );
+  };
+
+  // Atualizar os campos de um medicamento específico
+  const handleMedicamentoChange = (index, field, value) => {
     const updatedMedicamentos = [...medicamentosSelecionados];
-    updatedMedicamentos.splice(index, 1);
+    updatedMedicamentos[index][field] = value;
     setMedicamentosSelecionados(updatedMedicamentos);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const dados = {
-      cpfPaciente: pacienteSelecionado,
-      matriculaProfissional,
-      idMedicamento: medicamentosSelecionados.map((med) => med.idMedicamento),
-      dosagem,
-      instrucaoUso,
-    };
-
-    console.log(dados);
-
+  // Enviar a receita para o backend
+  const handleSubmit = async () => {
+    setError(null);
+    setSuccess(null);
     try {
-      // Chamada para criar a receita no backend
+      const dados = {
+        cpfPaciente: pacienteSelecionado,
+        matriculaProfissional: user.id,
+        medicamentos: medicamentosSelecionados.map((med) => ({
+          idMedicamento: med.idMedicamento,
+          dosagem: med.dosagem,
+          instrucaoUso: med.instrucaoUso,
+        })),
+      };
       const response = await criarReceita(dados);
-
-      // Verifica se a resposta é um PDF (blobs)
       if (response.headers["content-type"] === "application/pdf") {
-        // Cria o blob a partir da resposta e baixa o PDF
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.href = url;
-        link.download = "receita.pdf"; // Nome do arquivo para download
+        link.download = "receita.pdf";
         link.click();
+        setSuccess("Receita emitida com sucesso!");
+      } else {
+        setError("Erro ao emitir a receita. Resposta inválida.");
       }
-
-      // Limpar os dados após o envio
-      setPacienteSelecionado("");
-      setMedicamentosSelecionados([]);
     } catch (error) {
       console.error("Erro ao emitir receita", error);
+      setError("Erro ao emitir a receita. Tente novamente.");
     }
   };
 
   return (
-    <div className="emitir-receitas-container">
-      <h2>Emitir Receitas</h2>
-      <form className="receitas-form" onSubmit={handleSubmit}>
-        <div className="medicamento-group">
-          <div className="form-group">
-            <label>Paciente:</label>
-            <select
-              name="PacienteCpf"
-              value={pacienteSelecionado}
-              onChange={handlePacienteChange}
-              required
-            >
-              <option value="">Selecione o Paciente</option>
-              {Array.isArray(cpfPaciente) &&
-                cpfPaciente.map((pac) => (
-                  <option key={pac.cpf} value={pac.cpf}>
-                    {pac.nome} {pac.sobrenome} (CPF: {pac.cpf})
-                  </option>
-                ))}
-            </select>
-          </div>
+    <div className="max-w-7xl mx-auto mt-6 p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
+      <h2 className="text-xl font-semibold text-gray-700 mb-4">Emitir Receita</h2>
 
-          <ReceitaForm onMatriculaChange={setMatriculaProfissional} />
+      {/* Mensagens de erro e sucesso */}
+      {error && (
+        <div className="mb-4 p-3 bg-red-50 text-red-700 text-sm rounded-md">
+          {error}
+        </div>
+      )}
+      {success && (
+        <div className="mb-4 p-3 bg-green-50 text-green-700 text-sm rounded-md">
+          {success}
+        </div>
+      )}
 
-          {medicamentosSelecionados.map((med, index) => (
-            <div key={index} className="medicamento-group">
-              <div className="form-group">
-                <label>Medicamento:</label>
-                <select
-                  name="idMedicamento"
-                  value={med.idMedicamento || ""}
-                  onChange={(e) =>
-                    handleMedicamentoChange(index, e.target.value)
-                  }
-                  required
-                >
-                  <option value="">Selecione o Medicamento</option>
-                  {Array.isArray(idMedicamentos) &&
-                    idMedicamentos.map((medicamento) => (
-                      <option
-                        key={medicamento.idMedicamento}
-                        value={medicamento.idMedicamento}
-                      >
-                        {medicamento.nomeMedicamento}
-                      </option>
-                    ))}
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label>Controlado:</label>
-                <input
-                  type="text"
-                  name="controlado"
-                  value={med.controlado || ""}
-                  readOnly
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Interação Medicamentosa:</label>
-                <input
-                  type="text"
-                  name="instrucaoUso"
-                  value={med.interacao || ""}
-                  readOnly
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Dosagem:</label>
-                <textarea
-                  name="dosagem"
-                  value={dosagem}
-                  onChange={(e) => setDosagem(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Instrução de uso:</label>
-                <textarea
-                  name="instrucaoUsoCustom"
-                  value={instrucaoUso}
-                  onChange={(e) => setInstrucaoUso(e.target.value)}
-                  required
-                />
-              </div>
-
-              <button
-                type="button"
-                onClick={() => handleRemoveMedicamento(index)}
-                className="remover-medicamento"
-              >
-                Remover este medicamento
-              </button>
-            </div>
+      {/* Seleção de paciente */}
+      <div className="mb-4">
+        <label className="block text-sm font-semibold text-gray-600 mb-1">
+          Paciente
+        </label>
+        <select
+          value={pacienteSelecionado}
+          onChange={(e) => setPacienteSelecionado(e.target.value)}
+          className="w-full px-3 py-2 text-sm text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        >
+          <option value="">Selecione um paciente</option>
+          {pacientes.map((paciente) => (
+            <option key={paciente.cpf} value={paciente.cpf}>
+              {paciente.nome} {paciente.sobrenome} (CPF: {paciente.cpf})
+            </option>
           ))}
+        </select>
+      </div>
 
-          <button
-            type="button"
-            onClick={handleAddMedicamento}
-            className="adicionar-medicamento"
-          >
-            + Adicionar medicamento
-          </button>
-        </div>
-        <div className="flex justify-left">
-          <button type="submit" className="emitir-button">
-            Emitir Receita
-          </button>
-        </div>
-      </form>
+      {/* Informações do profissional (somente leitura) */}
+      <div className="mb-4">
+        <label className="block text-sm font-semibold text-gray-600 mb-1">
+          Profissional
+        </label>
+        <input
+          type="text"
+          value={`${user?.nome || "Nome não disponível"} (CRM: ${
+            user?.crm || "CRM não disponível"
+          })`}
+          readOnly
+          className="w-full px-3 py-2 text-sm text-gray-700 bg-gray-100 border border-gray-300 rounded-md"
+        />
+      </div>
+
+      {/* Lista de medicamentos */}
+      <div className="mb-6">
+        <h3 className="text-sm font-semibold text-gray-600 mb-2">
+          Medicamentos
+        </h3>
+        {medicamentosSelecionados.map((med, index) => (
+          <div key={index} className="flex items-center space-x-2 mb-2">
+            <select
+              value={med.idMedicamento}
+              onChange={(e) =>
+                handleMedicamentoChange(index, "idMedicamento", e.target.value)
+              }
+              className="flex-1 px-3 py-2 text-sm text-gray-700 border border-gray-300 rounded-md"
+            >
+              <option value="">Selecione um medicamento</option>
+              {medicamentos.map((medicamento) => (
+                <option
+                  key={medicamento.idMedicamento}
+                  value={medicamento.idMedicamento}
+                >
+                  {medicamento.nomeMedicamento}
+                </option>
+              ))}
+            </select>
+            <input
+              type="text"
+              placeholder="Dosagem"
+              value={med.dosagem}
+              onChange={(e) =>
+                handleMedicamentoChange(index, "dosagem", e.target.value)
+              }
+              className="w-24 px-3 py-2 text-sm text-gray-700 border border-gray-300 rounded-md"
+            />
+            <input
+              type="text"
+              placeholder="Instruções de uso"
+              value={med.instrucaoUso}
+              onChange={(e) =>
+                handleMedicamentoChange(index, "instrucaoUso", e.target.value)
+              }
+              className="flex-1 px-3 py-2 text-sm text-gray-700 border border-gray-300 rounded-md"
+            />
+            <button
+              type="button"
+              onClick={() => handleRemoveMedicamento(index)}
+              className="text-red-600 hover:text-red-800 transition-colors duration-150"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="1.5"
+                stroke="currentColor"
+                className="w-5 h-5"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
+        ))}
+        <button
+          type="button"
+          onClick={handleAddMedicamento}
+          className="mt-2 px-3 py-1.5 text-sm text-indigo-600 bg-indigo-50 rounded-md hover:bg-indigo-100 transition-colors duration-150"
+        >
+          + Adicionar Medicamento
+        </button>
+      </div>
+
+      {/* Botão de emissão */}
+      <button
+        onClick={handleSubmit}
+        className="w-full px-4 py-2 text-sm font-semibold text-white bg-indigo-600 rounded-md hover:bg-indigo-700 transition-colors duration-150"
+      >
+        Emitir Receita
+      </button>
     </div>
   );
 };

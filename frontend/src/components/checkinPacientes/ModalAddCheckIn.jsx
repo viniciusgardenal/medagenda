@@ -20,6 +20,36 @@ const ModalAddCheckIn = ({
     onSave();
   };
 
+  const formatarDataHoraBR = (data, hora) => {
+    if (!data || !hora) return "";
+
+    try {
+      // Converte a data para formato brasileiro (DD/MM/YYYY)
+      const [ano, mes, dia] = data.split("-");
+      const dataBR = `${dia}/${mes}/${ano}`;
+
+      // Formata a hora (remove os segundos se existirem)
+      const horaBR = hora.split(":").slice(0, 2).join(":");
+
+      return `${dataBR} - ${horaBR}`;
+    } catch (error) {
+      return `${data} - ${hora}`;
+    }
+  };
+
+  const getPrioridadeLegenda = (prioridade) => {
+    switch (prioridade) {
+      case 0:
+        return "Normal";
+      case 1:
+        return "Média";
+      case 2:
+        return "Alta";
+      default:
+        return "Normal"; // Valor padrão caso seja undefined ou inválido
+    }
+  };
+
   return (
     <div className="fixed inset-0 backdrop-blur-sm  flex items-center justify-center z-200">
       <div className="relative bg-white w-full max-w-2xl p-8 rounded-2xl shadow-lg">
@@ -42,21 +72,35 @@ const ModalAddCheckIn = ({
             />
           </svg>
         </button>
-        <h3 className="text-2xl font-bold text-blue-600 mb-6">Registrar Check-In</h3>
+        <h3 className="text-2xl font-bold text-blue-600 mb-6">
+          Registrar Check-In
+        </h3>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
             <p className="text-sm text-gray-600">
-              Paciente: <span className="font-semibold">{consulta.paciente.nome}</span>
+              Paciente:{" "}
+              <span className="font-semibold">{consulta.paciente.nome}</span>
             </p>
             <p className="text-sm text-gray-600">
-              Médico: <span className="font-semibold">{consulta.profissionais.nome} {consulta.profissionais.sobrenome}</span>
+              Médico:{" "}
+              <span className="font-semibold">
+                {consulta.profissionais.nome} {consulta.profissionais.sobrenome}
+              </span>
             </p>
             <p className="text-sm text-gray-600">
-              Horário: <span className="font-semibold">{new Date(consulta.horaChegada).toLocaleTimeString()}</span>
+              Data e Hora:{" "}
+              <span className="font-semibold">
+                {formatarDataHoraBR(
+                  consulta.dataConsulta,
+                  consulta.horaConsulta
+                )}
+              </span>
             </p>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-600 mb-1">Pressão Arterial</label>
+            <label className="block text-sm font-medium text-gray-600 mb-1">
+              Pressão Arterial
+            </label>
             <input
               type="text"
               name="pressaoArterial"
@@ -67,7 +111,9 @@ const ModalAddCheckIn = ({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-600 mb-1">Temperatura (°C)</label>
+            <label className="block text-sm font-medium text-gray-600 mb-1">
+              Temperatura (°C)
+            </label>
             <input
               type="number"
               step="0.1"
@@ -79,7 +125,9 @@ const ModalAddCheckIn = ({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-600 mb-1">Peso (kg)</label>
+            <label className="block text-sm font-medium text-gray-600 mb-1">
+              Peso (kg)
+            </label>
             <input
               type="number"
               step="0.01"
@@ -91,7 +139,9 @@ const ModalAddCheckIn = ({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-600 mb-1">Altura (m)</label>
+            <label className="block text-sm font-medium text-gray-600 mb-1">
+              Altura (m)
+            </label>
             <input
               type="number"
               step="0.01"
@@ -103,7 +153,9 @@ const ModalAddCheckIn = ({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-600 mb-1">Observações</label>
+            <label className="block text-sm font-medium text-gray-600 mb-1">
+              Observações
+            </label>
             <textarea
               name="observacoes"
               value={dadosCheckIn.observacoes}
@@ -114,11 +166,13 @@ const ModalAddCheckIn = ({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-600 mb-1">Prioridade</label>
+            <label className="block text-sm font-medium text-gray-600 mb-1">
+              Prioridade
+            </label>
             <input
               type="number"
               name="prioridade"
-              value={dadosCheckIn.prioridade}
+              value={getPrioridadeLegenda(dadosCheckIn.prioridade)}
               onChange={handleChange}
               min="0"
               className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"

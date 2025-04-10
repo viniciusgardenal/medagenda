@@ -12,15 +12,16 @@ const ReceitaForm = ({ onMatriculaChange }) => {
   }, [user, onMatriculaChange]);
 
   return (
-    <div className="form-group">
-      <label>Médico:</label>
+    <div className="space-y-2">
       <input
         type="text"
         name="ProfissionalCRM"
         value={`${user?.nome || "Nome não disponível"} (CRM: ${
           user?.crm || "CRM não disponível"
         })`}
-        readOnly // Torna o campo somente leitura
+        readOnly
+        disabled
+        className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-500 text-sm cursor-not-allowed shadow-sm"
         required
       />
     </div>

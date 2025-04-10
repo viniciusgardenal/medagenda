@@ -257,7 +257,7 @@ const Sidebar = () => {
     <div className="relative min-h-screen">
       {/* Mobile menu button */}
       <button
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-md bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
+        className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-md bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors duration-150"
         onClick={() => setIsOpen(!isOpen)}
       >
         {isOpen ? <X size={20} /> : <Menu size={20} />}
@@ -265,19 +265,35 @@ const Sidebar = () => {
 
       {/* Sidebar */}
       <div
-        className={`fixed top-0 left-0 h-full bg-white text-gray-800 transition-all duration-300 ease-in-out border-r border-gray-200 ${
+        className={`fixed top-0 left-0 h-full bg-white text-gray-800 transition-all duration-300 ease-in-out border-r border-gray-300 shadow-lg ${
           isOpen ? "w-64" : "w-0 lg:w-64"
         } ${isOpen ? "overflow-visible" : "overflow-hidden"} lg:relative lg:block`}
       >
         {/* Logo area */}
-        <div className="flex items-center justify-center h-16 bg-gray-50 border-b border-gray-200">
-          <span
-            className={`font-semibold text-lg text-gray-800 ${
-              !isOpen && "hidden lg:block"
-            }`}
-          >
-            MedAgenda
-          </span>
+        <div className="flex items-center justify-center h-16 bg-white border-b border-gray-300">
+          <div className="flex items-center">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-8 h-8 text-blue-600 mr-2"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M4 6h16M4 12h16m-7 6h7"
+              />
+            </svg>
+            <span
+              className={`text-2xl font-bold text-blue-600 ${
+                !isOpen && "hidden lg:block"
+              }`}
+            >
+              MedAgenda
+            </span>
+          </div>
         </div>
 
         {/* Navigation */}
@@ -286,7 +302,7 @@ const Sidebar = () => {
             <div key={index} className="mb-2">
               <button
                 onClick={() => toggleDropdown(index)}
-                className="w-full flex items-center justify-between p-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
+                className="w-full flex items-center justify-between p-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors duration-150"
               >
                 <span className="text-xs font-medium uppercase tracking-wide">
                   {section.title}
@@ -306,7 +322,7 @@ const Sidebar = () => {
                       <li key={idx}>
                         <a
                           href={item.path}
-                          className="flex items-center p-2 text-gray-700 hover:bg-gray-100 rounded-md transition-colors no-underline"
+                          className="flex items-center p-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-md transition-colors duration-150 no-underline"
                         >
                           <span className="mr-3 text-gray-500">
                             {item.icon}
@@ -323,10 +339,10 @@ const Sidebar = () => {
 
         {/* User Profile Footer */}
         <div className="absolute bottom-0 w-full p-4">
-          <div className="flex items-center justify-between bg-gray-50 rounded-md p-3 border border-gray-200">
+          <div className="flex items-center justify-between bg-gray-100 rounded-md p-3 border border-gray-300">
             {isOpen && (
               <button
-                className="flex items-center text-gray-600 hover:text-gray-800 transition-colors space-x-2"
+                className="flex items-center text-blue-600 hover:text-blue-700 transition-colors duration-150 space-x-2"
                 onClick={logout}
               >
                 <span className="text-sm font-medium">Sair</span>

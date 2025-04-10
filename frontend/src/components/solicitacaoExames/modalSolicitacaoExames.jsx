@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from "react";
-import "./modalSolicitacaoExamesStyle.css";
-import "../util/geral.css";
 import {
   criarSolicitacaoExames,
   getTiposExames,
@@ -9,9 +7,9 @@ import {
 import ReceitaForm from "../receitas/receitaForm";
 
 const ModalSolicitacaoExames = ({ isOpen, onClose, onSave }) => {
-  const [idTipoExame, setIdTipoExame] = useState("");
+  const [idTipoExame, setIdTipoExame] = useState([]);
   const [matriculaProfissional, setMatriculaProfissional] = useState("");
-  const [cpfPaciente, setCpfPaciente] = useState("");
+  const [cpfPaciente, setCpfPaciente] = useState([]);
   const [periodo, setPeriodo] = useState("");
   const [dataSolicitacao, setDataSolicitacao] = useState(
     new Date().toISOString().split("T")[0]
@@ -19,12 +17,10 @@ const ModalSolicitacaoExames = ({ isOpen, onClose, onSave }) => {
   const [dataRetorno, setDataRetorno] = useState("");
   const [justificativa, setJustificativa] = useState("");
   const [erros, setErros] = useState({});
-
   const [pacienteSelecionado, setPacienteSelecionado] = useState("");
   const [tipoExameSelecionado, setTipoExameSelecionado] = useState("");
 
   useEffect(() => {
-    // Busca os dados para os selects
     const fetchData = async () => {
       try {
         const [tiposExameResponse, pacientesResponse] = await Promise.all([
@@ -37,33 +33,27 @@ const ModalSolicitacaoExames = ({ isOpen, onClose, onSave }) => {
         console.error("Erro ao carregar dados:", error);
       }
     };
-
     fetchData();
   }, []);
 
   const handlePacienteChange = (event) => {
-    const cpfSelecionado = event.target.value;
-    setPacienteSelecionado(cpfSelecionado);
+    setPacienteSelecionado(event.target.value);
   };
 
   const handleTipoExameChange = (event) => {
-    const tipoExame = event.target.value;
-    setTipoExameSelecionado(tipoExame);
+    setTipoExameSelecionado(event.target.value);
   };
 
   const validarCampos = () => {
     const newErros = {};
-    if (!tipoExameSelecionado)
-      newErros.tipoExame = "Tipo de exame é obrigatório!";
-    if (!pacienteSelecionado) newErros.paciente = "Paciente é obrigatório!";
-    if (!periodo) newErros.periodo = "Período é obrigatório!";
-    if (!dataSolicitacao)
-      newErros.dataSolicitacao = "Data da solicitação é obrigatória!";
-    if (!dataRetorno) newErros.dataRetorno = "Data de retorno é obrigatória!";
-    if (!justificativa) newErros.justificativa = "Justificariva é obrigatória!";
+    if (!tipoExameSelecionado) newErros.tipoExame = "Obrigatório";
+    if (!pacienteSelecionado) newErros.paciente = "Obrigatório";
+    if (!periodo) newErros.periodo = "Obrigatório";
+    if (!dataSolicitacao) newErros.dataSolicitacao = "Obrigatório";
+    if (!dataRetorno) newErros.dataRetorno = "Obrigatório";
+    if (!justificativa) newErros.justificativa = "Obrigatório";
     if (new Date(dataRetorno) < new Date(dataSolicitacao)) {
-      newErros.dataRetorno =
-        "A data de retorno não pode ser anterior à data da solicitação!";
+      newErros.dataRetorno = "Data inválida";
     }
     setErros(newErros);
     return Object.keys(newErros).length === 0;
@@ -71,8 +61,7 @@ const ModalSolicitacaoExames = ({ isOpen, onClose, onSave }) => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-
-    if (!validarCampos()) return; // Se houver erro, não submete
+    if (!validarCampos()) return;
 
     const dados = {
       idTipoExame: tipoExameSelecionado,
@@ -81,7 +70,7 @@ const ModalSolicitacaoExames = ({ isOpen, onClose, onSave }) => {
       dataRetorno,
       status: "Ativo",
       justificativa,
-      matriculaProfissional: matriculaProfissional,
+      matriculaProfissional,
       cpfPaciente: pacienteSelecionado,
     };
 
@@ -89,13 +78,14 @@ const ModalSolicitacaoExames = ({ isOpen, onClose, onSave }) => {
       await criarSolicitacaoExames(dados);
       onSave();
       onClose();
-
-      // Limpa os campos
-      setIdTipoExame("");
+      setIdTipoExame([]);
       setPeriodo("");
       setDataSolicitacao("");
       setDataRetorno("");
-      setCpfPaciente("");
+      setCpfPaciente([]);
+      setJustificativa("");
+      setPacienteSelecionado("");
+      setTipoExameSelecionado("");
     } catch (error) {
       console.error("Erro ao adicionar solicitação de exame:", error);
     }
@@ -104,22 +94,42 @@ const ModalSolicitacaoExames = ({ isOpen, onClose, onSave }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-content">
-        <button className="modal-close-button" onClick={onClose}>
-          X
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-lg relative">
+        <button
+          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors duration-150"
+          onClick={onClose}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-6 h-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
         </button>
-        <h2>Adicionar Solicitação de Exame</h2>
-        <form className="modal-add" onSubmit={handleSubmit}>
-          {/* Tipo de Exame */}
-          <div>
-            <label>Tipo de Exame:</label>
+        <h2 className="text-2xl font-semibold text-blue-600 mb-6">
+          Nova Solicitação
+        </h2>
+        <form className="grid grid-cols-2 gap-4" onSubmit={handleSubmit}>
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">
+              Exame
+            </label>
             <select
               value={tipoExameSelecionado}
               onChange={handleTipoExameChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm shadow-sm"
               required
             >
-              <option value="">Selecione o tipo de exame</option>
+              <option value="">Selecione</option>
               {Array.isArray(idTipoExame) &&
                 idTipoExame.map((tipo) => (
                   <option key={tipo.idTipoExame} value={tipo.idTipoExame}>
@@ -128,22 +138,48 @@ const ModalSolicitacaoExames = ({ isOpen, onClose, onSave }) => {
                 ))}
             </select>
             {erros.tipoExame && (
-              <small style={{ color: "red" }}>{erros.tipoExame}</small>
+              <p className="text-red-500 text-xs">{erros.tipoExame}</p>
             )}
           </div>
-
-          {/* Matricula Profissional */}
-          <ReceitaForm onMatriculaChange={setMatriculaProfissional} />
-
-          {/* Paciente */}
-          <div>
-            <label>Paciente:</label>
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">
+              Período
+            </label>
+            <select
+              value={periodo}
+              onChange={(e) => setPeriodo(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm shadow-sm"
+              required
+            >
+              <option value="">Selecione</option>
+              <option value="Manhã">Manhã</option>
+              <option value="Tarde">Tarde</option>
+              <option value="Noite">Noite</option>
+            </select>
+            {erros.periodo && (
+              <p className="text-red-500 text-xs">{erros.periodo}</p>
+            )}
+          </div>
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">
+              Médico
+            </label>
+            <ReceitaForm
+              onMatriculaChange={setMatriculaProfissional}
+              className="w-full"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">
+              Paciente
+            </label>
             <select
               value={pacienteSelecionado}
               onChange={handlePacienteChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm shadow-sm"
               required
             >
-              <option value="">Selecione um paciente</option>
+              <option value="">Selecione</option>
               {Array.isArray(cpfPaciente) &&
                 cpfPaciente.map((paciente) => (
                   <option key={paciente.cpf} value={paciente.cpf}>
@@ -152,73 +188,61 @@ const ModalSolicitacaoExames = ({ isOpen, onClose, onSave }) => {
                 ))}
             </select>
             {erros.paciente && (
-              <small style={{ color: "red" }}>{erros.paciente}</small>
+              <p className="text-red-500 text-xs">{erros.paciente}</p>
             )}
           </div>
-
-          {/* Período */}
-          <div>
-            <label>Período:</label>
-            <select
-              value={periodo}
-              onChange={(e) => setPeriodo(e.target.value)}
-              required
-            >
-              <option value="">Selecione o período</option>
-              <option value="Manhã">Manhã</option>
-              <option value="Tarde">Tarde</option>
-              <option value="Noite">Noite</option>
-            </select>
-            {erros.periodo && (
-              <small style={{ color: "red" }}>{erros.periodo}</small>
-            )}
-          </div>
-
-          {/* Data da Solicitação */}
-          <div>
-            <label>Data da Solicitação:</label>
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">
+              Solicitação
+            </label>
             <input
               type="date"
               value={dataSolicitacao}
               readOnly
-              className="read-only-date"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-500 text-sm cursor-not-allowed shadow-sm"
               required
             />
             {erros.dataSolicitacao && (
-              <small style={{ color: "red" }}>{erros.dataSolicitacao}</small>
+              <p className="text-red-500 text-xs">{erros.dataSolicitacao}</p>
             )}
           </div>
-
-          {/* Data de Retorno */}
-          <div>
-            <label>Data de Retorno:</label>
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">
+              Retorno
+            </label>
             <input
               type="date"
               value={dataRetorno}
               onChange={(e) => setDataRetorno(e.target.value)}
-              min={new Date().toISOString().split('T')[0]}
+              min={new Date().toISOString().split("T")[0]}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm shadow-sm"
               required
             />
             {erros.dataRetorno && (
-              <small style={{ color: "red" }}>{erros.dataRetorno}</small>
+              <p className="text-red-500 text-xs">{erros.dataRetorno}</p>
             )}
           </div>
-
-          {/* justificativa */}
-          <div>
-            <label>Justificativa:</label>
-            <input
-              type="text-area"
+          <div className="col-span-2 space-y-2">
+            <label className="block text-sm font-medium text-gray-700">
+              Justificativa
+            </label>
+            <textarea
               value={justificativa}
+              rows={10}
               onChange={(e) => setJustificativa(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm shadow-sm"
               required
             />
-            {erros.dataRetorno && (
-              <small style={{ color: "red" }}>{erros.dataRetorno}</small>
+            {erros.justificativa && (
+              <p className="text-red-500 text-xs">{erros.justificativa}</p>
             )}
           </div>
-
-          <button type="submit">Adicionar Solicitação de Exame</button>
+          <button
+            type="submit"
+            className="col-span-2 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors duration-150 mt-4"
+          >
+            Adicionar
+          </button>
         </form>
       </div>
     </div>

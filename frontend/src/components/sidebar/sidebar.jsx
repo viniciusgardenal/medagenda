@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Home, Users, Menu, X, ChevronDown } from "lucide-react";
+import { Home, Users, Menu, X, ChevronDown, User } from "lucide-react";
 import { useAuthContext } from "../../context/authContext";
 
 const Sidebar = () => {
@@ -10,14 +10,10 @@ const Sidebar = () => {
 
   const menuItems = [
     {
-      title: "FUNÇÕES BÁSICAS",
+      title: "Funções Básicas",
+      icon: <Home size={18} />,
       items: [
-        {
-          title: "Home",
-          icon: <Home size={20} />,
-          path: "/home",
-          roles: ["Diretor", "Atendente", "Médico"],
-        },
+        { title: "Home", icon: <Home size={18} />, path: "/home", roles: ["Diretor", "Atendente", "Médico"] },
         {
           title: "Profissionais",
           path: "/profissionais",
@@ -28,7 +24,7 @@ const Sidebar = () => {
               viewBox="0 0 24 24"
               strokeWidth="1.5"
               stroke="currentColor"
-              className="w-5 h-5"
+              className="w-4 h-4"
             >
               <path
                 strokeLinecap="round"
@@ -39,12 +35,7 @@ const Sidebar = () => {
           ),
           roles: ["Diretor"],
         },
-        {
-          title: "Pacientes",
-          path: "/pacientes",
-          icon: <Users size={20} />,
-          roles: ["Diretor", "Atendente"],
-        },
+        { title: "Pacientes", path: "/pacientes", icon: <Users size={18} />, roles: ["Diretor", "Atendente"] },
         {
           title: "Medicamentos",
           path: "/medicamentos",
@@ -55,7 +46,7 @@ const Sidebar = () => {
               viewBox="0 0 24 24"
               strokeWidth="1.5"
               stroke="currentColor"
-              className="w-5 h-5"
+              className="w-4 h-4"
             >
               <path
                 strokeLinecap="round"
@@ -76,7 +67,7 @@ const Sidebar = () => {
               viewBox="0 0 24 24"
               strokeWidth="1.5"
               stroke="currentColor"
-              className="w-5 h-5"
+              className="w-4 h-4"
             >
               <path
                 strokeLinecap="round"
@@ -97,7 +88,7 @@ const Sidebar = () => {
               viewBox="0 0 24 24"
               strokeWidth="1.5"
               stroke="currentColor"
-              className="w-5 h-5"
+              className="w-4 h-4"
             >
               <path
                 strokeLinecap="round"
@@ -117,7 +108,7 @@ const Sidebar = () => {
               viewBox="0 0 24 24"
               strokeWidth="1.5"
               stroke="currentColor"
-              className="w-5 h-5"
+              className="w-4 h-4"
             >
               <path
                 strokeLinecap="round"
@@ -133,7 +124,8 @@ const Sidebar = () => {
       roles: ["Diretor", "Atendente", "Médico"],
     },
     {
-      title: "FUNÇÕES FUNDAMENTAIS",
+      title: "Funções Fundamentais",
+      icon: <Users size={18} />,
       items: [
         {
           title: "Solicitação de Exames",
@@ -145,7 +137,7 @@ const Sidebar = () => {
               viewBox="0 0 24 24"
               strokeWidth="1.5"
               stroke="currentColor"
-              className="w-5 h-5"
+              className="w-4 h-4"
             >
               <path
                 strokeLinecap="round"
@@ -165,7 +157,7 @@ const Sidebar = () => {
               viewBox="0 0 24 24"
               strokeWidth="1.5"
               stroke="currentColor"
-              className="w-5 h-5"
+              className="w-4 h-4"
             >
               <path
                 strokeLinecap="round"
@@ -186,7 +178,7 @@ const Sidebar = () => {
               viewBox="0 0 24 24"
               strokeWidth="1.5"
               stroke="currentColor"
-              className="w-5 h-5"
+              className="w-4 h-4"
             >
               <path
                 strokeLinecap="round"
@@ -207,7 +199,7 @@ const Sidebar = () => {
               viewBox="0 0 24 24"
               strokeWidth="1.5"
               stroke="currentColor"
-              className="w-5 h-5"
+              className="w-4 h-4"
             >
               <path
                 strokeLinecap="round"
@@ -228,7 +220,7 @@ const Sidebar = () => {
               viewBox="0 0 24 24"
               strokeWidth="1.5"
               stroke="currentColor"
-              className="w-5 h-5"
+              className="w-4 h-4"
             >
               <path
                 strokeLinecap="round"
@@ -255,26 +247,26 @@ const Sidebar = () => {
 
   return (
     <div className="relative min-h-screen">
-      {/* Mobile menu button */}
+      {/* Botão de menu mobile */}
       <button
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-md bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors duration-150"
+        className="lg:hidden fixed top-4 left-4 z-50 p-1.5 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors duration-150"
         onClick={() => setIsOpen(!isOpen)}
       >
-        {isOpen ? <X size={20} /> : <Menu size={20} />}
+        {isOpen ? <X size={18} /> : <Menu size={18} />}
       </button>
 
       {/* Sidebar */}
       <div
-        className={`fixed top-0 left-0 h-full bg-white text-gray-800 transition-all duration-300 ease-in-out border-r border-gray-300 shadow-lg ${
+        className={`fixed top-0 left-0 h-full bg-white text-gray-700 transition-all duration-300 ease-in-out border-r border-gray-100 ${
           isOpen ? "w-64" : "w-0 lg:w-64"
-        } ${isOpen ? "overflow-visible" : "overflow-hidden"} lg:relative lg:block`}
+        } lg:relative lg:block`}
       >
-        {/* Logo area */}
-        <div className="flex items-center justify-center h-16 bg-white border-b border-gray-300">
-          <div className="flex items-center">
+        {/* Área do Logo */}
+        <div className="flex items-center justify-center h-16 border-b border-gray-100">
+          <div className="flex items-center space-x-2">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="w-8 h-8 text-blue-600 mr-2"
+              className="w-6 h-6 text-blue-500"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -287,7 +279,7 @@ const Sidebar = () => {
               />
             </svg>
             <span
-              className={`text-2xl font-bold text-blue-600 ${
+              className={`text-xl font-semibold text-gray-800 ${
                 !isOpen && "hidden lg:block"
               }`}
             >
@@ -296,37 +288,36 @@ const Sidebar = () => {
           </div>
         </div>
 
-        {/* Navigation */}
-        <nav className="p-4">
+        {/* Navegação */}
+        <nav className="p-4 space-y-1">
           {filteredMenuItems.map((section, index) => (
             <div key={index} className="mb-2">
               <button
                 onClick={() => toggleDropdown(index)}
-                className="w-full flex items-center justify-between p-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors duration-150"
+                className="w-full flex items-center no-underline justify-between px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-md transition-colors duration-150"
               >
-                <span className="text-xs font-medium uppercase tracking-wide">
-                  {section.title}
-                </span>
+                <div className="flex items-center space-x-2">
+                  <span className="text-blue-500">{section.icon}</span>
+                  <span className="text-sm font-medium text-gray-700 text-left">{section.title}</span>
+                </div>
                 <ChevronDown
                   size={16}
-                  className={`text-gray-500 transition-transform ${
+                  className={`text-gray-400 transition-transform duration-150 ${
                     openDropdown === index ? "rotate-180" : ""
                   }`}
                 />
               </button>
               {openDropdown === index && (
-                <ul className="mt-1 space-y-1">
+                <ul className="mt-1 space-y-1 pl-6">
                   {section.items
                     .filter((item) => item.roles.includes(user?.role))
                     .map((item, idx) => (
                       <li key={idx}>
                         <a
                           href={item.path}
-                          className="flex items-center p-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-md transition-colors duration-150 no-underline"
+                          className="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-50 hover:text-blue-500 rounded-md transition-colors duration-150 no-underline"
                         >
-                          <span className="mr-3 text-gray-500">
-                            {item.icon}
-                          </span>
+                          <span className="mr-2 text-gray-400">{item.icon}</span>
                           <span className="text-sm">{item.title}</span>
                         </a>
                       </li>
@@ -337,30 +328,34 @@ const Sidebar = () => {
           ))}
         </nav>
 
-        {/* User Profile Footer */}
+        {/* Rodapé com Perfil do Usuário */}
         <div className="absolute bottom-0 w-full p-4">
-          <div className="flex items-center justify-between bg-gray-100 rounded-md p-3 border border-gray-300">
+          <div className="flex items-center justify-between border-t border-gray-100 pt-2">
             {isOpen && (
-              <button
-                className="flex items-center text-blue-600 hover:text-blue-700 transition-colors duration-150 space-x-2"
-                onClick={logout}
-              >
-                <span className="text-sm font-medium">Sair</span>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 20 20"
-                  className="fill-current"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M3 3a1 1 0 0 0-1 1v12a1 1 0 1 0 2 0V4a1 1 0 0 0-1-1m10.293 9.293a1 1 0 0 0 1.414 1.414l3-3a1 1 0 0 0 0-1.414l-3-3a1 1 0 1 0-1.414 1.414L14.586 9H7a1 1 0 1 0 0 2h7.586z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </button>
+              <div className="flex items-center space-x-2">
+                <User size={18} className="text-gray-400" />
+                <span className="text-sm text-gray-600">{user?.name || "Usuário"}</span>
+              </div>
             )}
+            <button
+              onClick={logout}
+              className="flex items-center text-blue-500 hover:text-blue-600 transition-colors duration-150 space-x-1"
+            >
+              <span className="text-sm">Sair</span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 20 20"
+                className="fill-current"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M3 3a1 1 0 0 0-1 1v12a1 1 0 1 0 2 0V4a1 1 0 0 0-1-1m10.293 9.293a1 1 0 0 0 1.414 1.414l3-3a1 1 0 0 0 0-1.414l-3-3a1 1 0 1 0-1.414 1.414L14.586 9H7a1 1 0 1 0 0 2h7.586z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </button>
           </div>
         </div>
       </div>

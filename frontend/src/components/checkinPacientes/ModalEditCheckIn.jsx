@@ -1,4 +1,3 @@
-// components/ModalEditCheckIn.jsx
 import React from "react";
 
 const ModalEditCheckIn = ({
@@ -18,34 +17,46 @@ const ModalEditCheckIn = ({
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave(checkIn.id); // Passa o ID do check-in para a função de salvamento
+    onSave(checkIn.id);
   };
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-xl shadow-lg w-full max-w-md">
-        <h3 className="text-2xl font-bold text-gray-800 mb-4">
-          Editar Check-In
-        </h3>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="fixed inset-0 backdrop-blur-sm  flex items-center justify-center z-200">
+      <div className="relative bg-white w-full max-w-2xl p-8 rounded-2xl shadow-lg">
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+        <h3 className="text-2xl font-bold text-blue-600 mb-6">Editar Check-In</h3>
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-sm font-semibold text-gray-700">
-              Pressão Arterial
-            </label>
+            <label className="block text-sm font-medium text-gray-600 mb-1">Pressão Arterial</label>
             <input
               type="text"
               name="pressaoArterial"
               value={dadosCheckIn.pressaoArterial || ""}
               onChange={handleChange}
               placeholder="Ex.: 120/80"
-              className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div>
-            <label className="block text-sm font-semibold text-gray-700">
-              Temperatura (°C)
-            </label>
+            <label className="block text-sm font-medium text-gray-600 mb-1">Temperatura (°C)</label>
             <input
               type="number"
               step="0.1"
@@ -53,13 +64,11 @@ const ModalEditCheckIn = ({
               value={dadosCheckIn.temperatura || ""}
               onChange={handleChange}
               placeholder="Ex.: 36.5"
-              className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div>
-            <label className="block text-sm font-semibold text-gray-700">
-              Peso (kg)
-            </label>
+            <label className="block text-sm font-medium text-gray-600 mb-1">Peso (kg)</label>
             <input
               type="number"
               step="0.01"
@@ -67,13 +76,11 @@ const ModalEditCheckIn = ({
               value={dadosCheckIn.peso || ""}
               onChange={handleChange}
               placeholder="Ex.: 75.50"
-              className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div>
-            <label className="block text-sm font-semibold text-gray-700">
-              Altura (m)
-            </label>
+            <label className="block text-sm font-medium text-gray-600 mb-1">Altura (m)</label>
             <input
               type="number"
               step="0.01"
@@ -81,47 +88,42 @@ const ModalEditCheckIn = ({
               value={dadosCheckIn.altura || ""}
               onChange={handleChange}
               placeholder="Ex.: 1.75"
-              className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div>
-            <label className="block text-sm font-semibold text-gray-700">
-              Observações
-            </label>
+            <label className="block text-sm font-medium text-gray-600 mb-1">Observações</label>
             <textarea
               name="observacoes"
               value={dadosCheckIn.observacoes || ""}
               onChange={handleChange}
               placeholder="Digite observações adicionais"
-              className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[120px]"
               rows="3"
             />
           </div>
           <div>
-            <label className="block text-sm font-semibold text-gray-700">
-              Prioridade
-            </label>
+            <label className="block text-sm font-medium text-gray-600 mb-1">Prioridade</label>
             <input
               type="number"
               name="prioridade"
               value={dadosCheckIn.prioridade || 0}
               onChange={handleChange}
               min="0"
-              className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-
-          <div className="flex justify-end gap-2 mt-6">
+          <div className="mt-8 flex justify-end gap-4">
             <button
               type="button"
               onClick={onClose}
-              className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors"
+              className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors"
+              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
               Salvar
             </button>

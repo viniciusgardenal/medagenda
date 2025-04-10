@@ -5,14 +5,9 @@ import ModalEditCheckIn from "./ModalEditCheckIn";
 import ModalViewCheckIn from "./ModalViewCheckIn";
 import FiltroCheckIn from "./FiltroCheckIn";
 
-// Componente para cada linha da tabela
 const TableRow = ({ consulta, onAdd, onEdit, onView }) => {
-  console.log(consulta);
+  const checkInRealizado = consulta.checkin && consulta.checkin.status === "registrado";
 
-  const checkInRealizado =
-    consulta.checkin && consulta.checkin.status === "registrado";
-
-  // Função para mapear prioridade para legenda
   const getPrioridadeLegenda = (prioridade) => {
     switch (prioridade) {
       case 0:
@@ -22,31 +17,25 @@ const TableRow = ({ consulta, onAdd, onEdit, onView }) => {
       case 2:
         return "Alta";
       default:
-        return "Normal"; // Valor padrão caso seja undefined ou inválido
+        return "Normal";
     }
   };
 
   return (
-    <tr className="odd:bg-white even:bg-gray-50 hover:bg-gray-100 transition-colors text-left">
-      <td className="py-3 px-2 text-gray-700 text-sm">
-        {consulta.paciente.nome}
-      </td>
-      <td className="py-3 px-2 text-gray-700 text-sm">
+    <tr className="hover:bg-blue-50 transition-colors">
+      <td className="px-4 py-3 text-sm text-gray-700">{consulta.paciente.nome}</td>
+      <td className="px-4 py-3 text-sm text-gray-700">
         {consulta.profissionais.nome} {consulta.profissionais.sobrenome}
       </td>
-      <td className="py-3 px-2 text-gray-700 text-sm">
-        {consulta.horaConsulta} {/* Usando horaConsulta diretamente */}
-      </td>
-      <td className="py-3 px-2 text-gray-700 text-sm">
+      <td className="px-4 py-3 text-sm text-gray-700">{consulta.horaConsulta}</td>
+      <td className="px-4 py-3 text-sm text-gray-700">
         {getPrioridadeLegenda(
-          consulta.checkin
-            ? consulta.checkin.prioridade
-            : consulta.prioridade || 0
+          consulta.checkin ? consulta.checkin.prioridade : consulta.prioridade || 0
         )}
       </td>
-      <td className="py-3 px-2">
+      <td className="px-4 py-3">
         {checkInRealizado ? (
-          <span className="bg-green-500 text-white px-3 py-1.5 rounded-md font-semibold text-sm flex items-center gap-1">
+          <span className="inline-flex items-center gap-1 rounded-full bg-green-600 px-3 py-1.5 text-sm font-semibold text-white shadow">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-4 w-4"
@@ -66,7 +55,7 @@ const TableRow = ({ consulta, onAdd, onEdit, onView }) => {
         ) : (
           <button
             onClick={() => onAdd(consulta)}
-            className="bg-orange-500 text-white px-3 py-1.5 rounded-md font-semibold text-sm hover:bg-orange-600 transition-colors flex items-center gap-1"
+            className="inline-flex items-center gap-2 rounded-full bg-orange-600 px-3 py-1.5 text-sm font-semibold text-white shadow hover:bg-orange-700 transition"
             title="Registrar Chegada"
           >
             <svg
@@ -87,20 +76,20 @@ const TableRow = ({ consulta, onAdd, onEdit, onView }) => {
           </button>
         )}
       </td>
-      <td className="py-3 px-2 flex gap-2 justify-center">
+      <td className="px-4 py-3 flex gap-3">
         {checkInRealizado && (
           <>
             <button
               onClick={() => onEdit(consulta.checkin)}
-              className="bg-[#001233] text-white p-2 rounded-md hover:bg-[#153a80]"
+              className="text-green-500 hover:text-green-700"
               title="Editar Check-In"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
-                className="size-6"
               >
                 <path
                   strokeLinecap="round"
@@ -112,21 +101,27 @@ const TableRow = ({ consulta, onAdd, onEdit, onView }) => {
             </button>
             <button
               onClick={() => onView(consulta.checkin)}
-              className="bg-[#001233] text-white p-2 rounded-md hover:bg-[#153a80]"
+              className="text-blue-500 hover:text-blue-700"
               title="Visualizar Check-In"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
-                className="size-6"
               >
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M2.458 12C3.732 7.943 7.522 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.478 0-8.268-2.943-9.542-7z"
                 />
               </svg>
             </button>
@@ -154,7 +149,7 @@ const CheckInPacientes = () => {
   });
   const [filtros, setFiltros] = useState({
     filtroNome: "",
-    filtroData: new Date().toISOString().split("T")[0], // Data atual
+    filtroData: new Date().toISOString().split("T")[0],
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -166,20 +161,9 @@ const CheckInPacientes = () => {
       try {
         const consultasResponse = await getConsultasPorData(filtros.filtroData);
         const consultasDoDia = consultasResponse.data.filter((consulta) => {
-          // Valida status da consulta e horário
           const agora = new Date();
-          // console.log(agora);
-
-          const dataConsulta = new Date(
-            `${consulta.dataConsulta}T${consulta.horaConsulta}`
-          );
-
-          console.log(dataConsulta);
-
-          return (
-            consulta.status === "agendada" && // Apenas consultas agendadas
-            dataConsulta > agora // Hora da consulta menor ou igual à atual
-          );
+          const dataConsulta = new Date(`${consulta.dataConsulta}T${consulta.horaConsulta}`);
+          return consulta.status === "agendada" && dataConsulta > agora;
         });
         setConsultas(consultasDoDia);
       } catch (error) {
@@ -209,13 +193,10 @@ const CheckInPacientes = () => {
       const checkInData = {
         ...dadosCheckIn,
         consultaId: consultaSelecionada.id,
-        profissionalId: 3, // Ajustar conforme autenticação
+        profissionalId: 3,
         horaChegada: new Date(),
-        status: "registrado", // Status fixo para novo check-in
+        status: "registrado",
       };
-
-      console.log("fazer checkin", checkInData);
-
       await realizarCheckIn(checkInData);
       const updatedConsultas = consultas.map((c) =>
         c.id === consultaSelecionada.id ? { ...c, checkin: checkInData } : c
@@ -287,104 +268,93 @@ const CheckInPacientes = () => {
   };
 
   return (
-    <section className="container mx-auto my-10 p-6 bg-white rounded-xl shadow-lg">
-      <h2 className="text-3xl text-gray-800 font-bold text-center mb-6">
-        Check-In de Pacientes - UBS
-      </h2>
-
-      <FiltroCheckIn
-        onFiltroChange={handleFiltroChange}
-        defaultDate={filtros.filtroData}
-      />
-
-      {error && (
-        <div className="mb-4 p-4 bg-red-100 text-red-700 rounded-md">
-          {error}
+    <div className="min-h-screen bg-gray-200 backdrop-blur-sm p-6">
+      <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-md p-6 space-y-6">
+        <div className="border-b pb-4">
+          <h2 className="text-3xl font-bold text-blue-600">Check-In de Pacientes - UBS</h2>
         </div>
-      )}
 
-      {isLoading ? (
-        <div className="text-center py-3">
-          <p className="text-gray-600">Carregando consultas...</p>
-        </div>
-      ) : (
-        <div className="overflow-x-auto rounded-lg shadow-md">
-          <table className="min-w-full bg-white rounded-lg shadow-md">
-            <thead className="bg-gray-100">
-              <tr>
-                {[
-                  "Paciente",
-                  "Médico",
-                  "Horário",
-                  "Prioridade",
-                  "Status",
-                  "Ações",
-                ].map((header) => (
-                  <th
-                    key={header}
-                    className="py-3 px-2 text-[#001233] font-semibold text-xs uppercase tracking-wider"
-                  >
-                    {header}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {consultasFiltradas.length === 0 ? (
+        <FiltroCheckIn onFiltroChange={handleFiltroChange} defaultDate={filtros.filtroData} />
+
+        {error && (
+          <div className="p-4 text-sm text-red-700 bg-red-100 rounded-lg border border-red-300">
+            {error}
+          </div>
+        )}
+
+        {isLoading ? (
+          <div className="text-center py-4">
+            <p className="text-sm text-gray-500">Carregando consultas...</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto rounded-lg shadow-md">
+            <table className="min-w-full divide-y divide-gray-200 bg-white">
+              <thead className="bg-blue-600 text-white">
                 <tr>
-                  <td
-                    colSpan="6"
-                    className="py-3 px-2 text-center text-gray-500"
-                  >
-                    Nenhuma consulta disponível para check-in neste momento.
-                  </td>
+                  {["Paciente", "Médico", "Horário", "Prioridade", "Status", "Ações"].map((header, index) => (
+                    <th
+                      key={header}
+                      className={`px-4 py-3 text-left text-sm font-semibold ${index === 0 ? "rounded-tl-lg" : ""} ${index === 5 ? "rounded-tr-lg" : ""}`}
+                    >
+                      {header}
+                    </th>
+                  ))}
                 </tr>
-              ) : (
-                consultasFiltradas.map((consulta) => (
-                  <TableRow
-                    key={consulta.id}
-                    consulta={consulta}
-                    onAdd={openAddModal}
-                    onEdit={openEditModal}
-                    onView={openViewModal}
-                  />
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      )}
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {consultasFiltradas.length === 0 ? (
+                  <tr>
+                    <td colSpan="6" className="px-4 py-4 text-center text-gray-500">
+                      Nenhuma consulta disponível para check-in neste momento.
+                    </td>
+                  </tr>
+                ) : (
+                  consultasFiltradas.map((consulta) => (
+                    <TableRow
+                      key={consulta.id}
+                      consulta={consulta}
+                      onAdd={openAddModal}
+                      onEdit={openEditModal}
+                      onView={openViewModal}
+                    />
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
 
-      {modalAddOpen && consultaSelecionada && (
-        <ModalAddCheckIn
-          isOpen={modalAddOpen}
-          onClose={closeModal}
-          consulta={consultaSelecionada}
-          dadosCheckIn={dadosCheckIn}
-          setDadosCheckIn={setDadosCheckIn}
-          onSave={handleSalvarCheckIn}
-        />
-      )}
+        {modalAddOpen && consultaSelecionada && (
+          <ModalAddCheckIn
+            isOpen={modalAddOpen}
+            onClose={closeModal}
+            consulta={consultaSelecionada}
+            dadosCheckIn={dadosCheckIn}
+            setDadosCheckIn={setDadosCheckIn}
+            onSave={handleSalvarCheckIn}
+          />
+        )}
 
-      {modalEditOpen && checkInSelecionado && (
-        <ModalEditCheckIn
-          isOpen={modalEditOpen}
-          onClose={closeModal}
-          checkIn={checkInSelecionado}
-          dadosCheckIn={dadosCheckIn}
-          setDadosCheckIn={setDadosCheckIn}
-          onSave={handleSalvarCheckIn}
-        />
-      )}
+        {modalEditOpen && checkInSelecionado && (
+          <ModalEditCheckIn
+            isOpen={modalEditOpen}
+            onClose={closeModal}
+            checkIn={checkInSelecionado}
+            dadosCheckIn={dadosCheckIn}
+            setDadosCheckIn={setDadosCheckIn}
+            onSave={handleSalvarCheckIn}
+          />
+        )}
 
-      {modalViewOpen && checkInSelecionado && (
-        <ModalViewCheckIn
-          isOpen={modalViewOpen}
-          onClose={closeModal}
-          checkIn={checkInSelecionado}
-        />
-      )}
-    </section>
+        {modalViewOpen && checkInSelecionado && (
+          <ModalViewCheckIn
+            isOpen={modalViewOpen}
+            onClose={closeModal}
+            checkIn={checkInSelecionado}
+          />
+        )}
+      </div>
+    </div>
   );
 };
 

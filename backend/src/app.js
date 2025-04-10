@@ -35,6 +35,8 @@ const receitasRoutes = require("./routes/receitasRoutes");
 const tipoConsulta = require("./routes/tipoConsultaRoutes");
 const gerarAtestados = require("./routes/gerarAtestadosRoutes");
 const registroResultadoExames = require("./routes/registroResultadoExamesRoutes");
+const checkIn = require("./routes/checkInRoutes");
+const consultasRoutes = require("./routes/consultasRoutes");
 
 // 2. Usar as rotas
 app.use("/auth", authRoutes);
@@ -54,6 +56,8 @@ app.use("/", autenticar, solicitacaoExamesRoutes);
 app.use("/", autenticar, receitasRoutes);
 app.use("/", autenticar, gerarAtestados);
 app.use("/", autenticar, registroResultadoExames);
+app.use("/", autenticar, checkIn);
+app.use("/", autenticar, consultasRoutes)
 
 // Configurar relação many-to-many
 Roles.belongsToMany(Permissao, {
@@ -71,6 +75,7 @@ Permissao.belongsToMany(Roles, {
 // Sincronização do banco de dados com o Sequelize
 const inicializarDados = require("./services/iniciarlizarPermissaoRoles");
 const inicializarFuncionarioPadrao = require("./services/inicializarFuncionarioPadrao ");
+const Consulta = require("./model/consulta");
 sequelize
   .sync({ force: false })
   .then(async () => {

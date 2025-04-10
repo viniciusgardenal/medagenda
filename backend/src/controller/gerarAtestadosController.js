@@ -9,7 +9,7 @@ const PDFDocument = require('pdfkit');
 const criarAtestado = async (req, res) => {
   try {
     const { cpfPaciente, matriculaProfissional, tipoAtestado } = req.body;
-    console.log(cpfPaciente, matriculaProfissional[0].matricula, tipoAtestado);
+    // console.log(cpfPaciente, matriculaProfissional[0].matricula, tipoAtestado);
 
     // Criação do atestado no banco de dados
     const novoAtestado = await Atestado.create({

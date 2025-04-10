@@ -12,6 +12,7 @@ import LoginScreen from "../loginScreen/loginScreen";
 import Unauthorized from "../unauthorized/unauthorized";
 import PlanoDeSaude from "../planoDeSaude/planoDeSaude";
 import TipoConsulta from "../tipoConsulta/tipoConsulta";
+import CheckInPacientes from "../checkinPacientes/CheckInPacientes";
 
 const routes = [
   { path: "/", element: <LoginScreen />, protected: false },
@@ -87,6 +88,13 @@ const routes = [
   {
     path: "/registrar-resultados-exames",
     element: <RegistroResultadoExame />,
+    protected: true,
+    permissao: "consultar",
+    rolesPermitidos: ["Diretor", "Médico"],
+  },
+  {
+    path: "/checkin-pacientes",
+    element: <CheckInPacientes />,
     protected: true,
     permissao: "consultar",
     rolesPermitidos: ["Diretor", "Médico"],

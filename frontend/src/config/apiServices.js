@@ -1,7 +1,6 @@
 import api from "./axiosConfig";
 const apiUrl = "http://localhost:5000";
 
-
 export const criarProfissional = async (dadosProfissional) => {
   return await api.post(`${apiUrl}/profissionais`, dadosProfissional);
 };
@@ -173,7 +172,7 @@ export const criarReceita = async (dadosReceita) => {
 // Gerar Atestados
 export const criarAtestado = async (dadosAtestado) => {
   return await api.post(`${apiUrl}/atestados`, dadosAtestado, {
-    responseType: 'blob',  // Ensure the response is a blob
+    responseType: "blob", // Ensure the response is a blob
   });
 };
 
@@ -205,10 +204,29 @@ export const getRegistroResultadoExameId = async (id) => {
 };
 
 export const atualizarRegistroResultadoExame = async (id, dadosRegistro) => {
-  return await api.put(`${apiUrl}/registroResultadoExames/${id}`, dadosRegistro);
+  return await api.put(
+    `${apiUrl}/registroResultadoExames/${id}`,
+    dadosRegistro
+  );
 };
 
 export const deletarRegistroResultadoExame = async (id) => {
   return await api.delete(`${apiUrl}/registroResultadoExames/${id}`);
 };
 
+//check in
+export const realizarCheckIn = async (dadosCheckIn) => {
+  return await api.post(`${apiUrl}/checkIn`, dadosCheckIn);
+};
+
+export const getCheckIns = async () => {
+  return await api.get(`${apiUrl}/getCheckIn`);
+};
+
+export const getCheckInPorConsulta = async (id) => {
+  return await api.get(`${apiUrl}/checkIn/consulta/${id}`);
+};
+
+export const getConsultasPorData = async (data) => {
+  return await api.get(`${apiUrl}/consultas/${data}`);
+};

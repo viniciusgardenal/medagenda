@@ -15,6 +15,8 @@ const TableRow = ({ registro, onAdd, onEdit, onView }) => {
         <tr className="hover:bg-blue-50 transition-colors">
             <td className="px-4 py-3 text-sm text-gray-700">{registro.idRegistro}</td>
             <td className="px-4 py-3 text-sm text-gray-700">{registro.solicitacaoExame.idSolicitacaoExame}</td>
+            <td className="px-4 py-3 text-sm text-gray-700">{registro.tiposExame?.nomeTipoExame}</td>
+            <td className="px-4 py-3 text-sm text-gray-700">{registro.solicitacaoExame.dataSolicitacao}</td>
             <td className="px-4 py-3 text-sm text-gray-700">{registro.profissional.nome}</td>
             <td className="px-4 py-3 text-sm text-gray-700">{registro.paciente.nome}</td>
             <td className="px-4 py-3">
@@ -175,10 +177,10 @@ const RegistroResultadoExames = () => {
                         <table className="min-w-full divide-y divide-gray-200 bg-white">
                             <thead className="bg-blue-600 text-white">
                                 <tr>
-                                    {["ID Registro", "Solicitação de Exame", "Profissional", "Paciente", "Definir Resultado", "Ações"].map((header, index) => (
+                                    {["ID Registro", "Solicitação de Exame", "Nome do Exame", "Data da Solicitação","Profissional", "Paciente", "Definir Resultado", "Ações"].map((header, index) => (
                                         <th
                                             key={header}
-                                            className={`px-4 py-3 text-left text-sm font-semibold ${index === 0 ? "rounded-tl-lg" : ""} ${index === 5 ? "rounded-tr-lg" : ""}`}
+                                            className={`px-4 py-3 text-left text-sm font-semibold `}
                                         >
                                             {header}
                                         </th>

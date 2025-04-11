@@ -4,7 +4,6 @@ import ModalAddCheckIn from "./ModalAddCheckIn";
 import ModalEditCheckIn from "./ModalEditCheckIn";
 import ModalViewCheckIn from "./ModalViewCheckIn";
 import Pagination from "../util/Pagination";
-import TableHeader from "./TableHeader";
 
 // Componente para cada linha da tabela
 const TableRow = ({
@@ -25,10 +24,10 @@ const TableRow = ({
       <td className="px-4 py-3 text-sm text-gray-700">
         {consulta.profissionais.nome} {consulta.profissionais.sobrenome}
       </td>
-      <td className="py-3 px-2 text-gray-700 text-sm">
+      <td className="px-4 py-3 text-sm text-gray-700">
         {formatarDataHoraBR(consulta.dataConsulta, consulta.horaConsulta)}
       </td>
-      <td className="py-3 px-2 text-gray-700 text-sm">
+      <td className="px-4 py-3 text-sm text-gray-700">
         {getPrioridadeLegenda(
           consulta.checkin
             ? consulta.checkin.prioridade
@@ -155,10 +154,8 @@ const CheckInPacientes = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-
-  // Estado para paginação
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(8);
+  const [itemsPerPage] = useState(8);
   const [sortField, setSortField] = useState("nome");
   const [sortDirection, setSortDirection] = useState("asc");
 
@@ -171,33 +168,25 @@ const CheckInPacientes = () => {
       case 2:
         return "Alta";
       default:
-        return "Normal"; // Valor padrão caso seja undefined ou inválido
+        return "Normal";
     }
   };
 
   const formatarDataHoraBR = (data, hora) => {
     if (!data || !hora) return "";
-
     try {
-      // Converte a data para formato brasileiro (DD/MM/YYYY)
       const [ano, mes, dia] = data.split("-");
       const dataBR = `${dia}/${mes}/${ano}`;
-
-      // Formata a hora (remove os segundos se existirem)
       const horaBR = hora.split(":").slice(0, 2).join(":");
-
       return `${dataBR} - ${horaBR}`;
     } catch (error) {
       return `${data} - ${hora}`;
     }
   };
 
-  // Função para ordenar as consultas
   const sortConsultas = (consultas) => {
     return [...consultas].sort((a, b) => {
       let valueA, valueB;
-
-      // Mapeia os campos para seus valores correspondentes
       const fieldMap = {
         nome: (item) => item.paciente.nome.toLowerCase(),
         medico: (item) =>
@@ -205,16 +194,14 @@ const CheckInPacientes = () => {
         horario: (item) => item.horaConsulta,
         prioridade: (item) =>
           item.checkin ? item.checkin.prioridade : item.prioridade || 0,
+        status: (item) =>
+          item.checkin && item.checkin.status === "registrado"
+            ? "chegada confirmada"
+            : "registrar chegada",
       };
-
-      // Obtém os valores usando a função de mapeamento
       valueA = fieldMap[sortField](a);
       valueB = fieldMap[sortField](b);
-
-      // Determina a direção da ordenação
       const direction = sortDirection === "asc" ? 1 : -1;
-
-      // Compara os valores
       return valueA > valueB ? direction : -direction;
     });
   };
@@ -233,7 +220,7 @@ const CheckInPacientes = () => {
           return consulta.status === "agendada" && dataConsulta > agora;
         });
         setConsultas(consultasDoDia);
-        setCurrentPage(1); // Reset para primeira página quando mudarem os dados
+        setCurrentPage(1);
       } catch (error) {
         console.error("Erro ao carregar dados:", error);
         setError("Erro ao carregar as consultas. Tente novamente mais tarde.");
@@ -244,30 +231,18 @@ const CheckInPacientes = () => {
     fetchData();
   }, [filtros.filtroData]);
 
-  const handleFiltroChange = (novosFiltros) => {
-    setFiltros(novosFiltros);
-  };
-
   const consultasFiltradas = consultas.filter((consulta) => {
     const { filtroNome } = filtros;
-
     if (!filtroNome) return true;
-
     const termoBusca = filtroNome.toLowerCase();
-
-    // Verifica em vários campos
     return (
-      // Paciente
       consulta.paciente.nome.toLowerCase().includes(termoBusca) ||
-      // Profissional
       `${consulta.profissionais.nome} ${consulta.profissionais.sobrenome}`
         .toLowerCase()
         .includes(termoBusca) ||
-      // Data (em formato brasileiro para a busca)
       formatarDataHoraBR(consulta.dataConsulta, consulta.horaConsulta)
         .toLowerCase()
         .includes(termoBusca) ||
-      // Prioridade (texto da prioridade, não o número)
       getPrioridadeLegenda(
         consulta.checkin
           ? consulta.checkin.prioridade
@@ -275,7 +250,6 @@ const CheckInPacientes = () => {
       )
         .toLowerCase()
         .includes(termoBusca) ||
-      // Status de check-in
       (consulta.checkin && consulta.checkin.status === "registrado"
         ? "chegada confirmada"
         : "registrar chegada"
@@ -283,10 +257,7 @@ const CheckInPacientes = () => {
     );
   });
 
-  // Depois ordenamos
   const consultasOrdenadasFiltradas = sortConsultas(consultasFiltradas);
-
-  // Finalmente paginamos
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentConsultas = consultasOrdenadasFiltradas.slice(
@@ -294,7 +265,6 @@ const CheckInPacientes = () => {
     indexOfLastItem
   );
 
-  // Função para mudar de página
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
@@ -380,194 +350,166 @@ const CheckInPacientes = () => {
   };
 
   const handleSort = (field) => {
-    // Se clicar no mesmo campo, inverte a direção
     if (field === sortField) {
       setSortDirection(sortDirection === "asc" ? "desc" : "asc");
     } else {
       setSortField(field);
       setSortDirection("asc");
     }
-    // Reset da página quando mudar ordenação
     setCurrentPage(1);
   };
 
   return (
-    <section className="container mx-auto my-10 p-6 bg-white rounded-xl shadow-lg">
-      <h2 className="text-3xl text-gray-800 font-bold text-center mb-6">
-        Check-In de Pacientes
-      </h2>
-
-      {error && (
-        <div className="p-4 text-sm text-red-700 bg-red-100 rounded-lg border border-red-300">
-          {error}
+    <div className="min-h-screen bg-gray-200 backdrop-blur-sm p-6">
+      <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-md p-6 space-y-6">
+        <div className="border-b pb-4">
+          <h2 className="text-3xl font-bold text-blue-600">Check-In de Pacientes</h2>
         </div>
-      )}
 
-      {isLoading ? (
-        <div className="text-center py-3">
-          <p className="text-gray-600">Carregando consultas...</p>
+        {error && (
+          <div className="p-4 text-sm text-red-700 bg-red-100 rounded-lg border border-red-300">
+            {error}
+          </div>
+        )}
+
+        <div className="flex gap-4">
+          <div className="flex-1">
+            <label className="block text-sm font-semibold text-gray-700 mb-1">
+              Busca por Nome
+            </label>
+            <input
+              type="text"
+              placeholder="Digite o nome do paciente ou médico..."
+              className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+              value={filtros.filtroNome}
+              onChange={(e) =>
+                setFiltros({ ...filtros, filtroNome: e.target.value })
+              }
+            />
+          </div>
+          <div className="flex-1">
+            <label className="block text-sm font-semibold text-gray-700 mb-1">
+              Data da Consulta
+            </label>
+            <input
+              type="date"
+              className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+              value={filtros.filtroData}
+              onChange={(e) =>
+                setFiltros({ ...filtros, filtroData: e.target.value })
+              }
+            />
+          </div>
         </div>
-      ) : (
-        <div className="overflow-x-auto rounded-lg shadow-md">
-          <table className="min-w-full bg-white rounded-lg shadow-md">
-            <thead className="bg-gray-100">
-              <tr>
-                <th colSpan="6" className="px-2 py-2">
-                  <div className="flex items-center gap-2">
-                    <label className="text-sm font-semibold">
-                      Busca global:
-                    </label>
-                    <div className="relative flex-1">
-                      <input
-                        type="text"
-                        placeholder="Digite para buscar em qualquer campo..."
-                        className="px-3 py-2 w-full text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-                        value={filtros.filtroNome}
-                        onChange={(e) =>
-                          setFiltros({ ...filtros, filtroNome: e.target.value })
-                        }
-                      />
-                      {filtros.filtroNome && (
-                        <button
-                          onClick={() =>
-                            setFiltros({ ...filtros, filtroNome: "" })
-                          }
-                          className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-5 w-5"
-                            viewBox="0 0 20 20"
-                            fill="currentColor"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                        </button>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <label className="text-sm font-semibold">Data:</label>
-                      <input
-                        type="date"
-                        className="px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-                        value={filtros.filtroData}
-                        onChange={(e) =>
-                          setFiltros({ ...filtros, filtroData: e.target.value })
-                        }
-                      />
-                    </div>
-                  </div>
-                </th>
-              </tr>
-              <tr>
-                <TableHeader
-                  label="Paciente"
-                  field="nome"
-                  sortField={sortField}
-                  sortDirection={sortDirection}
-                  onSort={handleSort}
-                />
-                <TableHeader
-                  label="Médico"
-                  field="medico"
-                  sortField={sortField}
-                  sortDirection={sortDirection}
-                  onSort={handleSort}
-                />
-                <TableHeader
-                  label="Horário"
-                  field="horario"
-                  sortField={sortField}
-                  sortDirection={sortDirection}
-                  onSort={handleSort}
-                />
-                <TableHeader
-                  label="Prioridade"
-                  field="prioridade"
-                  sortField={sortField}
-                  sortDirection={sortDirection}
-                  onSort={handleSort}
-                />
-                <th className="py-3 px-2 text-[#001233] font-semibold text-xs uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="py-3 px-2 text-[#001233] font-semibold text-xs uppercase tracking-wider">
-                  Ações
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {currentConsultas.length === 0 ? (
+
+        {isLoading ? (
+          <div className="text-center py-4">
+            <p className="text-sm text-gray-500">Carregando consultas...</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto rounded-lg shadow-md">
+            <table className="min-w-full divide-y divide-gray-200 bg-white">
+              <thead className="bg-blue-600 text-white">
                 <tr>
-                  <td
-                    colSpan="6"
-                    className="py-3 px-2 text-center text-gray-500"
-                  >
-                    Nenhuma consulta disponível para check-in neste momento.
-                  </td>
+                  {["Paciente", "Médico", "Horário", "Prioridade", "Status", "Ações"].map(
+                    (header, index) => (
+                      <th
+                        key={header}
+                        onClick={() =>
+                          ["nome", "medico", "horario", "prioridade", "status"][index] &&
+                          handleSort(["nome", "medico", "horario", "prioridade", "status"][index])
+                        }
+                        className={`px-4 py-3 text-left text-sm font-semibold cursor-pointer ${
+                          index === 0 ? "rounded-tl-lg" : ""
+                        } ${index === 5 ? "rounded-tr-lg" : ""} ${
+                          ["nome", "medico", "horario", "prioridade", "status"].includes(
+                            sortField
+                          ) && sortField === ["nome", "medico", "horario", "prioridade", "status"][index]
+                            ? "bg-blue-700"
+                            : ""
+                        }`}
+                      >
+                        {header}
+                        {sortField ===
+                          ["nome", "medico", "horario", "prioridade", "status"][index] && (
+                          <span className="ml-1">
+                            {sortDirection === "asc" ? "↑" : "↓"}
+                          </span>
+                        )}
+                      </th>
+                    )
+                  )}
                 </tr>
-              ) : (
-                currentConsultas.map((consulta) => (
-                  <TableRow
-                    key={consulta.id}
-                    consulta={consulta}
-                    onAdd={openAddModal}
-                    onEdit={openEditModal}
-                    onView={openViewModal}
-                    getPrioridadeLegenda={getPrioridadeLegenda}
-                    formatarDataHoraBR={formatarDataHoraBR}
-                  />
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      )}
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {currentConsultas.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan="6"
+                      className="px-4 py-4 text-center text-gray-500"
+                    >
+                      Nenhuma consulta disponível para check-in neste momento.
+                    </td>
+                  </tr>
+                ) : (
+                  currentConsultas.map((consulta) => (
+                    <TableRow
+                      key={consulta.id}
+                      consulta={consulta}
+                      onAdd={openAddModal}
+                      onEdit={openEditModal}
+                      onView={openViewModal}
+                      getPrioridadeLegenda={getPrioridadeLegenda}
+                      formatarDataHoraBR={formatarDataHoraBR}
+                    />
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
 
-      {consultasOrdenadasFiltradas.length > 0 && (
-        <Pagination
-          totalItems={consultasOrdenadasFiltradas.length}
-          itemsPerPage={itemsPerPage}
-          currentPage={currentPage}
-          onPageChange={handlePageChange}
-          maxPageButtons={5}
-        />
-      )}
+        {consultasOrdenadasFiltradas.length > 0 && (
+          <Pagination
+            totalItems={consultasOrdenadasFiltradas.length}
+            itemsPerPage={itemsPerPage}
+            currentPage={currentPage}
+            onPageChange={handlePageChange}
+            maxPageButtons={5}
+          />
+        )}
 
-      {modalAddOpen && consultaSelecionada && (
-        <ModalAddCheckIn
-          isOpen={modalAddOpen}
-          onClose={closeModal}
-          consulta={consultaSelecionada}
-          dadosCheckIn={dadosCheckIn}
-          setDadosCheckIn={setDadosCheckIn}
-          onSave={handleSalvarCheckIn}
-        />
-      )}
+        {modalAddOpen && consultaSelecionada && (
+          <ModalAddCheckIn
+            isOpen={modalAddOpen}
+            onClose={closeModal}
+            consulta={consultaSelecionada}
+            dadosCheckIn={dadosCheckIn}
+            setDadosCheckIn={setDadosCheckIn}
+            onSave={handleSalvarCheckIn}
+          />
+        )}
 
-      {modalEditOpen && checkInSelecionado && (
-        <ModalEditCheckIn
-          isOpen={modalEditOpen}
-          onClose={closeModal}
-          checkIn={checkInSelecionado}
-          dadosCheckIn={dadosCheckIn}
-          setDadosCheckIn={setDadosCheckIn}
-          onSave={handleSalvarCheckIn}
-        />
-      )}
+        {modalEditOpen && checkInSelecionado && (
+          <ModalEditCheckIn
+            isOpen={modalEditOpen}
+            onClose={closeModal}
+            checkIn={checkInSelecionado}
+            dadosCheckIn={dadosCheckIn}
+            setDadosCheckIn={setDadosCheckIn}
+            onSave={handleSalvarCheckIn}
+          />
+        )}
 
-      {modalViewOpen && checkInSelecionado && (
-        <ModalViewCheckIn
-          isOpen={modalViewOpen}
-          onClose={closeModal}
-          checkIn={checkInSelecionado}
-        />
-      )}
-    </section>
+        {modalViewOpen && checkInSelecionado && (
+          <ModalViewCheckIn
+            isOpen={modalViewOpen}
+            onClose={closeModal}
+            checkIn={checkInSelecionado}
+          />
+        )}
+      </div>
+    </div>
   );
 };
 

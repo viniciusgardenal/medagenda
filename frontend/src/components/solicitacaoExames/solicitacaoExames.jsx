@@ -98,124 +98,137 @@ const SolicitacaoExames = () => {
 
   return (
     <div className="min-h-screen bg-gray-200 p-6">
-      <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-md p-6 space-y-6">
+  <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-md p-6 space-y-6">
+    {/* Título */}
+    <div className="border-b pb-4">
+      <h2 className="text-3xl font-bold text-blue-600">Solicitações de Exames</h2>
+    </div>
 
-        {/* Título */}
-        <div className="border-b pb-4">
-          <h2 className="text-3xl font-bold text-blue-600">Solicitações de Exames</h2>
-        </div>
+    {/* Alertas */}
+    {showAlert && (
+      <AlertMessage
+        message="Excluído com sucesso."
+        onClose={() => setShowAlert(false)}
+      />
+    )}
+    {showSuccessAlert && (
+      <SuccessAlert
+        message="Adicionado com sucesso!"
+        onClose={() => setShowSuccessAlert(false)}
+      />
+    )}
+    {showEditSuccessAlert && (
+      <SuccessAlert
+        message="Editado com sucesso!"
+        onClose={() => setShowEditSuccessAlert(false)}
+      />
+    )}
 
-        {/* Alertas */}
-        {showAlert && (
-          <AlertMessage
-            message="Excluído com sucesso."
-            onClose={() => setShowAlert(false)}
+    {/* Bloco de filtro e botão */}
+    <div className="flex flex-col md:flex-row gap-4 mb-6">
+      <div className="flex-1">
+        <label className="block text-sm font-semibold text-gray-700 mb-1">
+          Busca por Exame, Paciente ou Período
+        </label>
+        <div className="relative">
+          <input
+            id="filtro"
+            type="text"
+            value={filtro}
+            onChange={handleFiltroChange}
+            className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+            placeholder="Digite para buscar..."
           />
-        )}
-        {showSuccessAlert && (
-          <SuccessAlert
-            message="Adicionado com sucesso!"
-            onClose={() => setShowSuccessAlert(false)}
-          />
-        )}
-        {showEditSuccessAlert && (
-          <SuccessAlert
-            message="Editado com sucesso!"
-            onClose={() => setShowEditSuccessAlert(false)}
-          />
-        )}
-
-        {/* Bloco de filtro e botão - versão reorganizada */}
-        <div className="space-y-1 mb-6">
-          {/* Label */}
-          <label htmlFor="filtro" className="text-sm font-medium text-gray-600 block">
-            Buscar exame, paciente ou período
-          </label>
-
-          {/* Filtro + Botão lado a lado */}
-          <div className="flex flex-col md:flex-row gap-4 items-stretch">
-            {/* Campo de busca */}
-            <div className="relative w-full md:w-3/4">
-              <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2"
-                  viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z" />
-                </svg>
-              </span>
-              <input
-                id="filtro"
-                type="text"
-                value={filtro}
-                onChange={handleFiltroChange}
-                className="w-full pl-10 pr-4 py-2.5 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Digite para buscar..."
-              />
-            </div>
-
-            {/* Botão */}
-            <div className="w-full md:w-1/4 flex">
-              <button
-                onClick={() => setIsModalOpenAdd(true)}
-                className="w-full bg-blue-600 text-white flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg hover:bg-blue-700 transition shadow"
+          {filtro && (
+            <button
+              onClick={() => handleFiltroChange({ target: { value: "" } })}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                viewBox="0 0 20 20"
+                fill="currentColor"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none"
-                  viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3}
-                    d="M12 4v16m8-8H4" />
-                </svg>
-                Nova Solicitação
-              </button>
-            </div>
-          </div>
-
-          {/* Subtexto */}
-          <p className="text-xs text-gray-500">
-            Pressione Enter para refinar a busca.
-          </p>
-        </div>
-
-        {/* Tabela */}
-        <div className="overflow-x-auto">
-          <TabelaSolicitacaoExames
-            tse={solicitacaoExamesFiltrados}
-            onExcluir={handleDelete}
-            onEditar={handleEditar}
-            onDetalhes={handleDetalhes}
-          />
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </button>
+          )}
         </div>
       </div>
-
-      {/* Modais */}
-      {isModalOpenAdd && (
-        <ModalSolicitacaoExames
-          isOpen={isModalOpenAdd}
-          onClose={() => setIsModalOpenAdd(false)}
-          onSave={handleSave}
-        />
-      )}
-      {isModalOpenEditar && solicitacaoExamesSelecionado && (
-        <ModalEditarSolicitacaoExames
-          isOpen={isModalOpenEditar}
-          onClose={handleCloseModal}
-          solicitacaoExames={solicitacaoExamesSelecionado}
-          onUpdate={handleUpdateSolicitacaoExames}
-        />
-      )}
-      {isModalOpen && (
-        <ConfirmationModal
-          isOpen={isModalOpen}
-          onConfirm={confirmDelete}
-          onCancel={() => setIsModalOpen(false)}
-        />
-      )}
-      {isModalOpenDetalhes && solicitacaoExamesSelecionado && (
-        <ModalDetalhesSolicitacaoExames
-          isOpen={isModalOpenDetalhes}
-          onClose={() => setIsModalOpenDetalhes(false)}
-          solicitacaoExames={solicitacaoExamesSelecionado}
-        />
-      )}
+      <div className="flex-shrink-0">
+        <label className="block text-sm font-semibold text-gray-700 mb-1 invisible">
+          Placeholder
+        </label>
+        <button
+          onClick={() => setIsModalOpenAdd(true)}
+          className="w-full md:w-auto px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 4v16m8-8H4"
+            />
+          </svg>
+          Nova Solicitação
+        </button>
+      </div>
     </div>
+
+    {/* Tabela */}
+    <div className="overflow-x-auto rounded-lg shadow-md">
+      <TabelaSolicitacaoExames
+        tse={solicitacaoExamesFiltrados}
+        onExcluir={handleDelete}
+        onEditar={handleEditar}
+        onDetalhes={handleDetalhes}
+      />
+    </div>
+  </div>
+
+  {/* Modais */}
+  {isModalOpenAdd && (
+    <ModalSolicitacaoExames
+      isOpen={isModalOpenAdd}
+      onClose={() => setIsModalOpenAdd(false)}
+      onSave={handleSave}
+    />
+  )}
+  {isModalOpenEditar && solicitacaoExamesSelecionado && (
+    <ModalEditarSolicitacaoExames
+      isOpen={isModalOpenEditar}
+      onClose={handleCloseModal}
+      solicitacaoExames={solicitacaoExamesSelecionado}
+      onUpdate={handleUpdateSolicitacaoExames}
+    />
+  )}
+  {isModalOpen && (
+    <ConfirmationModal
+      isOpen={isModalOpen}
+      onConfirm={confirmDelete}
+      onCancel={() => setIsModalOpen(false)}
+    />
+  )}
+  {isModalOpenDetalhes && solicitacaoExamesSelecionado && (
+    <ModalDetalhesSolicitacaoExames
+      isOpen={isModalOpenDetalhes}
+      onClose={() => setIsModalOpenDetalhes(false)}
+      solicitacaoExames={solicitacaoExamesSelecionado}
+    />
+  )}
+</div>
   );
 };
 

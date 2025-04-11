@@ -5,43 +5,43 @@ require("moment/locale/pt-br");
 
 // Criar um novo horário
 const criarHorario = async (req, res) => {
-  try {
-    const { profissionalId, diaSemana, inicio, fim, status } = req.body;
-
-    // Validações
-    const diasValidos = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"];
-    if (!profissionalId || !diaSemana || !inicio || !fim) {
-      return res.status(400).json({ error: "Todos os campos (profissionalId, diaSemana, inicio, fim) são obrigatórios!" });
+    try {
+      const { profissionalId, diaSemana, inicio, fim, status } = req.body;
+  
+      // Validações
+      const diasValidos = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"];
+      if (!profissionalId || !diaSemana || !inicio || !fim) {
+        return res.status(400).json({ error: "Todos os campos (profissionalId, diaSemana, inicio, fim) são obrigatórios!" });
+      }
+      if (!diasValidos.includes(diaSemana)) {
+        return res.status(400).json({ error: "Dia da semana inválido!" });
+      }
+      if (!moment(inicio, "HH:mm", true).isValid() || !moment(fim, "HH:mm", true).isValid()) {
+        return res.status(400).json({ error: "Horários devem estar no formato HH:mm!" });
+      }
+      if (moment(inicio, "HH:mm").isSameOrAfter(moment(fim, "HH:mm"))) {
+        return res.status(400).json({ error: "Horário de início deve ser anterior ao horário de fim!" });
+      }
+  
+      // Verifica se o profissional existe
+      const profissional = await Profissional.findByPk(profissionalId);
+      if (!profissional) {
+        return res.status(404).json({ error: "Profissional não encontrado!" });
+      }
+  
+      const novoHorario = await HorarioProfissional.create({
+        profissionalId,
+        diaSemana,
+        inicio,
+        fim,
+        status: status || "Ativo",
+      });
+  
+      res.status(201).json(novoHorario);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
     }
-    if (!diasValidos.includes(diaSemana)) {
-      return res.status(400).json({ error: "Dia da semana inválido!" });
-    }
-    if (!moment(inicio, "HH:mm", true).isValid() || !moment(fim, "HH:mm", true).isValid()) {
-      return res.status(400).json({ error: "Horários devem estar no formato HH:mm!" });
-    }
-    if (moment(inicio, "HH:mm").isSameOrAfter(moment(fim, "HH:mm"))) {
-      return res.status(400).json({ error: "Horário de início deve ser anterior ao horário de fim!" });
-    }
-
-    // Verifica se o profissional existe
-    const profissional = await Profissional.findByPk(profissionalId);
-    if (!profissional) {
-      return res.status(404).json({ error: "Profissional não encontrado!" });
-    }
-
-    const novoHorario = await HorarioProfissional.create({
-      profissionalId,
-      diaSemana,
-      inicio,
-      fim,
-      status: status || "Ativo", // Status padrão "Ativo" se não fornecido
-    });
-
-    res.status(201).json(novoHorario);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
+  };
 
 // Listar todos os horários
 const lerHorarios = async (req, res) => {

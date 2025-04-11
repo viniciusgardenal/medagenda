@@ -22,9 +22,9 @@ HorarioProfissional.init(
       },
     },
     diaSemana: {
-      type: DataTypes.ENUM("Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"),
-      allowNull: false,
-    },
+        type: DataTypes.JSON,
+        allowNull: false,
+      },
     inicio: {
       type: DataTypes.STRING, // Armazenado como string no formato "HH:mm"
       allowNull: false,

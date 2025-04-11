@@ -1,9 +1,29 @@
-import React from "react";
+import React, { useState } from "react";
 
 const ModalAddHorario = ({ isOpen, onClose, dadosHorario, setDadosHorario, onSave, profissionais }) => {
+  const [selecionarTodos, setSelecionarTodos] = useState(false); // Movido para o topo
+
   if (!isOpen) return null;
 
-  console.log("Profissionais no ModalAddHorario:", profissionais); // Log para depuração
+  const diasSemana = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"];
+
+  const handleCheckboxChange = (dia) => {
+    setDadosHorario((prev) => {
+      const novosDias = prev.diaSemana.includes(dia)
+        ? prev.diaSemana.filter((d) => d !== dia)
+        : [...prev.diaSemana, dia];
+      return { ...prev, diaSemana: novosDias };
+    });
+    if (selecionarTodos) setSelecionarTodos(false);
+  };
+
+  const handleSelecionarTodos = () => {
+    setSelecionarTodos(!selecionarTodos);
+    setDadosHorario((prev) => ({
+      ...prev,
+      diaSemana: !selecionarTodos ? diasSemana : [],
+    }));
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -12,6 +32,10 @@ const ModalAddHorario = ({ isOpen, onClose, dadosHorario, setDadosHorario, onSav
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (dadosHorario.diaSemana.length === 0) {
+      alert("Selecione pelo menos um dia da semana.");
+      return;
+    }
     onSave();
   };
 
@@ -47,28 +71,40 @@ const ModalAddHorario = ({ isOpen, onClose, dadosHorario, setDadosHorario, onSav
               {profissionais && profissionais.length > 0 ? (
                 profissionais.map((prof) => (
                   <option key={prof.matricula} value={prof.matricula}>
-                    {`${prof.nome} ${prof.sobrenome || ""}`.trim()}
+                    {`${prof.nome} ${prof.sobrenome || ""} (Matrícula: ${prof.matricula})`}
                   </option>
                 ))
               ) : (
-                <option value="" disabled>Nenhum profissional disponível</option>
+                <option value="" disabled>
+                  Nenhum profissional disponível
+                </option>
               )}
             </select>
           </div>
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Dia da Semana</label>
-            <select
-              name="diaSemana"
-              value={dadosHorario.diaSemana}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-md text-gray-700 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-              required
-            >
-              <option value="">Selecione um dia</option>
-              {["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"].map((dia) => (
-                <option key={dia} value={dia}>{dia}</option>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Dias da Semana</label>
+            <div className="space-y-2">
+              <label className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  checked={selecionarTodos}
+                  onChange={handleSelecionarTodos}
+                  className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                />
+                <span className="text-sm text-gray-700">Selecionar Todos</span>
+              </label>
+              {diasSemana.map((dia) => (
+                <label key={dia} className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    checked={dadosHorario.diaSemana.includes(dia)}
+                    onChange={() => handleCheckboxChange(dia)}
+                    className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  />
+                  <span className="text-sm text-gray-700">{dia}</span>
+                </label>
               ))}
-            </select>
+            </div>
           </div>
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1">Horário Início</label>

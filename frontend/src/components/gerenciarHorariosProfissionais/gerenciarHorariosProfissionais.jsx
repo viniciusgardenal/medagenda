@@ -20,7 +20,7 @@ const GerenciarHorariosProfissionais = () => {
   const [horarioSelecionado, setHorarioSelecionado] = useState(null);
   const [dadosHorario, setDadosHorario] = useState({
     profissionalId: "",
-    diaSemana: "",
+    diaSemana: [], // Array para múltiplos dias
     inicio: "",
     fim: "",
     status: "Ativo",
@@ -29,21 +29,17 @@ const GerenciarHorariosProfissionais = () => {
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
-      console.log("Iniciando carregamento...");
       try {
         const [horariosResponse, profissionaisResponse] = await Promise.all([
           getHorarios(),
           getProfissionais(),
         ]);
-        console.log("Horários recebidos:", horariosResponse.data);
-        console.log("Profissionais recebidos:", profissionaisResponse.data);
         setHorarios(horariosResponse.data);
         setProfissionais(profissionaisResponse.data);
       } catch (error) {
         console.error("Erro ao carregar dados:", error);
       } finally {
         setIsLoading(false);
-        console.log("Carregamento concluído.");
       }
     };
     fetchData();
@@ -57,7 +53,7 @@ const GerenciarHorariosProfissionais = () => {
   });
 
   const openAddModal = () => {
-    setDadosHorario({ profissionalId: "", diaSemana: "", inicio: "", fim: "", status: "Ativo" });
+    setDadosHorario({ profissionalId: "", diaSemana: [], inicio: "", fim: "", status: "Ativo" });
     setModalAddOpen(true);
   };
 
@@ -65,7 +61,7 @@ const GerenciarHorariosProfissionais = () => {
     setHorarioSelecionado(horario);
     setDadosHorario({
       profissionalId: horario.profissionalId,
-      diaSemana: horario.diaSemana,
+      diaSemana: [horario.diaSemana], // Para edição, começa com o dia atual (ajustar se suportar múltiplos)
       inicio: horario.inicio,
       fim: horario.fim,
       status: horario.status,
@@ -89,16 +85,21 @@ const GerenciarHorariosProfissionais = () => {
     setModalViewOpen(false);
     setModalConfirmOpen(false);
     setHorarioSelecionado(null);
-    setDadosHorario({ profissionalId: "", diaSemana: "", inicio: "", fim: "", status: "Ativo" });
+    setDadosHorario({ profissionalId: "", diaSemana: [], inicio: "", fim: "", status: "Ativo" });
   };
 
   const handleSaveHorario = async () => {
     try {
-      const response = await criarHorario(dadosHorario);
+      const response = await criarHorario(dadosHorario); // Envia o array diretamente
       setHorarios([...horarios, response.data]);
       closeModal();
     } catch (error) {
       console.error("Erro ao salvar horário:", error);
+      if (error.response) {
+        alert(`Erro: ${error.response.data.error}`);
+      } else {
+        alert("Erro ao salvar horário. Tente novamente.");
+      }
     }
   };
 
@@ -207,7 +208,9 @@ const GerenciarHorariosProfissionais = () => {
                       <td className="px-4 py-3 text-sm text-gray-700">
                         {`${horario.profissional?.nome || ""} ${horario.profissional?.sobrenome || ""}`.trim() || "Sem nome"}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-700">{horario.diaSemana}</td>
+                      <td className="px-4 py-3 text-sm text-gray-700">
+                        {Array.isArray(horario.diaSemana) ? horario.diaSemana.join(", ") : horario.diaSemana}
+                      </td>
                       <td className="px-4 py-3 text-sm text-gray-700">{horario.inicio}</td>
                       <td className="px-4 py-3 text-sm text-gray-700">{horario.fim}</td>
                       <td className="px-4 py-3 text-sm text-gray-700">{horario.status}</td>
@@ -287,7 +290,7 @@ const GerenciarHorariosProfissionais = () => {
           </div>
         )}
 
-        <ModalAddHorario
+<ModalAddHorario
           isOpen={modalAddOpen}
           onClose={closeModal}
           dadosHorario={dadosHorario}
@@ -312,7 +315,13 @@ const GerenciarHorariosProfissionais = () => {
           isOpen={modalConfirmOpen}
           onConfirm={handleDeleteHorario}
           onCancel={closeModal}
-          message={horarioSelecionado ? `Deseja excluir o horário de ${horarioSelecionado.profissional?.nome || ""} ${horarioSelecionado.profissional?.sobrenome || ""} em ${horarioSelecionado.diaSemana}?` : ""}
+          message={
+            horarioSelecionado
+              ? `Deseja excluir o horário de ${horarioSelecionado.profissional?.nome || ""} ${
+                  horarioSelecionado.profissional?.sobrenome || ""
+                } em ${horarioSelecionado.diaSemana}?`
+              : ""
+          }
         />
       </div>
     </div>

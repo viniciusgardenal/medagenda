@@ -13,6 +13,7 @@ import Unauthorized from "../unauthorized/unauthorized";
 import PlanoDeSaude from "../planoDeSaude/planoDeSaude";
 import TipoConsulta from "../tipoConsulta/tipoConsulta";
 import CheckInPacientes from "../checkinPacientes/CheckInPacientes";
+import GerenciarHorariosProfissionais from "../gerenciarHorariosProfissionais/gerenciarHorariosProfissionais"; // Novo import
 
 const routes = [
   { path: "/", element: <LoginScreen />, protected: false },
@@ -98,6 +99,13 @@ const routes = [
     protected: true,
     permissao: "consultar",
     rolesPermitidos: ["Diretor", "Médico"],
+  },
+  {
+    path: "/horarios-profissionais",
+    element: <GerenciarHorariosProfissionais />,
+    protected: true,
+    permissao: "consultar",
+    rolesPermitidos: ["Diretor"], // Apenas Diretor pode gerenciar horários
   },
   {
     path: "/unauthorized",

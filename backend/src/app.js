@@ -37,6 +37,7 @@ const gerarAtestados = require("./routes/gerarAtestadosRoutes");
 const registroResultadoExames = require("./routes/registroResultadoExamesRoutes");
 const checkIn = require("./routes/checkInRoutes");
 const consultasRoutes = require("./routes/consultasRoutes");
+const horariosProfissionais = require("./routes/horariosProfissionaisRoutes");
 
 // 2. Usar as rotas
 app.use("/auth", authRoutes);
@@ -46,7 +47,6 @@ app.use("/", autenticar, profissionalRoutes);
 app.use("/", autenticar, tiposExames);
 app.use("/", autenticar, tipoConsulta);
 app.use("/", autenticar, pacienteRoutes);
-
 app.use("/", autenticar, medicamentoRoutes);
 app.use("/", autenticar, planoDeSaudeRoutes);
 
@@ -57,7 +57,8 @@ app.use("/", autenticar, receitasRoutes);
 app.use("/", autenticar, gerarAtestados);
 app.use("/", autenticar, registroResultadoExames);
 app.use("/", autenticar, checkIn);
-app.use("/", autenticar, consultasRoutes)
+app.use("/", autenticar, consultasRoutes);
+app.use("/", autenticar, horariosProfissionais);
 
 // Configurar relação many-to-many
 Roles.belongsToMany(Permissao, {

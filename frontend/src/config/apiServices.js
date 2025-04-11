@@ -230,3 +230,24 @@ export const getCheckInPorConsulta = async (id) => {
 export const getConsultasPorData = async (data) => {
   return await api.get(`${apiUrl}/consultas/${data}`);
 };
+
+//Gerenciar Horarios Profissionais
+export const criarHorario = async (dadosHorario) => {
+  return await api.post(`${apiUrl}/horarios-profissionais`, dadosHorario);
+};
+
+export const updateHorario = async (id, dadosHorario) => {
+  return await api.put(`${apiUrl}/horarios-profissionais/${id}`, dadosHorario);
+};
+
+export const excluirHorario = async (id) => {
+  return await api.delete(`${apiUrl}/horarios-profissionais/${id}`);
+};
+
+export const getHorarios = async () => {
+  return await api.get(`${apiUrl}/horarios-profissionais`);
+};
+
+export const getHorarioId = async (id) => {
+  return await api.get(`${apiUrl}/horarios-profissionais/${id}`);
+};

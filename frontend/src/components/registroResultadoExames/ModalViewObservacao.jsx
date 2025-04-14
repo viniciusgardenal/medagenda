@@ -53,9 +53,9 @@ const ModalViewObservacao = ({ isOpen, onClose, registro }) => {
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-600 mb-1">Observações:</label>
-                        <p className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-gray-700 text-sm min-h-[120px] whitespace-pre-wrap">
+                        <textarea rows={10} onmousedown='return false;' onselectstart='return false;' className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-gray-700 text-sm min-h-[120px] whitespace-pre-wrap">
                             {registro.observacoes || 'Nenhuma observação registrada'}
-                        </p>
+                        </textarea>
                     </div>
                 </div>
                 <div className="mt-8 flex justify-end">

@@ -32,6 +32,7 @@ const ModalAddObservacao = ({ isOpen, onClose, registro, observacaoEditada, setO
                         <textarea
                             value={observacaoEditada}
                             onChange={(e) => setObservacaoEditada(e.target.value)}
+                            rows={10}
                             placeholder="Digite suas observações"
                             className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[120px]"
                         />

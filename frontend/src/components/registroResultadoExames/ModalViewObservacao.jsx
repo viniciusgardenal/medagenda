@@ -34,7 +34,7 @@ const ModalViewObservacao = ({ isOpen, onClose, registro }) => {
                         </p>
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-600 mb-1">Solicitação de Exame:</label>
+                        <label className="block text-sm font-medium text-gray-600 mb-1">Nome do Exame:</label>
                         <p className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-gray-700 text-sm">
                             {registro.solicitacaoExame.idSolicitacaoExame}
                         </p>

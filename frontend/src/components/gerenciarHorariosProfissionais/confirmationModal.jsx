@@ -1,6 +1,17 @@
-import React from "react";
+import React, { useState } from "react";
 
 const ConfirmationModal = ({ isOpen, onConfirm, onCancel, message }) => {
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleConfirm = async () => {
+    setIsDeleting(true);
+    try {
+      await onConfirm();
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -11,15 +22,17 @@ const ConfirmationModal = ({ isOpen, onConfirm, onCancel, message }) => {
         <div className="flex justify-end gap-4">
           <button
             onClick={onCancel}
-            className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors"
+            disabled={isDeleting}
+            className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors disabled:opacity-50"
           >
             Cancelar
           </button>
           <button
-            onClick={onConfirm}
-            className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+            onClick={handleConfirm}
+            disabled={isDeleting}
+            className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors disabled:opacity-50"
           >
-            Excluir
+            {isDeleting ? "Excluindo..." : "Excluir"}
           </button>
         </div>
       </div>

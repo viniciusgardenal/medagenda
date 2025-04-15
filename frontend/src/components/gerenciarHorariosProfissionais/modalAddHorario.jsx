@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 const ModalAddHorario = ({ isOpen, onClose, dadosHorario, setDadosHorario, onSave, profissionais }) => {
-  const [selecionarTodos, setSelecionarTodos] = useState(false); // Movido para o topo
+  const [selecionarTodos, setSelecionarTodos] = useState(false);
 
   if (!isOpen) return null;
 
@@ -36,6 +36,7 @@ const ModalAddHorario = ({ isOpen, onClose, dadosHorario, setDadosHorario, onSav
       alert("Selecione pelo menos um dia da semana.");
       return;
     }
+    console.log("Dados enviados:", dadosHorario);
     onSave();
   };
 

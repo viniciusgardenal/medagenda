@@ -47,23 +47,26 @@ const criarHorario = async (req, res) => {
 const lerHorarios = async (req, res) => {
   try {
     const horarios = await HorarioProfissional.findAll({
-      include: [{
-        model: Profissional,
-        attributes: ["id", "nome", "sobrenome"], // Inclui dados do profissional
-      }],
       order: [["diaSemana", "ASC"], ["inicio", "ASC"]],
     });
 
     const horariosFormatados = horarios.map((horario) => ({
-      ...horario.dataValues,
-      profissionalNome: `${horario.Profissional.nome} ${horario.Profissional.sobrenome}`,
+      id: horario.id,
+      profissionalId: horario.profissionalId,
+      diaSemana: horario.diaSemana,
       inicio: moment.utc(horario.inicio, "HH:mm").local().format("HH:mm"),
       fim: moment.utc(horario.fim, "HH:mm").local().format("HH:mm"),
+      status: horario.status,
+      createdAt: horario.createdAt,
+      updatedAt: horario.updatedAt,
+      profissional: null,
+      profissionalNome: `Profissional ID: ${horario.profissionalId}`,
     }));
 
     res.status(200).json(horariosFormatados);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Erro detalhado em lerHorarios:", error);
+    res.status(500).json({ error: "Erro ao listar horários", details: error.message });
   }
 };
 

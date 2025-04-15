@@ -1,6 +1,6 @@
 // models/HorarioProfissional.js
 const { Model, DataTypes } = require("sequelize");
-const sequelize = require("../config/db"); // Configuração do banco de dados
+const sequelize = require("../config/db");
 const Profissional = require("./profissionais");
 
 class HorarioProfissional extends Model {}
@@ -17,43 +17,43 @@ HorarioProfissional.init(
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: Profissional, // Nome do modelo associado
-        key: "matricula",   // Chave primária da tabela profissionais
+        model: Profissional,
+        key: "matricula",
       },
     },
     diaSemana: {
-        type: DataTypes.JSON,
-        allowNull: false,
-      },
+      type: DataTypes.STRING,
+      allowNull: false,
+      // Removida a validação isIn temporariamente
+    },
     inicio: {
-      type: DataTypes.STRING, // Armazenado como string no formato "HH:mm"
+      type: DataTypes.STRING,
       allowNull: false,
       validate: {
-        is: /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, // Valida formato HH:mm (00:00 a 23:59)
+        is: /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/,
       },
     },
     fim: {
-      type: DataTypes.STRING, // Armazenado como string no formato "HH:mm"
+      type: DataTypes.STRING,
       allowNull: false,
       validate: {
-        is: /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, // Valida formato HH:mm (00:00 a 23:59)
+        is: /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/,
       },
     },
     status: {
       type: DataTypes.ENUM("Ativo", "Inativo"),
       allowNull: false,
-      defaultValue: "Ativo", // Status padrão
+      defaultValue: "Ativo",
     },
   },
   {
     sequelize,
     modelName: "HorarioProfissional",
     tableName: "horarios_profissionais",
-    timestamps: true, // Inclui createdAt e updatedAt
+    timestamps: true,
   }
 );
 
-// Relacionamentos
 Profissional.hasMany(HorarioProfissional, { foreignKey: "profissionalId", as: "horarios" });
 HorarioProfissional.belongsTo(Profissional, { foreignKey: "profissionalId", as: "profissional" });
 

@@ -13,6 +13,10 @@ solicitacaoExames.init(
       primaryKey: true,
       autoIncrement: true,
     },
+    nomeTipoExame: {  // Novo campo para armazenar o nome do tipo de exame
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     periodo: {
       type: DataTypes.STRING,
       allowNull: true,

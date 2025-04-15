@@ -19,6 +19,7 @@ const ModalSolicitacaoExames = ({ isOpen, onClose, onSave }) => {
   const [erros, setErros] = useState({});
   const [pacienteSelecionado, setPacienteSelecionado] = useState("");
   const [tipoExameSelecionado, setTipoExameSelecionado] = useState("");
+  const [erroBackend, setErroBackend] = useState(""); // Novo estado para erros do backend
 
   useEffect(() => {
     const fetchData = async () => {
@@ -27,10 +28,18 @@ const ModalSolicitacaoExames = ({ isOpen, onClose, onSave }) => {
           getTiposExames(),
           getPacientes(),
         ]);
-        setIdTipoExame(tiposExameResponse.data);
+        // Filtrar tipos de exames com nomeTipoExame válido
+        const tiposExamesValidos = tiposExameResponse.data.filter(
+          (tipo) => tipo.nomeTipoExame && tipo.nomeTipoExame.trim() !== ""
+        );
+        setIdTipoExame(tiposExamesValidos);
         setCpfPaciente(pacientesResponse.data);
+        if (tiposExamesValidos.length === 0) {
+          setErroBackend("Nenhum tipo de exame válido encontrado. Contate o administrador.");
+        }
       } catch (error) {
         console.error("Erro ao carregar dados:", error);
+        setErroBackend("Erro ao carregar dados. Tente novamente.");
       }
     };
     fetchData();
@@ -38,10 +47,12 @@ const ModalSolicitacaoExames = ({ isOpen, onClose, onSave }) => {
 
   const handlePacienteChange = (event) => {
     setPacienteSelecionado(event.target.value);
+    setErroBackend(""); // Limpar erro do backend ao interagir
   };
 
   const handleTipoExameChange = (event) => {
     setTipoExameSelecionado(event.target.value);
+    setErroBackend(""); // Limpar erro do backend ao interagir
   };
 
   const validarCampos = () => {
@@ -61,6 +72,7 @@ const ModalSolicitacaoExames = ({ isOpen, onClose, onSave }) => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    setErroBackend(""); // Limpar erro anterior
     if (!validarCampos()) return;
 
     const dados = {
@@ -88,13 +100,16 @@ const ModalSolicitacaoExames = ({ isOpen, onClose, onSave }) => {
       setTipoExameSelecionado("");
     } catch (error) {
       console.error("Erro ao adicionar solicitação de exame:", error);
+      setErroBackend(
+        error.response?.data?.error || "Erro ao salvar solicitação. Tente novamente."
+      );
     }
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 backdrop-blur-sm  flex items-center justify-center z-50">
+    <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50">
       <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-lg relative">
         <button
           className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors duration-150"
@@ -118,6 +133,11 @@ const ModalSolicitacaoExames = ({ isOpen, onClose, onSave }) => {
         <h2 className="text-2xl font-semibold text-blue-600 mb-6">
           Nova Solicitação
         </h2>
+        {erroBackend && (
+          <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm">
+            {erroBackend}
+          </div>
+        )}
         <form className="grid grid-cols-2 gap-4" onSubmit={handleSubmit}>
           <div className="space-y-2">
             <label className="block text-sm font-medium text-gray-700">

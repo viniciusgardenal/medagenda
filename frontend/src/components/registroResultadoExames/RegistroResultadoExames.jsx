@@ -14,8 +14,12 @@ const TableRow = ({ registro, onAdd, onEdit, onView }) => {
     return (
         <tr className="hover:bg-blue-50 transition-colors">
             <td className="px-4 py-3 text-sm text-gray-700">{registro.idRegistro}</td>
-            <td className="px-4 py-3 text-sm text-gray-700">{registro.tiposExame?.nomeTipoExame}</td>
-            <td className="px-4 py-3 text-sm text-gray-700">{registro.solicitacaoExame.dataSolicitacao}</td>
+            <td className="px-4 py-3 text-sm text-gray-700">
+            {registro.tiposExames?.nomeTipoExame}
+            </td>
+            <td className="px-4 py-3 text-sm text-gray-700">
+                {new Date(registro.solicitacaoExame.dataSolicitacao).toLocaleDateString("pt-BR")}
+            </td>
             <td className="px-4 py-3 text-sm text-gray-700">{registro.profissional.nome}</td>
             <td className="px-4 py-3 text-sm text-gray-700">{registro.paciente.nome}</td>
             <td className="px-4 py-3">

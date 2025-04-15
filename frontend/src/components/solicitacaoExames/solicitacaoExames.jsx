@@ -41,14 +41,14 @@ const SolicitacaoExames = () => {
 
   const handleFiltroChange = (e) => setFiltro(e.target.value);
 
-  const solicitacaoExamesFiltrados = solicitacaoExames.filter((tse) =>
-    [
-      tse.tiposExame?.nomeTipoExame,
-      tse.Paciente?.nome,
-      tse.periodo,
-      tse.dataRetorno,
-    ].some((field) => field?.toLowerCase().includes(filtro.toLowerCase()))
-  );
+const solicitacaoExamesFiltrados = solicitacaoExames.filter((tse) =>
+  [
+    tse.tiposExame?.nomeTipoExame,
+    tse.Paciente?.nome,
+    tse.periodo,
+    tse.dataRetorno,
+  ].some((field) => field?.toLowerCase().includes(filtro.toLowerCase()))
+);
 
   const handleDelete = (id) => {
     setIdToDelete(id);

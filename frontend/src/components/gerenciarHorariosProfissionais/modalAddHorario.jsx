@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const ModalAddHorario = ({ isOpen, onClose, dadosHorario, setDadosHorario, onSave, profissionais }) => {
+const ModalAddHorario = ({ isOpen, onClose, dadosHorario, setDadosHorario, onSave, isSaving, profissionais }) => {
   const [selecionarTodos, setSelecionarTodos] = useState(false);
 
   if (!isOpen) return null;
@@ -36,16 +36,21 @@ const ModalAddHorario = ({ isOpen, onClose, dadosHorario, setDadosHorario, onSav
       alert("Selecione pelo menos um dia da semana.");
       return;
     }
+    if (!dadosHorario.profissionalId) {
+      alert("Selecione um profissional.");
+      return;
+    }
     console.log("Dados enviados:", dadosHorario);
     onSave();
   };
 
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white w-full max-w-md p-6 rounded-2xl shadow-md">
+      <div className="bg-white w-full max-w-md p-6 rounded-2xl shadow-md relative">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+          disabled={isSaving}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -67,11 +72,12 @@ const ModalAddHorario = ({ isOpen, onClose, dadosHorario, setDadosHorario, onSav
               onChange={handleChange}
               className="w-full px-4 py-2 border rounded-md text-gray-700 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
               required
+              disabled={isSaving}
             >
               <option value="">Selecione um profissional</option>
               {profissionais && profissionais.length > 0 ? (
                 profissionais.map((prof) => (
-                  <option key={prof.matricula} value={prof.matricula}>
+                  <option key={prof.matricula} value={prof.matricula.toString()}>
                     {`${prof.nome} ${prof.sobrenome || ""} (Matrícula: ${prof.matricula})`}
                   </option>
                 ))
@@ -91,6 +97,7 @@ const ModalAddHorario = ({ isOpen, onClose, dadosHorario, setDadosHorario, onSav
                   checked={selecionarTodos}
                   onChange={handleSelecionarTodos}
                   className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  disabled={isSaving}
                 />
                 <span className="text-sm text-gray-700">Selecionar Todos</span>
               </label>
@@ -101,6 +108,7 @@ const ModalAddHorario = ({ isOpen, onClose, dadosHorario, setDadosHorario, onSav
                     checked={dadosHorario.diaSemana.includes(dia)}
                     onChange={() => handleCheckboxChange(dia)}
                     className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                    disabled={isSaving}
                   />
                   <span className="text-sm text-gray-700">{dia}</span>
                 </label>
@@ -116,6 +124,7 @@ const ModalAddHorario = ({ isOpen, onClose, dadosHorario, setDadosHorario, onSav
               onChange={handleChange}
               className="w-full px-4 py-2 border rounded-md text-gray-700 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
               required
+              disabled={isSaving}
             />
           </div>
           <div>
@@ -127,6 +136,7 @@ const ModalAddHorario = ({ isOpen, onClose, dadosHorario, setDadosHorario, onSav
               onChange={handleChange}
               className="w-full px-4 py-2 border rounded-md text-gray-700 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
               required
+              disabled={isSaving}
             />
           </div>
           <div>
@@ -136,6 +146,7 @@ const ModalAddHorario = ({ isOpen, onClose, dadosHorario, setDadosHorario, onSav
               value={dadosHorario.status}
               onChange={handleChange}
               className="w-full px-4 py-2 border rounded-md text-gray-700 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+              disabled={isSaving}
             >
               <option value="Ativo">Ativo</option>
               <option value="Inativo">Inativo</option>
@@ -145,15 +156,17 @@ const ModalAddHorario = ({ isOpen, onClose, dadosHorario, setDadosHorario, onSav
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors"
+              className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors disabled:opacity-50"
+              disabled={isSaving}
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50"
+              disabled={isSaving}
             >
-              Salvar
+              {isSaving ? "Salvando..." : "Salvar"}
             </button>
           </div>
         </form>

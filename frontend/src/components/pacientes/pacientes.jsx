@@ -1,22 +1,17 @@
-import React, { useState, useEffect } from "react";
-import FiltroPacientes from "./filtroPacientes";
-import "./pacientesStyle.css";
-import ConfirmationModal from "../util/confirmationModal";
-import AlertMessage from "../util/alertMessage";
-import SuccessAlert from "../util/successAlert";
-import {
-  getPacientes,
-  getPacientesId,
-  excluirPacientes,
-} from "../../config/apiServices";
-import ModalPacientes from "./modalPacientes";
-import TabelaPacientes from "./tabelaPacientes";
-import ModalEditarPacientes from "./modalEditarPacientes";
-import ModalDetalhesPacientes from "./modalDetalhesPacientes";
+import React, { useState, useEffect } from 'react';
+import FiltroPacientes from './filtroPacientes';
+import ConfirmationModal from '../util/confirmationModal';
+import AlertMessage from '../util/alertMessage';
+import SuccessAlert from '../util/successAlert';
+import { getPacientes, getPacientesId, excluirPacientes } from '../../config/apiServices';
+import ModalPacientes from './modalPacientes';
+import TabelaPacientes from './tabelaPacientes';
+import ModalEditarPacientes from './modalEditarPacientes';
+import ModalDetalhesPacientes from './modalDetalhesPacientes';
 
 const Pacientes = () => {
   const [pacientes, setPacientes] = useState([]);
-  const [filtro, setFiltro] = useState(""); // Filtro agora é uma string simples
+  const [filtro, setFiltro] = useState('');
   const [isModalOpenAdd, setIsModalOpenAdd] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [idToDelete, setIdToDelete] = useState(null);
@@ -36,22 +31,20 @@ const Pacientes = () => {
     loadPacientes();
   }, []);
 
-  // Função para lidar com a mudança no filtro
   const handleFiltroChange = (e) => {
-    setFiltro(e.target.value); // Atualiza o filtro com o valor digitado
+    setFiltro(e.target.value);
   };
 
   const pacientesFiltrados = pacientes.filter((paciente) => {
-    const pesquisa = filtro.toLowerCase(); // Convertendo o filtro para minúsculo
+    const pesquisa = filtro.toLowerCase();
     return (
-      paciente.cpf.toString().includes(pesquisa) || // Filtra pelo id (como string)
-      paciente.nome?.toLowerCase().includes(pesquisa) || // Filtra pelo nome do paciente
-      paciente.sobrenome?.toLowerCase().includes(pesquisa) || // Considera que `dosagem` pode ser nulo
-      paciente.dataNascimento?.includes(pesquisa) // Considera que `descricao` pode ser nulo
+      paciente.cpf.toString().includes(pesquisa) ||
+      paciente.nome?.toLowerCase().includes(pesquisa) ||
+      paciente.sobrenome?.toLowerCase().includes(pesquisa) ||
+      paciente.dataNascimento?.includes(pesquisa)
     );
   });
 
-  // Deletar paciente
   const handleDelete = (id) => {
     setIdToDelete(id);
     setIsModalOpen(true);
@@ -63,14 +56,13 @@ const Pacientes = () => {
       setShowAlert(true);
       await loadPacientes();
     } catch (error) {
-      console.error("Erro ao excluir:", error);
+      console.error('Erro ao excluir:', error);
     } finally {
       setIsModalOpen(false);
       setIdToDelete(null);
     }
   };
 
-  // Salvar paciente
   const handleSave = async () => {
     await loadPacientes();
     setShowSuccessAlert(true);
@@ -79,28 +71,23 @@ const Pacientes = () => {
   const handleEditar = async (idPaciente) => {
     try {
       const response = await getPacientesId(idPaciente);
-      const paciente = response;
-
-      setPacientesSelecionado(paciente); // Atualiza o estado com o paciente selecionado
-      setIsModalOpenEditar(true); // Abre o modal de edição
+      setPacientesSelecionado(response);
+      setIsModalOpenEditar(true);
     } catch (error) {
-      console.error("Erro ao editar paciente:", error);
+      console.error('Erro ao editar paciente:', error);
     }
   };
 
   const handleDetalhes = async (cpfPaciente) => {
     try {
       const response = await getPacientesId(cpfPaciente);
-      const paciente = response;
-
-      setPacientesSelecionado(paciente); // Atualiza o estado com os detalhes do paciente
-      setIsModalOpenDetalhes(true); // Abre o modal de detalhes
+      setPacientesSelecionado(response);
+      setIsModalOpenDetalhes(true);
     } catch (error) {
-      console.error("Erro ao visualizar detalhes do paciente:", error);
+      console.error('Erro ao visualizar detalhes do paciente:', error);
     }
   };
 
-  // Fechar modal de edição
   const handleCloseModal = () => {
     setIsModalOpenEditar(false);
     setPacientesSelecionado(null);
@@ -113,84 +100,104 @@ const Pacientes = () => {
   };
 
   return (
-    <div className="pacientes-crud">
-      <h2>Pesquisar Pacientes</h2>
+    <div className="min-h-screen bg-gray-200 p-6">
+      <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-md p-6 space-y-6">
+        {/* Título */}
+        <div className="border-b pb-4">
+          <h2 className="text-3xl font-bold text-blue-600">Pesquisar Pacientes</h2>
+        </div>
 
-      {showAlert && (
-        <AlertMessage
-          message="Item excluído com sucesso."
-          onClose={() => setShowAlert(false)}
-        />
-      )}
+        {/* Alertas */}
+        {showAlert && (
+          <AlertMessage
+            message="Item excluído com sucesso."
+            onClose={() => setShowAlert(false)}
+          />
+        )}
+        {showSuccessAlert && (
+          <SuccessAlert
+            message="Paciente adicionado com sucesso!"
+            onClose={() => setShowSuccessAlert(false)}
+          />
+        )}
+        {showEditSuccessAlert && (
+          <SuccessAlert
+            message="Paciente editado com sucesso!"
+            onClose={() => setShowEditSuccessAlert(false)}
+          />
+        )}
 
-      {showSuccessAlert && (
-        <SuccessAlert
-          message="paciente adicionado com sucesso!"
-          onClose={() => setShowSuccessAlert(false)}
-        />
-      )}
+        {/* Bloco de filtro e botão */}
+        <div className="flex flex-col md:flex-row gap-4 mb-6">
+          <FiltroPacientes filtro={filtro} onFiltroChange={handleFiltroChange} />
+          <div className="flex-shrink-0">
+            <label className="block text-sm font-semibold text-gray-700 mb-1 invisible">
+              Placeholder
+            </label>
+            <button
+              onClick={() => setIsModalOpenAdd(true)}
+              className="w-full md:w-auto px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 4v16m8-8H4"
+                />
+              </svg>
+              Adicionar Paciente
+            </button>
+          </div>
+        </div>
 
-      {showEditSuccessAlert && (
-        <SuccessAlert
-          message="paciente editado com sucesso!"
-          onClose={() => setShowEditSuccessAlert(false)}
-        />
-      )}
+        {/* Tabela */}
+        <div className="overflow-x-auto rounded-lg shadow-md">
+          <TabelaPacientes
+            pacientes={pacientesFiltrados}
+            onExcluir={handleDelete}
+            onEditar={handleEditar}
+            onDetalhes={handleDetalhes}
+          />
+        </div>
 
-      <FiltroPacientes filtros={filtro} onFiltroChange={handleFiltroChange} />
-      <form className="pacientes-form">
-        <button type="button" onClick={() => setIsModalOpenAdd(true)}>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            class="size-6"
-          >
-            <path
-              stroleLinecap="round"
-              stroke-linejoin="round"
-              d="M12 4.5v15m7.5-7.5h-15"
-            />
-          </svg>
-          Adicionar paciente
-        </button>
-      </form>
-
-      <ModalPacientes
-        isOpen={isModalOpenAdd}
-        onClose={() => setIsModalOpenAdd(false)}
-        onSave={handleSave}
-      />
-
-      <TabelaPacientes
-        pacientes={pacientesFiltrados}
-        onExcluir={handleDelete}
-        onEditar={handleEditar}
-        onDetalhes={handleDetalhes}
-      />
-
-      {isModalOpenEditar && pacientesSelecionado && (
-        <ModalEditarPacientes
-          isOpen={isModalOpenEditar}
-          onClose={handleCloseModal}
-          pacientes={pacientesSelecionado}
-          onUpdate={handleUpdatePacientes}
-        />
-      )}
-
-      <ConfirmationModal
-        isOpen={isModalOpen}
-        onConfirm={confirmDelete}
-        onCancel={() => setIsModalOpen(false)}
-      />
-
-      <ModalDetalhesPacientes
-        isOpen={isModalOpenDetalhes}
-        onClose={() => setIsModalOpenDetalhes(false)}
-        pacientes={pacientesSelecionado}
-      />
+        {/* Modais */}
+        {isModalOpenAdd && (
+          <ModalPacientes
+            isOpen={isModalOpenAdd}
+            onClose={() => setIsModalOpenAdd(false)}
+            onSave={handleSave}
+          />
+        )}
+        {isModalOpenEditar && pacientesSelecionado && (
+          <ModalEditarPacientes
+            isOpen={isModalOpenEditar}
+            onClose={handleCloseModal}
+            pacientes={pacientesSelecionado}
+            onUpdate={handleUpdatePacientes}
+          />
+        )}
+        {isModalOpen && (
+          <ConfirmationModal
+            isOpen={isModalOpen}
+            onConfirm={confirmDelete}
+            onCancel={() => setIsModalOpen(false)}
+          />
+        )}
+        {isModalOpenDetalhes && pacientesSelecionado && (
+          <ModalDetalhesPacientes
+            isOpen={isModalOpenDetalhes}
+            onClose={() => setIsModalOpenDetalhes(false)}
+            pacientes={pacientesSelecionado}
+          />
+        )}
+      </div>
     </div>
   );
 };

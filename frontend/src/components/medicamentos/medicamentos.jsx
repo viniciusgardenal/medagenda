@@ -1,22 +1,21 @@
-import React, { useState, useEffect } from "react";
-import FiltroMedicamentos from "./filtroMedicamentos";
-import "./medicamentosStyle.css";
-import ConfirmationModal from "../util/confirmationModal";
-import AlertMessage from "../util/alertMessage";
-import SuccessAlert from "../util/successAlert";
+import React, { useState, useEffect } from 'react';
+import FiltroMedicamentos from './filtroMedicamentos';
+import ConfirmationModal from '../util/confirmationModal';
+import AlertMessage from '../util/alertMessage';
+import SuccessAlert from '../util/successAlert';
 import {
   getMedicamentos,
   getMedicamentosId,
   excluirMedicamentos,
-} from "../../config/apiServices";
-import ModalMedicamentos from "./modalMedicamentos";
-import TabelaMedicamentos from "./tabelaMedicamentos";
-import ModalEditarMedicamentos from "./modalEditarMedicamentos";
-import ModalDetalhesMedicamentos from "./modalDetalhesMedicamentos";
+} from '../../config/apiServices';
+import ModalMedicamentos from './modalMedicamentos';
+import TabelaMedicamentos from './tabelaMedicamentos';
+import ModalEditarMedicamentos from './modalEditarMedicamentos';
+import ModalDetalhesMedicamentos from './modalDetalhesMedicamentos';
 
 const Medicamentos = () => {
   const [medicamentos, setMedicamentos] = useState([]);
-  const [filtro, setFiltro] = useState(""); // Filtro agora é uma string simples
+  const [filtro, setFiltro] = useState('');
   const [isModalOpenAdd, setIsModalOpenAdd] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [idToDelete, setIdToDelete] = useState(null);
@@ -27,7 +26,6 @@ const Medicamentos = () => {
   const [medicamentosSelecionado, setMedicamentosSelecionado] = useState(null);
   const [isModalOpenDetalhes, setIsModalOpenDetalhes] = useState(false);
 
-  // Função para carregar medicamentos
   const loadMedicamentos = async () => {
     const response = await getMedicamentos();
     setMedicamentos(response.data);
@@ -37,23 +35,19 @@ const Medicamentos = () => {
     loadMedicamentos();
   }, []);
 
-  // Função para lidar com a mudança no filtro
   const handleFiltroChange = (e) => {
-    setFiltro(e.target.value); // Atualiza o filtro com o valor digitado
+    setFiltro(e.target.value);
   };
 
-  // Filtro dos medicamentos
   const medicamentosFiltrados = medicamentos.filter((medicamento) => {
-    const pesquisa = filtro.toLowerCase(); // Convertendo o filtro para minúsculo
+    const pesquisa = filtro.toLowerCase();
     return (
-      medicamento.nomeMedicamento.toLowerCase().includes(pesquisa) || // Filtra pelo nome do medicamento
-      // medicamento.dosagem?.toLowerCase().includes(pesquisa) || // Considera que `dosagem` pode ser nulo
-      medicamento.nomeFabricante?.toLowerCase().includes(pesquisa) || // Considera que `nomeFabricante` pode ser nulo
-      medicamento.descricao?.toLowerCase().includes(pesquisa) // Considera que `descricao` pode ser nulo
+      medicamento.nomeMedicamento.toLowerCase().includes(pesquisa) ||
+      medicamento.nomeFabricante?.toLowerCase().includes(pesquisa) ||
+      medicamento.descricao?.toLowerCase().includes(pesquisa)
     );
   });
 
-  // Deletar medicamento
   const handleDelete = (id) => {
     setIdToDelete(id);
     setIsModalOpen(true);
@@ -65,14 +59,13 @@ const Medicamentos = () => {
       setShowAlert(true);
       await loadMedicamentos();
     } catch (error) {
-      console.error("Erro ao excluir:", error);
+      console.error('Erro ao excluir:', error);
     } finally {
       setIsModalOpen(false);
       setIdToDelete(null);
     }
   };
 
-  // Salvar medicamento
   const handleSave = async () => {
     await loadMedicamentos();
     setShowSuccessAlert(true);
@@ -81,30 +74,23 @@ const Medicamentos = () => {
   const handleEditar = async (idMedicamento) => {
     try {
       const response = await getMedicamentosId(idMedicamento);
-      const medicamento = response.data;
-
-      //console.log(`Editar Medicamento`, medicamento);
-
-      setMedicamentosSelecionado(medicamento); // Atualiza o estado com o medicamento selecionado
-      setIsModalOpenEditar(true); // Abre o modal de edição
+      setMedicamentosSelecionado(response.data);
+      setIsModalOpenEditar(true);
     } catch (error) {
-      console.error("Erro ao editar medicamento:", error);
+      console.error('Erro ao editar medicamento:', error);
     }
   };
 
   const handleDetalhes = async (idMedicamento) => {
     try {
       const response = await getMedicamentosId(idMedicamento);
-      const medicamento = response.data;
-
-      setMedicamentosSelecionado(medicamento); // Atualiza o estado com os detalhes do medicamento
-      setIsModalOpenDetalhes(true); // Abre o modal de detalhes
+      setMedicamentosSelecionado(response.data);
+      setIsModalOpenDetalhes(true);
     } catch (error) {
-      console.error("Erro ao visualizar detalhes do medicamento:", error);
+      console.error('Erro ao visualizar detalhes do medicamento:', error);
     }
   };
 
-  // Fechar modal de edição
   const handleCloseModal = () => {
     setIsModalOpenEditar(false);
     setMedicamentosSelecionado(null);
@@ -117,87 +103,104 @@ const Medicamentos = () => {
   };
 
   return (
-    <div className="medicamentos-crud">
-      <h2>Pesquisar Medicamentos</h2>
+    <div className="min-h-screen bg-gray-200 p-6">
+      <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-md p-6 space-y-6">
+        {/* Título */}
+        <div className="border-b pb-4">
+          <h2 className="text-3xl font-bold text-blue-600">Pesquisar Medicamentos</h2>
+        </div>
 
-      {showAlert && (
-        <AlertMessage
-          message="Item excluído com sucesso."
-          onClose={() => setShowAlert(false)}
-        />
-      )}
+        {/* Alertas */}
+        {showAlert && (
+          <AlertMessage
+            message="Item excluído com sucesso."
+            onClose={() => setShowAlert(false)}
+          />
+        )}
+        {showSuccessAlert && (
+          <SuccessAlert
+            message="Medicamento adicionado com sucesso!"
+            onClose={() => setShowSuccessAlert(false)}
+          />
+        )}
+        {showEditSuccessAlert && (
+          <SuccessAlert
+            message="Medicamento editado com sucesso!"
+            onClose={() => setShowEditSuccessAlert(false)}
+          />
+        )}
 
-      {showSuccessAlert && (
-        <SuccessAlert
-          message="Medicamento adicionado com sucesso!"
-          onClose={() => setShowSuccessAlert(false)}
-        />
-      )}
+        {/* Bloco de filtro e botão */}
+        <div className="flex flex-col md:flex-row gap-4 mb-6">
+          <FiltroMedicamentos filtro={filtro} onFiltroChange={handleFiltroChange} />
+          <div className="flex-shrink-0">
+            <label className="block text-sm font-semibold text-gray-700 mb-1 invisible">
+              Placeholder
+            </label>
+            <button
+              onClick={() => setIsModalOpenAdd(true)}
+              className="w-full md:w-auto px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 4v16m8-8H4"
+                />
+              </svg>
+              Adicionar Medicamento
+            </button>
+          </div>
+        </div>
 
-      {showEditSuccessAlert && (
-        <SuccessAlert
-          message="Medicamento editado com sucesso!"
-          onClose={() => setShowEditSuccessAlert(false)}
-        />
-      )}
+        {/* Tabela */}
+        <div className="overflow-x-auto rounded-lg shadow-md">
+          <TabelaMedicamentos
+            medicamentos={medicamentosFiltrados}
+            onExcluir={handleDelete}
+            onEditar={handleEditar}
+            onDetalhes={handleDetalhes}
+          />
+        </div>
 
-      <FiltroMedicamentos
-        filtros={filtro}
-        onFiltroChange={handleFiltroChange}
-      />
-      <form className="medicamentos-form">
-        <button type="button" onClick={() => setIsModalOpenAdd(true)}>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            class="size-6"
-          >
-            <path
-              stroleLinecap="round"
-              stroke-linejoin="round"
-              d="M12 4.5v15m7.5-7.5h-15"
-            />
-          </svg>
-          Adicionar Medicamento
-        </button>
-      </form>
-
-      <ModalMedicamentos
-        isOpen={isModalOpenAdd}
-        onClose={() => setIsModalOpenAdd(false)}
-        onSave={handleSave}
-      />
-
-      <TabelaMedicamentos
-        medicamentos={medicamentosFiltrados}
-        onExcluir={handleDelete}
-        onEditar={handleEditar}
-        onDetalhes={handleDetalhes}
-      />
-
-      {isModalOpenEditar && medicamentosSelecionado && (
-        <ModalEditarMedicamentos
-          isOpen={isModalOpenEditar}
-          onClose={handleCloseModal}
-          medicamentos={medicamentosSelecionado}
-          onUpdate={handleUpdateMedicamentos}
-        />
-      )}
-
-      <ConfirmationModal
-        isOpen={isModalOpen}
-        onConfirm={confirmDelete}
-        onCancel={() => setIsModalOpen(false)}
-      />
-
-      <ModalDetalhesMedicamentos
-        isOpen={isModalOpenDetalhes}
-        onClose={() => setIsModalOpenDetalhes(false)}
-        medicamentos={medicamentosSelecionado}
-      />
+        {/* Modais */}
+        {isModalOpenAdd && (
+          <ModalMedicamentos
+            isOpen={isModalOpenAdd}
+            onClose={() => setIsModalOpenAdd(false)}
+            onSave={handleSave}
+          />
+        )}
+        {isModalOpenEditar && medicamentosSelecionado && (
+          <ModalEditarMedicamentos
+            isOpen={isModalOpenEditar}
+            onClose={handleCloseModal}
+            medicamentos={medicamentosSelecionado}
+            onUpdate={handleUpdateMedicamentos}
+          />
+        )}
+        {isModalOpen && (
+          <ConfirmationModal
+            isOpen={isModalOpen}
+            onConfirm={confirmDelete}
+            onCancel={() => setIsModalOpen(false)}
+          />
+        )}
+        {isModalOpenDetalhes && medicamentosSelecionado && (
+          <ModalDetalhesMedicamentos
+            isOpen={isModalOpenDetalhes}
+            onClose={() => setIsModalOpenDetalhes(false)}
+            medicamentos={medicamentosSelecionado}
+          />
+        )}
+      </div>
     </div>
   );
 };

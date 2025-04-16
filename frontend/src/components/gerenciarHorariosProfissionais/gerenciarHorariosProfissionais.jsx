@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { FaEye, FaPlus, FaEdit, FaTrash, FaCalendarAlt } from 'react-icons/fa';
 import ModalAddHorario from "./modalAddHorario";
 import ModalEditHorario from "./modalEditHorario";
 import ModalViewHorario from "./modalViewHorario";
@@ -10,13 +11,15 @@ const GerenciarHorariosProfissionais = () => {
   const [horarios, setHorarios] = useState([]);
   const [profissionais, setProfissionais] = useState([]);
   const [filtroNome, setFiltroNome] = useState("");
-  const [filtroDia, setFiltroDia] = useState("");
+  const [filtroMatricula, setFiltroMatricula] = useState("");
+  const [filtroTipoProfissional, setFiltroTipoProfissional] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [modalAddOpen, setModalAddOpen] = useState(false);
   const [modalEditOpen, setModalEditOpen] = useState(false);
   const [modalViewOpen, setModalViewOpen] = useState(false);
   const [modalConfirmOpen, setModalConfirmOpen] = useState(false);
   const [horarioSelecionado, setHorarioSelecionado] = useState(null);
+  const [profissionalSelecionado, setProfissionalSelecionado] = useState(null);
   const [dadosHorario, setDadosHorario] = useState({
     profissionalId: "",
     diaSemana: [],
@@ -24,18 +27,6 @@ const GerenciarHorariosProfissionais = () => {
     fim: "",
     status: "Ativo",
   });
-
-  const fetchHorarios = async () => {
-    setIsLoading(true);
-    try {
-      const horariosResponse = await getHorarios();
-      setHorarios(horariosResponse.data);
-    } catch (error) {
-      console.error("Erro ao carregar horários:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -56,17 +47,30 @@ const GerenciarHorariosProfissionais = () => {
     fetchData();
   }, []);
 
-  const horariosFiltrados = horarios.filter((horario) => {
-    const nomeCompleto = horario.profissional
-      ? `${horario.profissional.nome} ${horario.profissional.sobrenome || ""}`.trim()
-      : horario.profissionalNome || `Profissional ID: ${horario.profissionalId}`;
-    const nomeMatch = nomeCompleto.toLowerCase().includes(filtroNome.toLowerCase());
-    const diaMatch = filtroDia ? horario.diaSemana === filtroDia : true;
-    return nomeMatch && diaMatch;
+  const fetchHorarios = async () => {
+    setIsLoading(true);
+    try {
+      const horariosResponse = await getHorarios();
+      setHorarios(horariosResponse.data);
+    } catch (error) {
+      console.error("Erro ao carregar horários:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const profissionaisFiltrados = profissionais.filter((prof) => {
+    const nomeCompleto = `${prof.nome} ${prof.sobrenome || ""}`.trim().toLowerCase();
+    const nomeMatch = nomeCompleto.includes(filtroNome.toLowerCase());
+    const matriculaMatch = filtroMatricula
+      ? (prof.matricula?.toString() || "").toLowerCase().includes(filtroMatricula.toLowerCase())
+      : true;
+    const tipoProfissionalMatch = filtroTipoProfissional ? prof.tipoProfissional === filtroTipoProfissional : true;
+    return nomeMatch && matriculaMatch && tipoProfissionalMatch;
   });
 
-  const openAddModal = () => {
-    setDadosHorario({ profissionalId: "", diaSemana: [], inicio: "", fim: "", status: "Ativo" });
+  const openAddModal = (profissionalId) => {
+    setDadosHorario({ profissionalId, diaSemana: [], inicio: "", fim: "", status: "Ativo" });
     setModalAddOpen(true);
   };
 
@@ -82,8 +86,8 @@ const GerenciarHorariosProfissionais = () => {
     setModalEditOpen(true);
   };
 
-  const openViewModal = (horario) => {
-    setHorarioSelecionado(horario);
+  const openViewModal = (profissional) => {
+    setProfissionalSelecionado(profissional);
     setModalViewOpen(true);
   };
 
@@ -98,6 +102,7 @@ const GerenciarHorariosProfissionais = () => {
     setModalViewOpen(false);
     setModalConfirmOpen(false);
     setHorarioSelecionado(null);
+    setProfissionalSelecionado(null);
     setDadosHorario({ profissionalId: "", diaSemana: [], inicio: "", fim: "", status: "Ativo" });
   };
 
@@ -113,7 +118,6 @@ const GerenciarHorariosProfissionais = () => {
         alert("Um ou mais dias da semana são inválidos!");
         return;
       }
-      console.log("Enviando horários:", { diaSemana, ...restDados });
       const promises = diaSemana.map((dia) =>
         criarHorario({ ...restDados, diaSemana: dia })
       );
@@ -123,11 +127,7 @@ const GerenciarHorariosProfissionais = () => {
       await fetchHorarios();
     } catch (error) {
       console.error("Erro ao salvar horários:", error);
-      if (error.response) {
-        alert(`Erro: ${error.response.data.error}`);
-      } else {
-        alert("Erro ao salvar horários. Tente novamente.");
-      }
+      alert("Erro ao salvar horários. Tente novamente.");
     }
   };
 
@@ -144,7 +144,6 @@ const GerenciarHorariosProfissionais = () => {
 
   const handleDeleteHorario = async () => {
     try {
-      console.log("Tentando excluir horário com ID:", horarioSelecionado.id);
       await excluirHorario(horarioSelecionado.id);
       setHorarios(horarios.filter((h) => h.id !== horarioSelecionado.id));
       closeModal();
@@ -161,11 +160,6 @@ const GerenciarHorariosProfissionais = () => {
     return `${hours.padStart(2, "0")}:${minutes.padStart(2, "0")}`;
   };
 
-
-  const handleClearFiltroNome = () => {
-    setFiltroNome("");
-  };
-
   return (
     <div className="min-h-screen bg-gray-200 backdrop-blur-sm p-6">
       <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-md p-6 space-y-6">
@@ -174,23 +168,21 @@ const GerenciarHorariosProfissionais = () => {
           <h2 className="text-3xl font-bold text-blue-600">Gerenciar Horários Profissionais</h2>
         </div>
 
-        {/* Bloco de filtro e botões */}
+        {/* Filtros */}
         <div className="flex flex-col md:flex-row gap-4 mb-6">
           <div className="flex-1">
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
-              Busca por Profissional
-            </label>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">Nome</label>
             <div className="relative">
               <input
                 type="text"
                 value={filtroNome}
                 onChange={(e) => setFiltroNome(e.target.value)}
                 className="w-full px-4 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-                placeholder="Digite o nome do profissional..."
+                placeholder="Filtrar por nome..."
               />
               {filtroNome && (
                 <button
-                  onClick={handleClearFiltroNome}
+                  onClick={() => setFiltroNome("")}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition"
                 >
                   <svg
@@ -212,166 +204,93 @@ const GerenciarHorariosProfissionais = () => {
             </div>
           </div>
           <div className="flex-1">
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
-              Filtrar por Dia
-            </label>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">Matrícula</label>
+            <div className="relative">
+              <input
+                type="text"
+                value={filtroMatricula}
+                onChange={(e) => setFiltroMatricula(e.target.value)}
+                className="w-full px-4 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                placeholder="Filtrar por matrícula..."
+              />
+              {filtroMatricula && (
+                <button
+                  onClick={() => setFiltroMatricula("")}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              )}
+            </div>
+          </div>
+          <div className="flex-1">
+            <label className="block text-sm font-semibold text-gray-700 mb-1">Tipo Profissional</label>
             <select
-              value={filtroDia}
-              onChange={(e) => setFiltroDia(e.target.value)}
+              value={filtroTipoProfissional}
+              onChange={(e) => setFiltroTipoProfissional(e.target.value)}
               className="w-full px-4 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
             >
-              <option value="">Todos os dias</option>
-              {["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"].map((dia) => (
-                <option key={dia} value={dia}>{dia}</option>
-              ))}
+              <option value="">Todos</option>
+              <option value="Medico">Médico</option>
+              <option value="Atendente">Atendente</option>
+              <option value="Diretor">Diretor</option>
             </select>
-          </div>
-          <div className="flex-shrink-0">
-            <label className="block text-sm font-semibold text-gray-700 mb-1 invisible">
-              Placeholder
-            </label>
-            <div className="flex gap-4">
-              <button
-                onClick={openAddModal}
-                className="inline-flex items-center gap-2 rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700 transition"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 4v16m8-8H4"
-                  />
-                </svg>
-                Novo Horário
-              </button>
-            </div>
           </div>
         </div>
 
-        {/* Tabela */}
+        {/* Tabela de Profissionais */}
         <div className="overflow-x-auto rounded-lg shadow-md">
           {isLoading ? (
             <div className="text-center py-4">
-              <p className="text-sm text-gray-500">Carregando horários...</p>
+              <p className="text-sm text-gray-500">Carregando profissionais...</p>
             </div>
-          ) : horariosFiltrados.length === 0 ? (
+          ) : profissionaisFiltrados.length === 0 ? (
             <div className="text-center py-4">
-              <p className="text-sm text-gray-500">Nenhum horário encontrado.</p>
+              <p className="text-sm text-gray-500">Nenhum profissional encontrado.</p>
             </div>
           ) : (
             <table className="min-w-full divide-y divide-gray-200 bg-white">
               <thead className="bg-blue-600 text-white">
                 <tr>
-                  {["Profissional", "Dia da Semana", "Início", "Fim", "Status", "Ações"].map((header) => (
-                    <th
-                      key={header}
-                      className="px-4 py-3 text-left text-sm font-semibold"
-                    >
-                      {header}
-                    </th>
-                  ))}
+                  <th className="px-4 py-3 text-left text-sm font-semibold">Nome</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold">Matrícula</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold">Tipo Profissional</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold">Ações</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-              {horariosFiltrados.map((horario) => (
-                  <tr key={horario.id} className="hover:bg-blue-50 transition-colors">
-                    <td className="px-4 py-3 text-sm text-gray-700">
-                      {horario.profissional && horario.profissional.nome
-                        ? `${horario.profissional.nome} ${horario.profissional.sobrenome || ""}`.trim()
-                        : horario.profissionalNome
-                        ? horario.profissionalNome
-                        : `Profissional ID: ${horario.profissionalId || "Desconhecido"}`}
-                    </td>
-                    <td className="px-4 py-3 text-sm text-gray-700">
-                      {horario.diaSemana || "Não definido"}
-                    </td>
-                    <td className="px-4 py-3 text-sm text-gray-700">{formatarHorario(horario.inicio)}</td>
-                    <td className="px-4 py-3 text-sm text-gray-700">{formatarHorario(horario.fim)}</td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={`inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-sm font-semibold text-white shadow ${
-                          horario.status === "Ativo" ? "bg-green-600" : "bg-red-600"
-                        }`}
-                      >
-                        {horario.status}
-                      </span>
-                    </td>
+                {profissionaisFiltrados.map((prof) => (
+                  <tr key={prof.id} className="hover:bg-blue-50 transition-colors">
+                    <td className="px-4 py-3 text-sm text-gray-700">{`${prof.nome} ${prof.sobrenome || ""}`}</td>
+                    <td className="px-4 py-3 text-sm text-gray-700">{prof.matricula || "N/A"}</td>
+                    <td className="px-4 py-3 text-sm text-gray-700">{prof.tipoProfissional || "N/A"}</td>
                     <td className="px-4 py-3 flex gap-3">
                       <button
-                        onClick={() => openViewModal(horario)}
-                        className="text-blue-500 hover:text-blue-700"
-                        title="Visualizar Horário"
-                        aria-label="Visualizar horário"
+                        onClick={() => openViewModal(prof)}
+                        className="text-blue-500 hover:text-blue-700 flex items-center gap-1 text-sm"
+                        title="Ver Horários"
                       >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-5 w-5"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                          />
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M2.458 12C3.732 7.943 7.522 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.478 0-8.268-2.943-9.542-7z"
-                          />
-                        </svg>
+                        <FaCalendarAlt className="h-4 w-4" /> Ver Horários
                       </button>
                       <button
-                        onClick={() => openEditModal(horario)}
-                        className="text-green-500 hover:text-green-700"
-                        title="Editar Horário"
-                        aria-label="Editar horário"
+                        onClick={() => openAddModal(prof.id)}
+                        className="text-green-500 hover:text-green-700 flex items-center gap-1 text-sm"
+                        title="Adicionar Horário"
                       >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-5 w-5"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                          />
-                        </svg>
-                      </button>
-                      <button
-                        onClick={() => openConfirmModal(horario)}
-                        className="text-red-500 hover:text-red-700"
-                        title="Excluir Horário"
-                        aria-label="Excluir horário"
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-5 w-5"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5-4h4M9 7v12m6-12v12M10 11v6m4-6v6"
-                          />
-                        </svg>
+                        <FaPlus className="h-4 w-4" /> Adicionar
                       </button>
                     </td>
                   </tr>
@@ -401,7 +320,8 @@ const GerenciarHorariosProfissionais = () => {
         <ModalViewHorario
           isOpen={modalViewOpen}
           onClose={closeModal}
-          horario={horarioSelecionado}
+          profissional={profissionalSelecionado}
+          horarios={horarios.filter((h) => h.profissionalId.toString() === profissionalSelecionado?.id.toString())}
         />
         <ConfirmationModal
           isOpen={modalConfirmOpen}

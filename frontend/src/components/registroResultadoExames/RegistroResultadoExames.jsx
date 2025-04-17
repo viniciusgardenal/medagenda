@@ -7,7 +7,9 @@ import ModalEditObservacao from './ModalEditObservacao';
 import ModalAddObservacao from './modalAddObservacao';
 import ModalViewObservacao from './ModalViewObservacao';
 import FiltroRegistroResultadoExames from './filtroRegistroResultadoExames';
+import Pagination from "../util/Pagination";
 
+// Componente para cada linha da tabela
 const TableRow = ({ registro, onAdd, onEdit, onView }) => {
     const resultadoDefinido = registro.observacoes && registro.observacoes.trim() !== "";
 
@@ -15,7 +17,7 @@ const TableRow = ({ registro, onAdd, onEdit, onView }) => {
         <tr className="hover:bg-blue-50 transition-colors">
             <td className="px-4 py-3 text-sm text-gray-700">{registro.idRegistro}</td>
             <td className="px-4 py-3 text-sm text-gray-700">
-            {registro.tiposExames?.nomeTipoExame}
+                {registro.tiposExames?.nomeTipoExame}
             </td>
             <td className="px-4 py-3 text-sm text-gray-700">
                 {new Date(registro.solicitacaoExame.dataSolicitacao).toLocaleDateString("pt-BR")}
@@ -79,6 +81,10 @@ const RegistroResultadoExames = () => {
     const [filtros, setFiltros] = useState({ filtroId: '', filtroNome: '' });
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage] = useState(8);
+    const [sortField, setSortField] = useState("idRegistro");
+    const [sortDirection, setSortDirection] = useState("asc");
 
     useEffect(() => {
         const fetchData = async () => {
@@ -97,6 +103,27 @@ const RegistroResultadoExames = () => {
         fetchData();
     }, []);
 
+    const sortRegistros = (registros) => {
+        return [...registros].sort((a, b) => {
+            let valueA, valueB;
+            const fieldMap = {
+                idRegistro: (item) => item.idRegistro,
+                nomeExame: (item) => item.tiposExames?.nomeTipoExame.toLowerCase(),
+                dataSolicitacao: (item) => new Date(item.solicitacaoExame.dataSolicitacao),
+                profissional: (item) => item.profissional.nome.toLowerCase(),
+                paciente: (item) => item.paciente.nome.toLowerCase(),
+                status: (item) => (item.observacoes && item.observacoes.trim() !== "" ? "registrado" : "definir"),
+            };
+            valueA = fieldMap[sortField](a);
+            valueB = fieldMap[sortField](b);
+            if (sortField === "dataSolicitacao") {
+                return sortDirection === "asc" ? valueA - valueB : valueB - valueA;
+            }
+            const direction = sortDirection === "asc" ? 1 : -1;
+            return valueA > valueB ? direction : -direction;
+        });
+    };
+
     const handleFiltroChange = (novosFiltros) => {
         setFiltros(novosFiltros);
     };
@@ -114,6 +141,25 @@ const RegistroResultadoExames = () => {
             : true;
         return idMatch && nomeMatch;
     });
+
+    const registrosOrdenadosFiltrados = sortRegistros(registrosFiltrados);
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentRegistros = registrosOrdenadosFiltrados.slice(indexOfFirstItem, indexOfLastItem);
+
+    const handlePageChange = (pageNumber) => {
+        setCurrentPage(pageNumber);
+    };
+
+    const handleSort = (field) => {
+        if (field === sortField) {
+            setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+        } else {
+            setSortField(field);
+            setSortDirection("asc");
+        }
+        setCurrentPage(1);
+    };
 
     const handleUpdateObservacao = async (idRegistro) => {
         setError(null);
@@ -180,25 +226,35 @@ const RegistroResultadoExames = () => {
                         <table className="min-w-full divide-y divide-gray-200 bg-white">
                             <thead className="bg-blue-600 text-white">
                                 <tr>
-                                    {["ID Registro", "Nome do Exame", "Data da Solicitação","Profissional", "Paciente", "Definir Resultado", "Ações"].map((header, index) => (
+                                    {["ID Registro", "Nome do Exame", "Data da Solicitação", "Profissional", "Paciente"].map((header, index) => (
                                         <th
                                             key={header}
-                                            className={`px-4 py-3 text-left text-sm font-semibold `}
+                                            onClick={() => handleSort(["idRegistro", "nomeExame", "dataSolicitacao", "profissional", "paciente"][index])}
+                                            className={`px-4 py-3 text-left text-sm font-semibold cursor-pointer ${
+                                                index === 0 ? "rounded-tl-lg" : ""
+                                            } ${index === 4 ? "rounded-tr-lg" : ""} ${
+                                                sortField === ["idRegistro", "nomeExame", "dataSolicitacao", "profissional", "paciente"][index] ? "bg-blue-700" : ""
+                                            }`}
                                         >
                                             {header}
+                                            {sortField === ["idRegistro", "nomeExame", "dataSolicitacao", "profissional", "paciente"][index] && (
+                                                <span className="ml-1">{sortDirection === "asc" ? "↑" : "↓"}</span>
+                                            )}
                                         </th>
                                     ))}
+                                    <th className="px-4 py-3 text-left text-sm font-semibold">Definir Resultado</th>
+                                    <th className="px-4 py-3 text-left text-sm font-semibold">Ações</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200">
-                                {registrosFiltrados.length === 0 ? (
+                                {currentRegistros.length === 0 ? (
                                     <tr>
-                                        <td colSpan="6" className="px-4 py-4 text-center text-gray-500">
+                                        <td colSpan="7" className="px-4 py-4 text-center text-gray-500">
                                             Nenhum registro encontrado.
                                         </td>
                                     </tr>
                                 ) : (
-                                    registrosFiltrados.map((registro) => (
+                                    currentRegistros.map((registro) => (
                                         <TableRow
                                             key={registro.idRegistro}
                                             registro={registro}
@@ -211,6 +267,16 @@ const RegistroResultadoExames = () => {
                             </tbody>
                         </table>
                     </div>
+                )}
+
+                {registrosOrdenadosFiltrados.length > 0 && (
+                    <Pagination
+                        totalItems={registrosOrdenadosFiltrados.length}
+                        itemsPerPage={itemsPerPage}
+                        currentPage={currentPage}
+                        onPageChange={handlePageChange}
+                        maxPageButtons={5}
+                    />
                 )}
 
                 {modalAddOpen && registroSelecionado && (

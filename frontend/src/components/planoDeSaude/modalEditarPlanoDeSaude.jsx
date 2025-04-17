@@ -1,54 +1,38 @@
-import React, { useState, useEffect } from "react";
-import "./modalPlanoDeSaude.css";
-import "../util/geral.css";
-import { atualizarPlanoDeSaude } from "../../config/apiServices"; // Importação correta do serviço
-import SuccessAlert from "../util/successAlert"; // Supondo que você tenha esse componente de alerta
-import moment from "moment";
+import React, { useState } from 'react';
+import { atualizarPlanoDeSaude } from '../../config/apiServices';
+import SuccessAlert from '../util/successAlert';
+import moment from 'moment';
 
 const ModalEditarPlanoDeSaude = ({ isOpen, onClose, plano, onUpdate }) => {
-  const [nomePlanoDeSaude, setNomePlanoDeSaude] = useState(
-    plano?.nomePlanoDeSaude || ""
-  );
-  const [descricao, setDescricao] = useState(plano?.descricao || "");
-  const [tipoPlanoDeSaude, setTipoPlanoDeSaude] = useState(
-    plano?.tipoPlanoDeSaude || ""
-  );
+  const [nomePlanoDeSaude, setNomePlanoDeSaude] = useState(plano?.nomePlanoDeSaude || '');
+  const [descricao, setDescricao] = useState(plano?.descricao || '');
+  const [tipoPlanoDeSaude, setTipoPlanoDeSaude] = useState(plano?.tipoPlanoDeSaude || '');
   const [dataInicio, setDataInicio] = useState(
-    plano?.dataInicio
-      ? moment(plano.dataInicio, "DD/MM/YYYY").format("YYYY-MM-DD")
-      : ""
+    plano?.dataInicio ? moment(plano.dataInicio, 'DD/MM/YYYY').format('YYYY-MM-DD') : ''
   );
   const [dataFim, setDataFim] = useState(
-    plano?.dataFim
-      ? moment(plano.dataFim, "DD/MM/YYYY").format("YYYY-MM-DD")
-      : ""
+    plano?.dataFim ? moment(plano.dataFim, 'DD/MM/YYYY').format('YYYY-MM-DD') : ''
   );
-  const [status, setStatus] = useState(plano?.status || "");
+  const [status, setStatus] = useState(plano?.status || 'Ativo');
   const [erros, setErros] = useState({});
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Validação dos campos
   const validarCampos = () => {
     const newErros = {};
-
-    if (!nomePlanoDeSaude)
-      newErros.nomePlanoDeSaude = "Nome do Plano de Saúde é obrigatório!";
-    if (!tipoPlanoDeSaude)
-      newErros.tipoPlanoDeSaude = "Tipo do Plano de Saúde é obrigatório!";
-    if (!dataInicio) newErros.dataInicio = "Data de início é obrigatória!";
-    if (!dataFim) newErros.dataFim = "Data de fim é obrigatória!";
+    if (!nomePlanoDeSaude) newErros.nomePlanoDeSaude = 'O nome do plano de saúde é obrigatório!';
+    if (!tipoPlanoDeSaude) newErros.tipoPlanoDeSaude = 'O tipo do plano de saúde é obrigatório!';
+    if (!dataInicio) newErros.dataInicio = 'A data de início é obrigatória!';
     if (dataFim && new Date(dataFim) < new Date(dataInicio)) {
-      newErros.dataFim = "A data de fim não pode ser menor que a data de início.";
+      newErros.dataFim = 'A data de fim não pode ser anterior à data de início.';
     }
     setErros(newErros);
     return Object.keys(newErros).length === 0;
   };
 
-  // Função para enviar o formulário
   const handleSubmit = async (event) => {
     event.preventDefault();
-
-    if (!validarCampos()) return; // Se houver erro, não submete
+    if (!validarCampos()) return;
 
     const dadosAtualizados = {
       nomePlanoDeSaude,
@@ -60,114 +44,131 @@ const ModalEditarPlanoDeSaude = ({ isOpen, onClose, plano, onUpdate }) => {
     };
 
     try {
+      setIsLoading(true);
       await atualizarPlanoDeSaude(plano.idPlanoDeSaude, dadosAtualizados);
-      setShowSuccessAlert(true); // Mostra o alerta de sucesso
-
-      onUpdate(); // Atualiza a lista após a edição
-      onClose(); // Fecha o modal
+      setShowSuccessAlert(true);
+      setTimeout(() => {
+        setShowSuccessAlert(false);
+      }, 3000);
+      onUpdate();
+      onClose();
     } catch (error) {
-      console.error("Erro ao atualizar Plano de Saúde:", error);
+      console.error('Erro ao atualizar plano de saúde:', error);
+    } finally {
+      setIsLoading(false);
     }
-  };
-
-  // Função para manipular o status do plano de saúde
-  const handlePlanoDeSaudeChange = (e) => {
-    setStatus(e.target.value);
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-content">
-        <button className="modal-close-button" onClick={onClose}>
-          X
-        </button>
-        <h2>Editar Plano de Saúde</h2>
-        <form className="modal-add" onSubmit={handleSubmit}>
-          {/* Nome do Plano de Saúde */}
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+      <div className="bg-white rounded-lg p-6 max-w-lg w-full">
+        {showSuccessAlert && (
+          <SuccessAlert
+            message="Plano de saúde atualizado com sucesso!"
+            onClose={() => setShowSuccessAlert(false)}
+          />
+        )}
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-2xl font-bold text-blue-600">Editar Plano de Saúde</h2>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path
+                fillRule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </button>
+        </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label>Nome do Plano de Saúde:</label>
-            <textarea
+            <label className="block text-sm font-semibold text-gray-700 mb-1">Nome do Plano de Saúde:</label>
+            <input
+              type="text"
               value={nomePlanoDeSaude}
               onChange={(e) => setNomePlanoDeSaude(e.target.value)}
+              className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
-            {erros.nomePlanoDeSaude && (
-              <small style={{color:"red" }} className="error">{erros.nomePlanoDeSaude}</small>
-            )}
+            {erros.nomePlanoDeSaude && <span className="text-red-500 text-xs mt-1">{erros.nomePlanoDeSaude}</span>}
           </div>
-
-          {/* Descrição do Plano de Saúde */}
           <div>
-            <label>Descrição:</label>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">Descrição:</label>
             <textarea
               value={descricao}
               onChange={(e) => setDescricao(e.target.value)}
+              className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
-            {erros.descricao && (
-              <small style={{color:"red" }} className="error">{erros.descricao}</small>
-            )}
+            {erros.descricao && <span className="text-red-500 text-xs mt-1">{erros.descricao}</span>}
           </div>
-
-          {/* Tipo do Plano de Saúde */}
           <div>
-            <label>Tipo do Plano de Saúde:</label>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">Tipo do Plano de Saúde:</label>
             <input
               type="text"
               value={tipoPlanoDeSaude}
               onChange={(e) => setTipoPlanoDeSaude(e.target.value)}
+              className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
-            {erros.tipoPlanoDeSaude && (
-              <small style={{color:"red" }} className="error">{erros.tipoPlanoDeSaude}</small>
-            )}
+            {erros.tipoPlanoDeSaude && <span className="text-red-500 text-xs mt-1">{erros.tipoPlanoDeSaude}</span>}
           </div>
-
-          {/* Data de Início */}
           <div>
-            <label>Data de Início:</label>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">Data de Início:</label>
             <input
               type="date"
               value={dataInicio}
               onChange={(e) => setDataInicio(e.target.value)}
+              className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
-            {erros.dataInicio && (
-              <small style={{color:"red" }} className="error">{erros.dataInicio}</small>
-            )}
+            {erros.dataInicio && <span className="text-red-500 text-xs mt-1">{erros.dataInicio}</span>}
           </div>
-
-          {/* Data de Fim */}
           <div>
-            <label>Data de Fim:</label>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">Data de Fim:</label>
             <input
               type="date"
               value={dataFim}
               onChange={(e) => setDataFim(e.target.value)}
+              min={dataInicio}
+              className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
-            {erros.dataFim && <small style={{color:"red" }} className="error">{erros.dataFim}</small>}
+            {erros.dataFim && <span className="text-red-500 text-xs mt-1">{erros.dataFim}</span>}
           </div>
-
-          {/* Status */}
           <div>
-            <label>Status:</label>
-            <select value={status} onChange={handlePlanoDeSaudeChange}>
-              <option value="">Selecione o Status</option>
-              <option value="ativo">Ativo</option>
-              <option value="inativo">Inativo</option>
-              <option value="cancelado">Cancelado</option>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">Status:</label>
+            <select
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+              className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+            >
+              <option value="Ativo">Ativo</option>
+              <option value="Inativo">Inativo</option>
+              <option value="Cancelado">Cancelado</option>
             </select>
-            {erros.status && <small style={{color:"red" }} className="error">{erros.status}</small>}
+            {erros.status && <span className="text-red-500 text-xs mt-1">{erros.status}</span>}
           </div>
-
-          <button type="submit">Salvar Alterações</button>
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 disabled:bg-blue-400"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 4v16m8-8H4"
+              />
+            </svg>
+            {isLoading ? 'Salvando...' : 'Salvar Alterações'}
+          </button>
         </form>
       </div>
-
-      {showSuccessAlert && (
-        <SuccessAlert
-          message="Plano de Saúde Atualizado com sucesso!"
-          onClose={() => setShowSuccessAlert(false)}
-        />
-      )}
     </div>
   );
 };

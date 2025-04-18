@@ -1,16 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import ConfirmationModal from '../util/confirmationModal';
-import AlertMessage from '../util/alertMessage';
-import SuccessAlert from '../util/successAlert';
-import { getProfissionais, getProfissionaisId, excluirProfissional } from '../../config/apiServices';
-import ModalProfissional from './modalProfissional';
-import TabelaProfissionais from '../profissionais/tabelaProfissionais';
-import ModalEditarProfissional from './modalEditarProfissional';
-import ModalDetalhesProfissional from './modalDetalhesProfissional';
+import React, { useState, useEffect } from "react";
+import ConfirmationModal from "../util/confirmationModal";
+import AlertMessage from "../util/alertMessage";
+import SuccessAlert from "../util/successAlert";
+import {
+  getProfissionais,
+  getProfissionaisId,
+  excluirProfissional,
+} from "../../config/apiServices";
+import ModalProfissional from "./modalProfissional";
+import TabelaProfissionais from "../profissionais/tabelaProfissionais";
+import ModalEditarProfissional from "./modalEditarProfissional";
+import ModalDetalhesProfissional from "./modalDetalhesProfissional";
+import Pagination from "../util/Pagination";
 
 const Profissionais = () => {
   const [profissionais, setProfissionais] = useState([]);
-  const [filtro, setFiltro] = useState('');
+  const [filtro, setFiltro] = useState("");
   const [isModalOpenAdd, setIsModalOpenAdd] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [idToDelete, setIdToDelete] = useState(null);
@@ -20,10 +25,17 @@ const Profissionais = () => {
   const [isModalOpenEditar, setIsModalOpenEditar] = useState(false);
   const [profissionalSelecionado, setProfissionalSelecionado] = useState(null);
   const [isModalOpenDetalhes, setIsModalOpenDetalhes] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(8); // Número fixo de profissionais por página
 
   const loadProfissionais = async () => {
-    const response = await getProfissionais();
-    setProfissionais(response.data);
+    try {
+      const response = await getProfissionais();
+      setProfissionais(response.data);
+      setCurrentPage(1); // Reseta para a primeira página ao carregar novos dados
+    } catch (error) {
+      console.error("Erro ao carregar profissionais:", error);
+    }
   };
 
   useEffect(() => {
@@ -32,6 +44,7 @@ const Profissionais = () => {
 
   const handleFiltroChange = (e) => {
     setFiltro(e.target.value);
+    setCurrentPage(1); // Reseta para a primeira página ao mudar o filtro
   };
 
   const profissionaisFiltrados = profissionais.filter((profissional) => {
@@ -45,6 +58,18 @@ const Profissionais = () => {
     );
   });
 
+  // Calcular profissionais da página atual
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentProfissionais = profissionaisFiltrados.slice(
+    indexOfFirstItem,
+    indexOfLastItem
+  );
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
   const handleDelete = (id) => {
     setIdToDelete(id);
     setIsModalOpen(true);
@@ -56,7 +81,7 @@ const Profissionais = () => {
       setShowAlert(true);
       await loadProfissionais();
     } catch (error) {
-      console.error('Erro ao excluir:', error);
+      console.error("Erro ao excluir:", error);
     } finally {
       setIsModalOpen(false);
       setIdToDelete(null);
@@ -69,17 +94,25 @@ const Profissionais = () => {
   };
 
   const handleEditar = async (matricula) => {
-    const response = await getProfissionaisId(matricula);
-    const profissional = response.data;
-    setProfissionalSelecionado({ ...profissional });
-    setIsModalOpenEditar(true);
+    try {
+      const response = await getProfissionaisId(matricula);
+      const profissional = response.data;
+      setProfissionalSelecionado({ ...profissional });
+      setIsModalOpenEditar(true);
+    } catch (error) {
+      console.error("Erro ao editar profissional:", error);
+    }
   };
 
   const handleDetalhes = async (matricula) => {
-    const response = await getProfissionaisId(matricula);
-    const profissional = response.data;
-    setProfissionalSelecionado({ ...profissional });
-    setIsModalOpenDetalhes(true);
+    try {
+      const response = await getProfissionaisId(matricula);
+      const profissional = response.data;
+      setProfissionalSelecionado({ ...profissional });
+      setIsModalOpenDetalhes(true);
+    } catch (error) {
+      console.error("Erro ao visualizar detalhes do profissional:", error);
+    }
   };
 
   const handleCloseModal = () => {
@@ -98,7 +131,9 @@ const Profissionais = () => {
       <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-md p-6 space-y-6">
         {/* Título */}
         <div className="border-b pb-4">
-          <h2 className="text-3xl font-bold text-blue-600">Pesquisar Profissionais</h2>
+          <h2 className="text-3xl font-bold text-blue-600">
+            Pesquisar Profissionais
+          </h2>
         </div>
 
         {/* Alertas */}
@@ -138,7 +173,7 @@ const Profissionais = () => {
               />
               {filtro && (
                 <button
-                  onClick={() => handleFiltroChange({ target: { value: '' } })}
+                  onClick={() => handleFiltroChange({ target: { value: "" } })}
                   className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
                   <svg
@@ -187,12 +222,21 @@ const Profissionais = () => {
         {/* Tabela */}
         <div className="overflow-x-auto rounded-lg shadow-md">
           <TabelaProfissionais
-            profissionais={profissionaisFiltrados}
+            profissionais={currentProfissionais}
             onExcluir={handleDelete}
             onEditar={handleEditar}
             onDetalhes={handleDetalhes}
           />
         </div>
+
+        {/* Paginação */}
+        <Pagination
+          totalItems={profissionaisFiltrados.length}
+          itemsPerPage={itemsPerPage}
+          currentPage={currentPage}
+          onPageChange={handlePageChange}
+          maxPageButtons={5}
+        />
 
         {/* Modais */}
         {isModalOpenAdd && (

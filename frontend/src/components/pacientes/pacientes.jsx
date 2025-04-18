@@ -27,7 +27,7 @@ const Pacientes = () => {
   const [pacientesSelecionado, setPacientesSelecionado] = useState(null);
   const [isModalOpenDetalhes, setIsModalOpenDetalhes] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10); // Número fixo de pacientes por página
+  const [itemsPerPage] = useState(8); // Número fixo de pacientes por página
 
   const loadPacientes = async () => {
     try {

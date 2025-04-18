@@ -241,7 +241,7 @@ const Sidebar = () => {
             </svg>
           ),
           path: "/checkin-pacientes",
-          roles: ["Diretor", "Médico"],
+          roles: ["Diretor", "Médico", "Atendente"],
         },
         {
           title: "Gerenciar Horários de Profissionais",
@@ -283,7 +283,7 @@ const Sidebar = () => {
             </svg>
           ),
           path: "/agendar-consultas",
-          roles: ["Diretor", "Médico"],
+          roles: ["Diretor", "Médico", "Atendente"],
         },
       ],
       roles: ["Diretor", "Atendente", "Médico"],

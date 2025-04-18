@@ -1,22 +1,21 @@
-import React, { useState, useEffect } from "react";
-import FiltroTipoConsulta from "./filtroTipoConsulta";
-import "./tipoConsultaStyle.css";
-import ConfirmationModal from "../util/confirmationModal";
-import AlertMessage from "../util/alertMessage";
-import SuccessAlert from "../util/successAlert";
+import React, { useState, useEffect } from 'react';
+import FiltroTipoConsulta from './filtroTipoConsulta';
+import ConfirmationModal from '../util/confirmationModal';
+import AlertMessage from '../util/alertMessage';
+import SuccessAlert from '../util/successAlert';
 import {
   getTipoConsulta,
   getTipoConsultaId,
   excluirTipoConsulta,
-} from "../../config/apiServices";
-import ModalTipoConsulta from "./modalTipoConsulta";
-import TabelaTipoConsulta from "./tabelaTipoConsulta";
-import ModalEditarTipoConsulta from "./modalEditarTipoConsulta";
-import ModalDetalhesTipoConsulta from "./modalDetalhesConsulta";
+} from '../../config/apiServices';
+import ModalTipoConsulta from './modalTipoConsulta';
+import TabelaTipoConsulta from './tabelaTipoConsulta';
+import ModalEditarTipoConsulta from './modalEditarTipoConsulta';
+import ModalDetalhesTipoConsulta from './modalDetalhesConsulta';
 
 const TipoConsulta = () => {
   const [tipoConsulta, setTipoConsulta] = useState([]);
-  const [filtro, setFiltro] = useState(""); // Filtro agora é uma string simples
+  const [filtro, setFiltro] = useState('');
   const [isModalOpenAdd, setIsModalOpenAdd] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [idToDelete, setIdToDelete] = useState(null);
@@ -29,40 +28,29 @@ const TipoConsulta = () => {
 
   const loadTipoConsulta = async () => {
     try {
-      //console.log("Função loadTipoConsulta chamada");
-      const response = await getTipoConsulta(); // Certifique-se de que getTipoConsulta está funcionando
-      setTipoConsulta(response.data); // Certifique-se de que setTipoConsulta está acessível
+      const response = await getTipoConsulta();
+      setTipoConsulta(response.data);
     } catch (error) {
-      console.error("Erro ao carregar tipos de consulta:", error);
+      console.error('Erro ao carregar tipos de consulta:', error);
     }
   };
 
   useEffect(() => {
-    //console.log("useEffect chamado");
     loadTipoConsulta();
   }, []);
 
-  // Função para lidar com a mudança no filtro
   const handleFiltroChange = (e) => {
-    setFiltro(e.target.value); // Atualiza o filtro com o valor digitado
+    setFiltro(e.target.value);
   };
 
-  // Filtro dos tipoConsultas
   const tipoConsultaFiltrados = tipoConsulta.filter((tpc) => {
-    const pesquisa = filtro.toLowerCase(); // Convertendo o filtro para minúsculo
+    const pesquisa = filtro.toLowerCase();
     return (
-      // tpc.idTipoConsulta.toString().includes(pesquisa) || // Filtra pelo id (como string)
       tpc.nomeTipoConsulta.toLowerCase().includes(pesquisa) ||
-      // tpc.especialidade?.toLowerCase().includes(pesquisa) || // Considera que `especialidade` pode ser nulo
-      // tpc.duracaoEstimada?.toLowerCase().includes(pesquisa) || // Considera que `duracaoEstimada` pode ser nulo
-      // tpc.requisitosEspecificos?.toLowerCase().includes(pesquisa) || // Considera que `requisitosEspecificos` pode ser nulo
-      tpc.descricao?.toLowerCase().includes(pesquisa) // Considera que `requisitosEspecificos` pode ser nulo
-      // tpc.prioridade?.toLowerCase().includes(pesquisa) || // Considera que `prioridade` pode ser nulo
-      // tpc.status?.toLowerCase().includes(pesquisa) // Considera que `status` pode ser nulo
+      tpc.descricao?.toLowerCase().includes(pesquisa)
     );
   });
 
-  // Deletar tipoConsulta
   const handleDelete = (id) => {
     setIdToDelete(id);
     setIsModalOpen(true);
@@ -74,40 +62,38 @@ const TipoConsulta = () => {
       setShowAlert(true);
       await loadTipoConsulta();
     } catch (error) {
-      console.error("Erro ao excluir:", error);
+      console.error('Erro ao excluir:', error);
     } finally {
       setIsModalOpen(false);
       setIdToDelete(null);
     }
   };
 
-  // Salvar tipoConsulta
   const handleSave = async () => {
     await loadTipoConsulta();
     setShowSuccessAlert(true);
   };
 
-  // Editar tipoConsulta
   const handleEditar = async (idTipoConsulta) => {
-    const response = await getTipoConsultaId(idTipoConsulta);
-    const tipoConsulta = response.data;
-
-    setTipoConsultaSelecionado(tipoConsulta);
-    setIsModalOpenEditar(true);
+    try {
+      const response = await getTipoConsultaId(idTipoConsulta);
+      setTipoConsultaSelecionado(response.data);
+      setIsModalOpenEditar(true);
+    } catch (error) {
+      console.error('Erro ao editar tipo de consulta:', error);
+    }
   };
 
-  // Exibir detalhes do tipo Consulta
   const handleDetalhes = async (idTipoConsulta) => {
-    const response = await getTipoConsultaId(idTipoConsulta);
-    const tipoConsulta = response.data;
-
-    setTipoConsultaSelecionado({
-      ...tipoConsulta,
-    });
-    setIsModalOpenDetalhes(true); // Abrir o modal de detalhes
+    try {
+      const response = await getTipoConsultaId(idTipoConsulta);
+      setTipoConsultaSelecionado(response.data);
+      setIsModalOpenDetalhes(true);
+    } catch (error) {
+      console.error('Erro ao visualizar detalhes do tipo de consulta:', error);
+    }
   };
 
-  // Fechar modal de edição
   const handleCloseModal = () => {
     setIsModalOpenEditar(false);
     setTipoConsultaSelecionado(null);
@@ -120,87 +106,99 @@ const TipoConsulta = () => {
   };
 
   return (
-    <div className="tipos-exames-crud">
-      <h2>Pesquisar Tipos de Consultas</h2>
+    <div className="min-h-screen bg-gray-200 p-6">
+      <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-md p-6 space-y-6">
+        <div className="border-b pb-4">
+          <h2 className="text-3xl font-bold text-blue-600">Pesquisar Tipos de Consultas</h2>
+        </div>
 
-      {showAlert && (
-        <AlertMessage
-          message="Item excluído com sucesso."
-          onClose={() => setShowAlert(false)}
-        />
-      )}
+        {showAlert && (
+          <AlertMessage
+            message="Item excluído com sucesso."
+            onClose={() => setShowAlert(false)}
+          />
+        )}
+        {showSuccessAlert && (
+          <SuccessAlert
+            message="Tipo de consulta adicionado com sucesso!"
+            onClose={() => setShowSuccessAlert(false)}
+          />
+        )}
+        {showEditSuccessAlert && (
+          <SuccessAlert
+            message="Tipo de consulta editado com sucesso!"
+            onClose={() => setShowEditSuccessAlert(false)}
+          />
+        )}
 
-      {showSuccessAlert && (
-        <SuccessAlert
-          message="Tipo de consulta adicionado com sucesso!"
-          onClose={() => setShowSuccessAlert(false)}
-        />
-      )}
+        <div className="flex flex-col md:flex-row gap-4 mb-6">
+          <FiltroTipoConsulta filtro={filtro} onFiltroChange={handleFiltroChange} />
+          <div className="flex-shrink-0">
+            <label className="block text-sm font-semibold text-gray-700 mb-1 invisible">
+              Placeholder
+            </label>
+            <button
+              onClick={() => setIsModalOpenAdd(true)}
+              className="w-full md:w-auto px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 4v16m8-8H4"
+                />
+              </svg>
+              Adicionar Tipo de Consulta
+            </button>
+          </div>
+        </div>
 
-      {showEditSuccessAlert && (
-        <SuccessAlert
-          message="Tipo de consulta editado com sucesso!"
-          onClose={() => setShowEditSuccessAlert(false)}
-        />
-      )}
+        <div className="overflow-x-auto rounded-lg shadow-md">
+          <TabelaTipoConsulta
+            tpc={tipoConsultaFiltrados}
+            onExcluir={handleDelete}
+            onEditar={handleEditar}
+            onDetalhes={handleDetalhes}
+          />
+        </div>
 
-      <FiltroTipoConsulta
-        filtros={filtro}
-        onFiltroChange={handleFiltroChange}
-      />
-      <form className="tipo-exame-form">
-        <button type="button" onClick={() => setIsModalOpenAdd(true)}>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            class="size-6"
-          >
-            <path
-              stroleLinecap="round"
-              stroke-linejoin="round"
-              d="M12 4.5v15m7.5-7.5h-15"
-            />
-          </svg>
-          Adicionar Tipo de Consulta
-        </button>
-      </form>
-
-      <ModalTipoConsulta
-        isOpen={isModalOpenAdd}
-        onClose={() => setIsModalOpenAdd(false)}
-        onSave={handleSave}
-      />
-
-      <TabelaTipoConsulta
-        tpc={tipoConsultaFiltrados}
-        onExcluir={handleDelete}
-        onEditar={handleEditar}
-        onDetalhes={handleDetalhes}
-      />
-
-      {isModalOpenEditar && tipoConsultaSelecionado && (
-        <ModalEditarTipoConsulta
-          isOpen={isModalOpenEditar}
-          onClose={handleCloseModal}
-          tipoConsulta={tipoConsultaSelecionado}
-          onUpdate={handleUpdateTipoConsulta}
-        />
-      )}
-
-      <ConfirmationModal
-        isOpen={isModalOpen}
-        onConfirm={confirmDelete}
-        onCancel={() => setIsModalOpen(false)}
-      />
-
-      <ModalDetalhesTipoConsulta
-        isOpen={isModalOpenDetalhes}
-        onClose={() => setIsModalOpenDetalhes(false)}
-        tipoConsulta={tipoConsultaSelecionado}
-      />
+        {isModalOpenAdd && (
+          <ModalTipoConsulta
+            isOpen={isModalOpenAdd}
+            onClose={() => setIsModalOpenAdd(false)}
+            onSave={handleSave}
+          />
+        )}
+        {isModalOpenEditar && tipoConsultaSelecionado && (
+          <ModalEditarTipoConsulta
+            isOpen={isModalOpenEditar}
+            onClose={handleCloseModal}
+            tipoConsulta={tipoConsultaSelecionado}
+            onUpdate={handleUpdateTipoConsulta}
+          />
+        )}
+        {isModalOpen && (
+          <ConfirmationModal
+            isOpen={isModalOpen}
+            onConfirm={confirmDelete}
+            onCancel={() => setIsModalOpen(false)}
+          />
+        )}
+        {isModalOpenDetalhes && tipoConsultaSelecionado && (
+          <ModalDetalhesTipoConsulta
+            isOpen={isModalOpenDetalhes}
+            onClose={() => setIsModalOpenDetalhes(false)}
+            tipoConsulta={tipoConsultaSelecionado}
+          />
+        )}
+      </div>
     </div>
   );
 };

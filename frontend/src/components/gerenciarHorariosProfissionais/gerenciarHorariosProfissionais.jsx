@@ -3,6 +3,7 @@ import ModalAddHorario from "./modalAddHorario";
 import ModalEditHorario from "./modalEditHorario";
 import ModalViewHorario from "./modalViewHorario";
 import ConfirmationModal from "./confirmationModal";
+import Pagination from "../util/Pagination";
 import { criarHorario, updateHorario, excluirHorario, getHorarios, getProfissionais } from "../../config/apiServices";
 
 const EyeIcon = () => (
@@ -40,6 +41,10 @@ const GerenciarHorariosProfissionais = () => {
     fim: "",
     status: "Ativo",
   });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(8);
+  const [sortField, setSortField] = useState("nome");
+  const [sortDirection, setSortDirection] = useState("asc");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -88,7 +93,32 @@ const GerenciarHorariosProfissionais = () => {
     }
   };
 
-  const filteredProfissionais = profissionais.filter((prof) => {
+  const sortProfissionais = (profissionais) => {
+    return [...profissionais].sort((a, b) => {
+      let valueA, valueB;
+      const fieldMap = {
+        matricula: (item) => item.matricula.toString().toLowerCase(),
+        nome: (item) => `${item.nome} ${item.sobrenome || ""}`.toLowerCase(),
+        cargo: (item) => item.tipoProfissional.toLowerCase(),
+      };
+      valueA = fieldMap[sortField](a);
+      valueB = fieldMap[sortField](b);
+      const direction = sortDirection === "asc" ? 1 : -1;
+      return valueA > valueB ? direction : -direction;
+    });
+  };
+
+  const handleSort = (field) => {
+    if (field === sortField) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortField(field);
+      setSortDirection("asc");
+    }
+    setCurrentPage(1);
+  };
+
+  const profissionaisFiltrados = profissionais.filter((prof) => {
     const nomeCompleto = `${prof.nome} ${prof.sobrenome || ""}`.toLowerCase();
     const matriculaStr = prof.matricula ? prof.matricula.toString().toLowerCase() : "";
     const tipo = prof.tipoProfissional ? prof.tipoProfissional.toLowerCase() : "";
@@ -99,9 +129,18 @@ const GerenciarHorariosProfissionais = () => {
     );
   });
 
+  const profissionaisOrdenados = sortProfissionais(profissionaisFiltrados);
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentProfissionais = profissionaisOrdenados.slice(indexOfFirstItem, indexOfLastItem);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
   useEffect(() => {
-    console.log("Profissionais filtrados:", filteredProfissionais);
-  }, [filteredProfissionais]);
+    console.log("Profissionais filtrados:", profissionaisFiltrados);
+  }, [profissionaisFiltrados]);
 
   const openAddModal = (prof) => {
     console.log("Abrindo ModalAddHorario, profissional:", prof);
@@ -219,8 +258,8 @@ const GerenciarHorariosProfissionais = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
-      <div className="max-w-7xl mx-auto bg-white rounded-lg shadow-xl p-6">
-        <h2 className="text-2xl font-semibold mb-6 text-blue-600">Gerenciar Horários Profissionais</h2>
+      <div className="max-w-6xl mx-auto bg-white rounded-lg shadow-xl p-6">
+        <h2 className="text-3xl font-semibold mb-6 text-blue-600">Gerenciar Horários Profissionais</h2>
 
         {error && (
           <div className="bg-red-100 text-red-700 p-3 rounded-md mb-4 text-sm">
@@ -267,46 +306,77 @@ const GerenciarHorariosProfissionais = () => {
         <div className="overflow-x-auto rounded-lg shadow-md">
           {isLoading ? (
             <p className="text-center text-gray-500 px-4 py-4">Carregando...</p>
-          ) : filteredProfissionais.length === 0 ? (
+          ) : profissionaisOrdenados.length === 0 ? (
             <p className="text-center text-gray-500 px-4 py-4">Nenhum profissional encontrado.</p>
           ) : (
             <table className="min-w-full divide-y divide-gray-200 bg-white">
               <thead className="bg-blue-600 text-white">
                 <tr>
-                  <th className="w-24 px-4 py-3 text-left text-sm font-semibold rounded-tl-lg">Matrícula</th>
-                  <th className="flex-1 min-w-0 px-4 py-3 text-left text-sm font-semibold">Nome</th>
-                  <th className="flex-1 min-w-0 px-4 py-3 text-left text-sm font-semibold">Cargo</th>
-                  <th className="flex-1 min-w-0 px-4 py-3 text-left text-sm font-semibold rounded-tr-lg">Ações</th>
+                  {["Matrícula", "Nome do Profissional", "Cargo"].map((header, index) => (
+                    <th
+                      key={header}
+                      onClick={() => handleSort(["matricula", "nome", "cargo"][index])}
+                      className={`px-4 py-3 text-left text-sm font-semibold cursor-pointer ${
+                        index === 0 ? "rounded-tl-lg" : ""
+                      } ${index === 2 ? "rounded-tr-lg" : ""} ${
+                        sortField === ["matricula", "nome", "cargo"][index] ? "bg-blue-700" : ""
+                      }`}
+                    >
+                      {header}
+                      {sortField === ["matricula", "nome", "cargo"][index] && (
+                        <span className="ml-1">{sortDirection === "asc" ? "↑" : "↓"}</span>
+                      )}
+                    </th>
+                  ))}
+                  <th className="px-4 py-3 text-left text-sm font-semibold rounded-tr-lg">Ações</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {filteredProfissionais.map((prof) => (
-                  <tr key={prof.matricula} className="hover:bg-blue-50 transition-colors">
-                    <td className="w-24 px-4 py-3 text-sm text-gray-700">{prof.matricula || "N/A"}</td>
-                    <td className="flex-1 min-w-0 px-4 py-3 text-sm text-gray-700">{`${prof.nome} ${prof.sobrenome || ""}`}</td>
-                    <td className="flex-1 min-w-0 px-4 py-3 text-sm text-gray-700">{prof.tipoProfissional || "N/A"}</td>
-                    <td className="flex-1 min-w-0 px-4 py-3 text-sm flex gap-3">
-                      <button
-                        onClick={() => openViewModal(prof)}
-                        className="text-blue-500 hover:text-blue-700"
-                        title="Ver Horários"
-                      >
-                        <EyeIcon />
-                      </button>
-                      <button
-                        onClick={() => openAddModal(prof)}
-                        className="text-green-500 hover:text-green-700"
-                        title="Adicionar Horário"
-                      >
-                        <PlusIcon />
-                      </button>
+                {currentProfissionais.length === 0 ? (
+                  <tr>
+                    <td colSpan="4" className="px-4 py-4 text-center text-gray-500">
+                      Nenhum profissional encontrado.
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  currentProfissionais.map((prof) => (
+                    <tr key={prof.matricula} className="hover:bg-blue-50 transition-colors">
+                      <td className="w-24 px-4 py-3 text-sm text-gray-700">{prof.matricula || "N/A"}</td>
+                      <td className="flex-1 min-w-0 px-4 py-3 text-sm text-gray-700">{`${prof.nome} ${prof.sobrenome || ""}`}</td>
+                      <td className="flex-1 min-w-0 px-4 py-3 text-sm text-gray-700">{prof.tipoProfissional || "N/A"}</td>
+                      <td className="flex-1 min-w-0 px-4 py-3 text-sm flex gap-3">
+                        <button
+                          onClick={() => openViewModal(prof)}
+                          className="text-blue-500 hover:text-blue-700"
+                          title="Ver Horários"
+                        >
+                          <EyeIcon />
+                        </button>
+                        <button
+                          onClick={() => openAddModal(prof)}
+                          className="text-green-500 hover:text-green-700"
+                          title="Adicionar Horário"
+                        >
+                          <PlusIcon />
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           )}
         </div>
+
+        {profissionaisOrdenados.length > 0 && (
+          <Pagination
+            totalItems={profissionaisOrdenados.length}
+            itemsPerPage={itemsPerPage}
+            currentPage={currentPage}
+            onPageChange={handlePageChange}
+            maxPageButtons={5}
+          />
+        )}
 
         <ModalAddHorario
           isOpen={modalAddOpen}

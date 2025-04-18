@@ -1,96 +1,95 @@
-import React, { useState, useEffect } from 'react';
+import React from "react";
+import { X } from "lucide-react";
 
 const ModalDetalhesMedicamentos = ({ isOpen, onClose, medicamentos }) => {
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (medicamentos) {
-      setLoading(false);
-    } else {
-      setLoading(true);
-    }
-  }, [medicamentos]);
-
-  if (!isOpen) return null;
+  if (!isOpen || !medicamentos) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-4 max-w-2xl w-full border border-gray-200 shadow-sm">
-        <div className="flex justify-between items-center mb-2">
-          <h2 className="text-lg font-semibold text-blue-700">Detalhes do Medicamento</h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700 transition-colors">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </button>
-        </div>
-        {loading ? (
-          <div className="flex items-center justify-center space-x-2 text-gray-500 text-sm italic">
-            <svg
-              className="animate-spin h-5 w-5 text-gray-400"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              ></circle>
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8v8H4z"
-              ></path>
-            </svg>
-            <p>Carregando...</p>
-          </div>
-        ) : (
-          medicamentos && (
-            <div className="bg-gray-50 p-4 rounded-md border border-gray-200 space-y-2 text-gray-800">
-              <div className="flex items-center py-1 border-b border-gray-200">
-                <p className="text-sm font-semibold">ID:</p>
-                <p className="text-base ml-1">{medicamentos.idMedicamento}</p>
-              </div>
-              <div className="flex items-center py-1 border-b border-gray-200">
-                <p className="text-sm font-semibold">Controlado:</p>
-                <p className="text-base ml-1">{medicamentos.controlado}</p>
-              </div>
-              <div className="flex items-center py-1 border-b border-gray-200">
-                <p className="text-sm font-semibold">Nome:</p>
-                <p className="text-base ml-1">{medicamentos.nomeMedicamento}</p>
-              </div>
-              <div className="flex items-center py-1 border-b border-gray-200">
-                <p className="text-sm font-semibold">Fabricante:</p>
-                <p className="text-base ml-1">{medicamentos.nomeFabricante}</p>
-              </div>
-              <div className="flex items-center py-1 border-b border-gray-200">
-                <p className="text-sm font-semibold">Descrição:</p>
-                <p className="text-base ml-1">{medicamentos.descricao}</p>
-              </div>
-              <div className="flex items-center py-1 border-b border-gray-200">
-                <p className="text-sm font-semibold">Instrução de Uso:</p>
-                <p className="text-base ml-1">{medicamentos.instrucaoUso}</p>
-              </div>
-              <div className="flex items-center py-1 border-b border-gray-200">
-                <p className="text-sm font-semibold">Interações:</p>
-                <p className="text-base ml-1">{medicamentos.interacao}</p>
-              </div>
+    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white w-full max-w-lg rounded-xl shadow-lg p-6 relative">
+        {/* Botão de Fechar */}
+        <button
+          onClick={onClose}
+          aria-label="Fechar modal"
+          className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 transition-colors"
+        >
+          <X className="h-5 w-5" />
+        </button>
+
+        {/* Título */}
+        <h2 className="text-xl font-semibold text-blue-600 mb-4">
+          Detalhes do Medicamento
+        </h2>
+
+        <div className="space-y-4">
+          {/* Nome do Medicamento e Fabricante */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Nome do Medicamento
+              </label>
+              <p className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-gray-700 text-sm">
+                {medicamentos.nomeMedicamento || "Não informado"}
+              </p>
             </div>
-          )
-        )}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Fabricante
+              </label>
+              <p className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-gray-700 text-sm">
+                {medicamentos.nomeFabricante || "Não informado"}
+              </p>
+            </div>
+          </div>
+
+          {/* Controlado */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Controlado
+            </label>
+            <p className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-gray-700 text-sm">
+              {medicamentos.controlado === "Sim" ||
+              medicamentos.controlado === "Medicamento Controlado"
+                ? "Sim"
+                : medicamentos.controlado === "Não" ||
+                  medicamentos.controlado === "Medicamento Não Controlado"
+                ? "Não"
+                : medicamentos.controlado || "Não informado"}
+            </p>
+          </div>
+
+          {/* Descrição */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Descrição
+            </label>
+            <p className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-gray-700 text-sm min-h-[80px] whitespace-pre-wrap">
+              {medicamentos.descricao || "Não informado"}
+            </p>
+          </div>
+
+          {/* Instrução de Uso */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Instrução de Uso
+            </label>
+            <p className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-gray-700 text-sm min-h-[80px] whitespace-pre-wrap">
+              {medicamentos.instrucaoUso || "Não informado"}
+            </p>
+          </div>
+
+          {/* Interações */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Interações Medicamentosas
+            </label>
+            <p className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-gray-700 text-sm min-h-[80px] whitespace-pre-wrap">
+              {medicamentos.interacao || "Não informado"}
+            </p>
+          </div>
+        </div>
+
+        {/* Botão Fechar */}
         <div className="mt-4 flex justify-end">
           <button
             onClick={onClose}

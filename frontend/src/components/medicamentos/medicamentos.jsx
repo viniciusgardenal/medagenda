@@ -1,21 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import FiltroMedicamentos from './filtroMedicamentos';
-import ConfirmationModal from '../util/confirmationModal';
-import AlertMessage from '../util/alertMessage';
-import SuccessAlert from '../util/successAlert';
+import React, { useState, useEffect } from "react";
+import FiltroMedicamentos from "./filtroMedicamentos";
+import ConfirmationModal from "../util/confirmationModal";
+import AlertMessage from "../util/alertMessage";
+import SuccessAlert from "../util/successAlert";
 import {
   getMedicamentos,
   getMedicamentosId,
   excluirMedicamentos,
-} from '../../config/apiServices';
-import ModalMedicamentos from './modalMedicamentos';
-import TabelaMedicamentos from './tabelaMedicamentos';
-import ModalEditarMedicamentos from './modalEditarMedicamentos';
-import ModalDetalhesMedicamentos from './modalDetalhesMedicamentos';
+} from "../../config/apiServices";
+import ModalMedicamentos from "./modalMedicamentos";
+import TabelaMedicamentos from "./tabelaMedicamentos";
+import ModalEditarMedicamentos from "./modalEditarMedicamentos";
+import ModalDetalhesMedicamentos from "./modalDetalhesMedicamentos";
 
 const Medicamentos = () => {
   const [medicamentos, setMedicamentos] = useState([]);
-  const [filtro, setFiltro] = useState('');
+  const [filtro, setFiltro] = useState("");
   const [isModalOpenAdd, setIsModalOpenAdd] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [idToDelete, setIdToDelete] = useState(null);
@@ -59,7 +59,7 @@ const Medicamentos = () => {
       setShowAlert(true);
       await loadMedicamentos();
     } catch (error) {
-      console.error('Erro ao excluir:', error);
+      console.error("Erro ao excluir:", error);
     } finally {
       setIsModalOpen(false);
       setIdToDelete(null);
@@ -77,7 +77,7 @@ const Medicamentos = () => {
       setMedicamentosSelecionado(response.data);
       setIsModalOpenEditar(true);
     } catch (error) {
-      console.error('Erro ao editar medicamento:', error);
+      console.error("Erro ao editar medicamento:", error);
     }
   };
 
@@ -87,7 +87,7 @@ const Medicamentos = () => {
       setMedicamentosSelecionado(response.data);
       setIsModalOpenDetalhes(true);
     } catch (error) {
-      console.error('Erro ao visualizar detalhes do medicamento:', error);
+      console.error("Erro ao visualizar detalhes do medicamento:", error);
     }
   };
 
@@ -107,7 +107,9 @@ const Medicamentos = () => {
       <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-md p-6 space-y-6">
         {/* Título */}
         <div className="border-b pb-4">
-          <h2 className="text-3xl font-bold text-blue-600">Pesquisar Medicamentos</h2>
+          <h2 className="text-3xl font-bold text-blue-600">
+            Pesquisar Medicamentos
+          </h2>
         </div>
 
         {/* Alertas */}
@@ -132,7 +134,10 @@ const Medicamentos = () => {
 
         {/* Bloco de filtro e botão */}
         <div className="flex flex-col md:flex-row gap-4 mb-6">
-          <FiltroMedicamentos filtro={filtro} onFiltroChange={handleFiltroChange} />
+          <FiltroMedicamentos
+            filtro={filtro}
+            onFiltroChange={handleFiltroChange}
+          />
           <div className="flex-shrink-0">
             <label className="block text-sm font-semibold text-gray-700 mb-1 invisible">
               Placeholder

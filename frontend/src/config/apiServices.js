@@ -251,3 +251,9 @@ export const getHorarios = async () => {
 export const getHorarioId = async (id) => {
   return await api.get(`${apiUrl}/horarios-profissionais/${id}`);
 };
+
+//Agendar Consultas
+
+export const agendarConsulta = async (dadosConsulta) => {
+  return await api.post(`${apiUrl}/consulta`, dadosConsulta);
+};

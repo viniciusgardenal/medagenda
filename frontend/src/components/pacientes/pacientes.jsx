@@ -1,17 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import FiltroPacientes from './filtroPacientes';
-import ConfirmationModal from '../util/confirmationModal';
-import AlertMessage from '../util/alertMessage';
-import SuccessAlert from '../util/successAlert';
-import { getPacientes, getPacientesId, excluirPacientes } from '../../config/apiServices';
-import ModalPacientes from './modalPacientes';
-import TabelaPacientes from './tabelaPacientes';
-import ModalEditarPacientes from './modalEditarPacientes';
-import ModalDetalhesPacientes from './modalDetalhesPacientes';
+import React, { useState, useEffect } from "react";
+import FiltroPacientes from "./filtroPacientes";
+import ConfirmationModal from "../util/confirmationModal";
+import AlertMessage from "../util/alertMessage";
+import SuccessAlert from "../util/successAlert";
+import {
+  getPacientes,
+  getPacientesId,
+  excluirPacientes,
+} from "../../config/apiServices";
+import ModalPacientes from "./modalPacientes";
+import TabelaPacientes from "./tabelaPacientes";
+import ModalEditarPacientes from "./modalEditarPacientes";
+import ModalDetalhesPacientes from "./modalDetalhesPacientes";
+import Pagination from "../util/Pagination";
 
 const Pacientes = () => {
   const [pacientes, setPacientes] = useState([]);
-  const [filtro, setFiltro] = useState('');
+  const [filtro, setFiltro] = useState("");
   const [isModalOpenAdd, setIsModalOpenAdd] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [idToDelete, setIdToDelete] = useState(null);
@@ -21,10 +26,17 @@ const Pacientes = () => {
   const [isModalOpenEditar, setIsModalOpenEditar] = useState(false);
   const [pacientesSelecionado, setPacientesSelecionado] = useState(null);
   const [isModalOpenDetalhes, setIsModalOpenDetalhes] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10); // Número fixo de pacientes por página
 
   const loadPacientes = async () => {
-    const response = await getPacientes();
-    setPacientes(response.data);
+    try {
+      const response = await getPacientes();
+      setPacientes(response.data);
+      setCurrentPage(1); // Reseta para a primeira página ao carregar novos dados
+    } catch (error) {
+      console.error("Erro ao carregar pacientes:", error);
+    }
   };
 
   useEffect(() => {
@@ -33,6 +45,7 @@ const Pacientes = () => {
 
   const handleFiltroChange = (e) => {
     setFiltro(e.target.value);
+    setCurrentPage(1); // Reseta para a primeira página ao mudar o filtro
   };
 
   const pacientesFiltrados = pacientes.filter((paciente) => {
@@ -45,6 +58,18 @@ const Pacientes = () => {
     );
   });
 
+  // Calcular pacientes da página atual
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentPacientes = pacientesFiltrados.slice(
+    indexOfFirstItem,
+    indexOfLastItem
+  );
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
   const handleDelete = (id) => {
     setIdToDelete(id);
     setIsModalOpen(true);
@@ -56,7 +81,7 @@ const Pacientes = () => {
       setShowAlert(true);
       await loadPacientes();
     } catch (error) {
-      console.error('Erro ao excluir:', error);
+      console.error("Erro ao excluir:", error);
     } finally {
       setIsModalOpen(false);
       setIdToDelete(null);
@@ -74,7 +99,7 @@ const Pacientes = () => {
       setPacientesSelecionado(response);
       setIsModalOpenEditar(true);
     } catch (error) {
-      console.error('Erro ao editar paciente:', error);
+      console.error("Erro ao editar paciente:", error);
     }
   };
 
@@ -84,7 +109,7 @@ const Pacientes = () => {
       setPacientesSelecionado(response);
       setIsModalOpenDetalhes(true);
     } catch (error) {
-      console.error('Erro ao visualizar detalhes do paciente:', error);
+      console.error("Erro ao visualizar detalhes do paciente:", error);
     }
   };
 
@@ -104,7 +129,9 @@ const Pacientes = () => {
       <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-md p-6 space-y-6">
         {/* Título */}
         <div className="border-b pb-4">
-          <h2 className="text-3xl font-bold text-blue-600">Pesquisar Pacientes</h2>
+          <h2 className="text-3xl font-bold text-blue-600">
+            Pesquisar Pacientes
+          </h2>
         </div>
 
         {/* Alertas */}
@@ -129,7 +156,10 @@ const Pacientes = () => {
 
         {/* Bloco de filtro e botão */}
         <div className="flex flex-col md:flex-row gap-4 mb-6">
-          <FiltroPacientes filtro={filtro} onFiltroChange={handleFiltroChange} />
+          <FiltroPacientes
+            filtro={filtro}
+            onFiltroChange={handleFiltroChange}
+          />
           <div className="flex-shrink-0">
             <label className="block text-sm font-semibold text-gray-700 mb-1 invisible">
               Placeholder
@@ -160,12 +190,21 @@ const Pacientes = () => {
         {/* Tabela */}
         <div className="overflow-x-auto rounded-lg shadow-md">
           <TabelaPacientes
-            pacientes={pacientesFiltrados}
+            pacientes={currentPacientes}
             onExcluir={handleDelete}
             onEditar={handleEditar}
             onDetalhes={handleDetalhes}
           />
         </div>
+
+        {/* Paginação */}
+        <Pagination
+          totalItems={pacientesFiltrados.length}
+          itemsPerPage={itemsPerPage}
+          currentPage={currentPage}
+          onPageChange={handlePageChange}
+          maxPageButtons={5}
+        />
 
         {/* Modais */}
         {isModalOpenAdd && (

@@ -14,6 +14,8 @@ const TableRow = ({
   getPrioridadeLegenda,
   formatarDataHoraBR,
 }) => {
+  console.log(consulta);
+
   const checkInRealizado =
     consulta.checkin && consulta.checkin.status === "registrado";
   return (
@@ -22,7 +24,7 @@ const TableRow = ({
         {consulta.paciente.nome}
       </td>
       <td className="px-4 py-3 text-sm text-gray-700">
-        {consulta.profissionais.nome} {consulta.profissionais.sobrenome}
+        {consulta.medico.nome} {consulta.medico.crm}
       </td>
       <td className="px-4 py-3 text-sm text-gray-700">
         {formatarDataHoraBR(consulta.dataConsulta, consulta.horaConsulta)}
@@ -212,6 +214,8 @@ const CheckInPacientes = () => {
       setError(null);
       try {
         const consultasResponse = await getConsultasPorData(filtros.filtroData);
+        console.log(consultasResponse.data);
+
         const consultasDoDia = consultasResponse.data.filter((consulta) => {
           const agora = new Date();
           const dataConsulta = new Date(
@@ -363,7 +367,9 @@ const CheckInPacientes = () => {
     <div className="min-h-screen bg-gray-200 backdrop-blur-sm p-6">
       <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-md p-6 space-y-6">
         <div className="border-b pb-4">
-          <h2 className="text-3xl font-bold text-blue-600">Check-In de Pacientes</h2>
+          <h2 className="text-3xl font-bold text-blue-600">
+            Check-In de Pacientes
+          </h2>
         </div>
 
         {error && (
@@ -411,34 +417,55 @@ const CheckInPacientes = () => {
             <table className="min-w-full divide-y divide-gray-200 bg-white">
               <thead className="bg-blue-600 text-white">
                 <tr>
-                  {["Paciente", "Médico", "Horário", "Prioridade", "Status", "Ações"].map(
-                    (header, index) => (
-                      <th
-                        key={header}
-                        onClick={() =>
-                          ["nome", "medico", "horario", "prioridade", "status"][index] &&
-                          handleSort(["nome", "medico", "horario", "prioridade", "status"][index])
-                        }
-                        className={`px-4 py-3 text-left text-sm font-semibold cursor-pointer ${
-                          index === 0 ? "rounded-tl-lg" : ""
-                        } ${index === 5 ? "rounded-tr-lg" : ""} ${
-                          ["nome", "medico", "horario", "prioridade", "status"].includes(
-                            sortField
-                          ) && sortField === ["nome", "medico", "horario", "prioridade", "status"][index]
-                            ? "bg-blue-700"
-                            : ""
-                        }`}
-                      >
-                        {header}
-                        {sortField ===
-                          ["nome", "medico", "horario", "prioridade", "status"][index] && (
-                          <span className="ml-1">
-                            {sortDirection === "asc" ? "↑" : "↓"}
-                          </span>
-                        )}
-                      </th>
-                    )
-                  )}
+                  {[
+                    "Paciente",
+                    "Médico",
+                    "Horário",
+                    "Prioridade",
+                    "Status",
+                    "Ações",
+                  ].map((header, index) => (
+                    <th
+                      key={header}
+                      onClick={() =>
+                        ["nome", "medico", "horario", "prioridade", "status"][
+                          index
+                        ] &&
+                        handleSort(
+                          ["nome", "medico", "horario", "prioridade", "status"][
+                            index
+                          ]
+                        )
+                      }
+                      className={`px-4 py-3 text-left text-sm font-semibold cursor-pointer ${
+                        index === 0 ? "rounded-tl-lg" : ""
+                      } ${index === 5 ? "rounded-tr-lg" : ""} ${
+                        [
+                          "nome",
+                          "medico",
+                          "horario",
+                          "prioridade",
+                          "status",
+                        ].includes(sortField) &&
+                        sortField ===
+                          ["nome", "medico", "horario", "prioridade", "status"][
+                            index
+                          ]
+                          ? "bg-blue-700"
+                          : ""
+                      }`}
+                    >
+                      {header}
+                      {sortField ===
+                        ["nome", "medico", "horario", "prioridade", "status"][
+                          index
+                        ] && (
+                        <span className="ml-1">
+                          {sortDirection === "asc" ? "↑" : "↓"}
+                        </span>
+                      )}
+                    </th>
+                  ))}
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">

@@ -4,10 +4,55 @@ require("moment/locale/pt-br"); // Para definir o locale em português
 
 const criarTipoConsulta = async (req, res) => {
   try {
-    const novoTipoConsulta = await tipoConsulta.create(req.body);
-    res.status(201).json(novoTipoConsulta);
+    // Verificar se é um array ou objeto    
+    const tiposConsultaInput = Array.isArray(req.body) ? req.body : [req.body];
+
+    // Preencher dataCriacao automaticamente para cada tipo, se não fornecida
+    tiposConsultaInput.forEach((tipo) => {
+      tipo.dataCriacao = tipo.dataCriacao || new Date().toISOString();
+    });
+
+    // Cadastrar tipos de consulta
+    let tiposConsultaCadastrados;
+    if (Array.isArray(req.body)) {
+      // Cadastrar múltiplos tipos com bulkCreate
+      tiposConsultaCadastrados = await tipoConsulta.bulkCreate(
+        tiposConsultaInput,
+        {
+          validate: true, // Aplicar validações do modelo
+          individualHooks: true, // Executar hooks (e.g., beforeCreate) para cada tipo
+        }
+      );
+    } else {
+      // Cadastrar um único tipo
+      tiposConsultaCadastrados = [
+        await TipoConsulta.create(tiposConsultaInput[0]),
+      ];
+    }
+
+    // Retornar resposta
+    res.status(201).json(
+      tiposConsultaCadastrados.length === 1
+        ? tiposConsultaCadastrados[0] // Retorna objeto para um tipo
+        : tiposConsultaCadastrados // Retorna array para múltiplos tipos
+    );
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    // Tratar erros específicos
+    if (error.name === "SequelizeUniqueConstraintError") {
+      return res
+        .status(400)
+        .json({ error: "Nome do tipo de consulta já cadastrado." });
+    }
+    if (error.name === "SequelizeValidationError") {
+      return res
+        .status(400)
+        .json({ error: error.errors.map((e) => e.message).join(", ") });
+    }
+    res
+      .status(400)
+      .json({
+        error: error.message || "Erro ao cadastrar tipo(s) de consulta.",
+      });
   }
 };
 
@@ -16,7 +61,10 @@ const lerTipoConsulta = async (req, res) => {
     //console.log("Back chegou aqui ?");
 
     const tpc = await tipoConsulta.findAll({
-      order: [["nomeTipoConsulta", "ASC"], ['descricao', 'ASC']],
+      order: [
+        ["nomeTipoConsulta", "ASC"],
+        ["descricao", "ASC"],
+      ],
     });
 
     const tiposConsultaFormatados = tpc.map((tpc) => ({

@@ -14,6 +14,7 @@ import PlanoDeSaude from "../planoDeSaude/planoDeSaude";
 import TipoConsulta from "../tipoConsulta/tipoConsulta";
 import CheckInPacientes from "../checkinPacientes/CheckInPacientes";
 import GerenciarHorariosProfissionais from "../gerenciarHorariosProfissionais/gerenciarHorariosProfissionais"; // Novo import
+import AgendamentoConsulta from "../agendamentosConsultas/AgendamentoConsulta";
 
 const routes = [
   { path: "/", element: <LoginScreen />, protected: false },
@@ -93,6 +94,14 @@ const routes = [
     permissao: "consultar",
     rolesPermitidos: ["Diretor", "Médico"],
   },
+  {
+    path: "/agendar-consultas",
+    element: <AgendamentoConsulta />,
+    protected: true,
+    permissao: "consultar",
+    rolesPermitidos: ["Diretor", "Médico"],
+  },
+
   {
     path: "/checkin-pacientes",
     element: <CheckInPacientes />,

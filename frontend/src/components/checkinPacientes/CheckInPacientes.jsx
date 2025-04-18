@@ -14,14 +14,14 @@ const TableRow = ({
   getPrioridadeLegenda,
   formatarDataHoraBR,
 }) => {
-  console.log(consulta);
+  // console.log(consulta);
 
   const checkInRealizado =
     consulta.checkin && consulta.checkin.status === "registrado";
   return (
     <tr className="hover:bg-blue-50 transition-colors">
       <td className="px-4 py-3 text-sm text-gray-700">
-        {consulta.paciente.nome}
+        {consulta.paciente.nome} {consulta.paciente.sobrenome}
       </td>
       <td className="px-4 py-3 text-sm text-gray-700">
         {consulta.medico.nome} {consulta.medico.crm}
@@ -214,7 +214,7 @@ const CheckInPacientes = () => {
       setError(null);
       try {
         const consultasResponse = await getConsultasPorData(filtros.filtroData);
-        console.log(consultasResponse.data);
+        // console.log(consultasResponse.data);
 
         const consultasDoDia = consultasResponse.data.filter((consulta) => {
           const agora = new Date();

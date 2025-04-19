@@ -1,21 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import FiltroTipoConsulta from './filtroTipoConsulta';
-import ConfirmationModal from '../util/confirmationModal';
-import AlertMessage from '../util/alertMessage';
-import SuccessAlert from '../util/successAlert';
+import React, { useState, useEffect } from "react";
+import FiltroTipoConsulta from "./filtroTipoConsulta";
+import ConfirmationModal from "../util/confirmationModal";
+import AlertMessage from "../util/alertMessage";
+import SuccessAlert from "../util/successAlert";
 import {
   getTipoConsulta,
   getTipoConsultaId,
   excluirTipoConsulta,
-} from '../../config/apiServices';
-import ModalTipoConsulta from './modalTipoConsulta';
-import TabelaTipoConsulta from './tabelaTipoConsulta';
-import ModalEditarTipoConsulta from './modalEditarTipoConsulta';
-import ModalDetalhesTipoConsulta from './modalDetalhesConsulta';
+} from "../../config/apiServices";
+import ModalTipoConsulta from "./modalTipoConsulta";
+import TabelaTipoConsulta from "./tabelaTipoConsulta";
+import ModalEditarTipoConsulta from "./modalEditarTipoConsulta";
+import ModalDetalhesTipoConsulta from "./modalDetalhesConsulta";
+import Pagination from "../util/Pagination"; // Importando o componente de paginação
 
 const TipoConsulta = () => {
   const [tipoConsulta, setTipoConsulta] = useState([]);
-  const [filtro, setFiltro] = useState('');
+  const [filtro, setFiltro] = useState("");
   const [isModalOpenAdd, setIsModalOpenAdd] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [idToDelete, setIdToDelete] = useState(null);
@@ -25,13 +26,16 @@ const TipoConsulta = () => {
   const [isModalOpenEditar, setIsModalOpenEditar] = useState(false);
   const [tipoConsultaSelecionado, setTipoConsultaSelecionado] = useState(null);
   const [isModalOpenDetalhes, setIsModalOpenDetalhes] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(8); // 10 itens por página
 
   const loadTipoConsulta = async () => {
     try {
       const response = await getTipoConsulta();
       setTipoConsulta(response.data);
+      setCurrentPage(1); // Resetar para a primeira página ao carregar novos dados
     } catch (error) {
-      console.error('Erro ao carregar tipos de consulta:', error);
+      console.error("Erro ao carregar tipos de consulta:", error);
     }
   };
 
@@ -41,15 +45,24 @@ const TipoConsulta = () => {
 
   const handleFiltroChange = (e) => {
     setFiltro(e.target.value);
+    setCurrentPage(1); // Resetar para a primeira página ao mudar o filtro
   };
 
-  const tipoConsultaFiltrados = tipoConsulta.filter((tpc) => {
-    const pesquisa = filtro.toLowerCase();
-    return (
-      tpc.nomeTipoConsulta.toLowerCase().includes(pesquisa) ||
-      tpc.descricao?.toLowerCase().includes(pesquisa)
-    );
-  });
+  const tipoConsultaFiltrados = tipoConsulta.filter((tpc) =>
+    tpc.nomeTipoConsulta.toLowerCase().includes(filtro.toLowerCase())
+  );
+
+  // Calcular índices dos itens da página atual
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = tipoConsultaFiltrados.slice(
+    indexOfFirstItem,
+    indexOfLastItem
+  );
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
 
   const handleDelete = (id) => {
     setIdToDelete(id);
@@ -62,7 +75,7 @@ const TipoConsulta = () => {
       setShowAlert(true);
       await loadTipoConsulta();
     } catch (error) {
-      console.error('Erro ao excluir:', error);
+      console.error("Erro ao excluir:", error);
     } finally {
       setIsModalOpen(false);
       setIdToDelete(null);
@@ -80,7 +93,7 @@ const TipoConsulta = () => {
       setTipoConsultaSelecionado(response.data);
       setIsModalOpenEditar(true);
     } catch (error) {
-      console.error('Erro ao editar tipo de consulta:', error);
+      console.error("Erro ao editar tipo de consulta:", error);
     }
   };
 
@@ -90,7 +103,7 @@ const TipoConsulta = () => {
       setTipoConsultaSelecionado(response.data);
       setIsModalOpenDetalhes(true);
     } catch (error) {
-      console.error('Erro ao visualizar detalhes do tipo de consulta:', error);
+      console.error("Erro ao visualizar detalhes do tipo de consulta:", error);
     }
   };
 
@@ -109,7 +122,9 @@ const TipoConsulta = () => {
     <div className="min-h-screen bg-gray-200 p-6">
       <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-md p-6 space-y-6">
         <div className="border-b pb-4">
-          <h2 className="text-3xl font-bold text-blue-600">Pesquisar Tipos de Consultas</h2>
+          <h2 className="text-3xl font-bold text-blue-600">
+            Pesquisar Tipos de Consultas
+          </h2>
         </div>
 
         {showAlert && (
@@ -132,7 +147,10 @@ const TipoConsulta = () => {
         )}
 
         <div className="flex flex-col md:flex-row gap-4 mb-6">
-          <FiltroTipoConsulta filtro={filtro} onFiltroChange={handleFiltroChange} />
+          <FiltroTipoConsulta
+            filtro={filtro}
+            onFiltroChange={handleFiltroChange}
+          />
           <div className="flex-shrink-0">
             <label className="block text-sm font-semibold text-gray-700 mb-1 invisible">
               Placeholder
@@ -162,12 +180,21 @@ const TipoConsulta = () => {
 
         <div className="overflow-x-auto rounded-lg shadow-md">
           <TabelaTipoConsulta
-            tpc={tipoConsultaFiltrados}
+            tpc={currentItems} // Passar apenas os itens da página atual
             onExcluir={handleDelete}
             onEditar={handleEditar}
             onDetalhes={handleDetalhes}
           />
         </div>
+
+        {/* Componente de Paginação */}
+        <Pagination
+          totalItems={tipoConsultaFiltrados.length}
+          itemsPerPage={itemsPerPage}
+          currentPage={currentPage}
+          onPageChange={handlePageChange}
+          maxPageButtons={5} // Mostrar até 5 botões de página
+        />
 
         {isModalOpenAdd && (
           <ModalTipoConsulta

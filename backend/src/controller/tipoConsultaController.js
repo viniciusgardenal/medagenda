@@ -4,7 +4,7 @@ require("moment/locale/pt-br"); // Para definir o locale em português
 
 const criarTipoConsulta = async (req, res) => {
   try {
-    // Verificar se é um array ou objeto    
+    // Verificar se é um array ou objeto
     const tiposConsultaInput = Array.isArray(req.body) ? req.body : [req.body];
 
     // Preencher dataCriacao automaticamente para cada tipo, se não fornecida
@@ -26,7 +26,7 @@ const criarTipoConsulta = async (req, res) => {
     } else {
       // Cadastrar um único tipo
       tiposConsultaCadastrados = [
-        await TipoConsulta.create(tiposConsultaInput[0]),
+        await tipoConsulta.create(tiposConsultaInput[0]),
       ];
     }
 
@@ -48,11 +48,9 @@ const criarTipoConsulta = async (req, res) => {
         .status(400)
         .json({ error: error.errors.map((e) => e.message).join(", ") });
     }
-    res
-      .status(400)
-      .json({
-        error: error.message || "Erro ao cadastrar tipo(s) de consulta.",
-      });
+    res.status(400).json({
+      error: error.message || "Erro ao cadastrar tipo(s) de consulta.",
+    });
   }
 };
 

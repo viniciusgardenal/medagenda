@@ -68,11 +68,7 @@ const criarHorario = async (req, res) => {
     }
 
     const novoHorario = await HorarioProfissional.create({
-<<<<<<< Updated upstream
-      matriculaProfissional, // Inclui o campo obrigatório
-=======
       matriculaProfissional,
->>>>>>> Stashed changes
       diaSemana,
       inicio: moment(inicio, "HH:mm").format("HH:mm"),
       fim: moment(fim, "HH:mm").format("HH:mm"),
@@ -131,11 +127,8 @@ const lerHorarioId = async (req, res) => {
       include: [
         {
           model: Profissional,
-<<<<<<< Updated upstream
           attributes: ["matricula", "nome", "sobrenome"],
-=======
-          attributes: ["id", "nome", "sobrenome"],
->>>>>>> Stashed changes
+
         },
       ],
     });

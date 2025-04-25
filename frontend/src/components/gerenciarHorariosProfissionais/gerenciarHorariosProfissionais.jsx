@@ -92,12 +92,8 @@ const GerenciarHorariosProfissionais = () => {
           (p) => p.matricula != null && p.nome
         );
         const validHorarios = horResponse.data.filter(
-<<<<<<< Updated upstream
-          (h) => h.id && h.matriculaProfissional != null && h.diaSemana && h.inicio && h.fim
-=======
           (h) =>
             h.id && h.matriculaProfissional != null && h.diaSemana && h.inicio && h.fim
->>>>>>> Stashed changes
         );
         // console.log("Dados brutos de profissionais:", profResponse.data);
         // console.log("Profissionais carregados:", validProfissionais);
@@ -119,12 +115,8 @@ const GerenciarHorariosProfissionais = () => {
     try {
       const response = await getHorarios();
       const validHorarios = response.data.filter(
-<<<<<<< Updated upstream
-        (h) => h.id && h.matriculaProfissional != null && h.diaSemana && h.inicio && h.fim
-=======
         (h) =>
           h.id && h.matriculaProfissional != null && h.diaSemana && h.inicio && h.fim
->>>>>>> Stashed changes
       );
       console.log("Horários atualizados:", validHorarios);
       setHorarios(validHorarios);
@@ -211,19 +203,12 @@ const GerenciarHorariosProfissionais = () => {
     console.log("Abrindo ModalEditHorario, horário:", horario);
     setSelectedHorario(horario);
     setSelectedProfissional(
-<<<<<<< Updated upstream
-      profissionais.find((p) => p.matricula.toString() === horario.matriculaProfissional.toString()) || null
-    );
-    setDadosHorario({
-      profissionalId: horario.matriculaProfissional.toString(),
-=======
       profissionais.find(
         (p) => p.matricula.toString() === horario.matriculaProfissional.toString()
       ) || null
     );
     setDadosHorario({
       matriculaProfissional: horario.matriculaProfissional.toString(),
->>>>>>> Stashed changes
       diaSemana: [horario.diaSemana],
       inicio: horario.inicio,
       fim: horario.fim,
@@ -516,19 +501,11 @@ const GerenciarHorariosProfissionais = () => {
           isOpen={modalViewOpen}
           onClose={closeModals}
           profissional={selectedProfissional}
-<<<<<<< Updated upstream
-          horarios={
-            selectedProfissional?.matricula
-              ? horarios.filter((h) => h.matriculaProfissional.toString() === selectedProfissional.matricula.toString())
-              : []
-          }
-=======
           horarios={horarios.filter(
             (h) =>
               h.matriculaProfissional.toString() ===
               selectedProfissional?.matricula.toString()
           )}
->>>>>>> Stashed changes
           onEdit={openEditModal}
           onDelete={openConfirmDelete}
         />
@@ -539,12 +516,6 @@ const GerenciarHorariosProfissionais = () => {
           message={
             selectedHorario
               ? `Deseja excluir o horário de ${
-<<<<<<< Updated upstream
-                  profissionais.find((p) => p.matricula.toString() === selectedHorario.matriculaProfissional.toString())?.nome || ""
-                } ${
-                  profissionais.find((p) => p.matricula.toString() === selectedHorario.matriculaProfissional.toString())?.sobrenome || ""
-                } em ${selectedHorario.diaSemana} das ${selectedHorario.inicio} às ${selectedHorario.fim}?`
-=======
                   profissionais.find(
                     (p) =>
                       p.matricula.toString() ===
@@ -559,7 +530,6 @@ const GerenciarHorariosProfissionais = () => {
                 } em ${selectedHorario.diaSemana} das ${
                   selectedHorario.inicio
                 } às ${selectedHorario.fim}?`
->>>>>>> Stashed changes
               : ""
           }
           isSaving={isSaving}

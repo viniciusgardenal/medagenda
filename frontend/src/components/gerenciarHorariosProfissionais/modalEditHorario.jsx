@@ -23,7 +23,7 @@ const ModalEditHorario = ({ isOpen, onClose, horario, dadosHorario, setDadosHora
     onSave();
   };
 
-  const profissional = profissionais.find((p) => p.matricula.toString() === horario.profissionalId.toString());
+  const profissional = profissionais.find((p) => p.matricula.toString() === horario.matriculaProfissional.toString());
 
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-60">

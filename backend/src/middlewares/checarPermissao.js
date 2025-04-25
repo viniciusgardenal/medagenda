@@ -4,8 +4,8 @@ const Permissao = require("../model/permissao");
 const checarPermissao = (permissaoNecessaria) => {
   return async (req, res, next) => {
     try {
-      // //console.log("Permissão necessária:", permissaoNecessaria);
-      // //console.log("Usuário do token:", req.user);
+      console.log("Permissão necessária:", permissaoNecessaria);
+      console.log("Usuário do token:", req.user);
 
       // Verifique se o usuário tem o campo 'role' no token
       if (!req.user || !req.user.role) {

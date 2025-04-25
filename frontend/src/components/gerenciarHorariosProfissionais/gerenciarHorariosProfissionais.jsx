@@ -228,7 +228,7 @@ const GerenciarHorariosProfissionais = () => {
   };
 
   const openViewModal = (prof) => {
-    console.log("Abrindo ModalViewHorario, profissional:", prof);
+    // console.log("Abrindo ModalViewHorario, profissional:", prof);
     setSelectedProfissional(prof);
     setModalViewOpen(true);
   };
@@ -240,7 +240,7 @@ const GerenciarHorariosProfissionais = () => {
   };
 
   const closeModals = () => {
-    console.log("Fechando modais");
+    // console.log("Fechando modais");
     setModalAddOpen(false);
     setModalEditOpen(false);
     setModalViewOpen(false);

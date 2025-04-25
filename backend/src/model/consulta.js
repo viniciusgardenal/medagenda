@@ -1,8 +1,6 @@
+// models/consulta.js
 const { Model, DataTypes } = require("sequelize");
 const sequelize = require("../config/db");
-const Profissional = require("./profissionais");
-const Paciente = require("./paciente");
-const TipoConsulta = require("./tipoConsultaModel"); // Renomeado para TipoConsulta
 
 class Consulta extends Model {}
 
@@ -15,11 +13,11 @@ Consulta.init(
       allowNull: false,
       comment: "Identificador único da consulta",
     },
-    pacienteId: {
+    cpfPaciente: {
       type: DataTypes.STRING,
       allowNull: false,
       references: {
-        model: Paciente,
+        model: "paciente",
         key: "cpf",
       },
       comment: "CPF do paciente (chave estrangeira para Paciente)",
@@ -28,7 +26,7 @@ Consulta.init(
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: Profissional,
+        model: "profissionais",
         key: "matricula",
       },
       comment:
@@ -38,7 +36,7 @@ Consulta.init(
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: TipoConsulta,
+        model: "tipoconsulta",
         key: "idTipoConsulta",
       },
       comment: "ID do tipo de consulta (chave estrangeira para TipoConsulta)",
@@ -104,7 +102,10 @@ Consulta.init(
     tableName: "consultas",
     timestamps: true,
     indexes: [
-      { fields: ["pacienteId"], comment: "Índice para consultas por paciente" },
+      {
+        fields: ["cpfPaciente"],
+        comment: "Índice para consultas por paciente",
+      },
       { fields: ["medicoId"], comment: "Índice para consultas por médico" },
       { fields: ["dataConsulta"], comment: "Índice para consultas por data" },
       { fields: ["horaConsulta"], comment: "Índice para consultas por hora" },
@@ -112,37 +113,5 @@ Consulta.init(
     ],
   }
 );
-
-// Relacionamentos
-Consulta.belongsTo(Paciente, {
-  foreignKey: "pacienteId",
-  as: "paciente",
-  comment: "Consulta pertence a um paciente",
-});
-Consulta.belongsTo(Profissional, {
-  foreignKey: "medicoId",
-  as: "medico", // Alterado de 'profissionais' para 'medico'
-  comment: "Consulta pertence a um médico (profissional)",
-});
-Consulta.belongsTo(TipoConsulta, {
-  foreignKey: "idTipoConsulta",
-  as: "tipoConsulta",
-  comment: "Consulta pertence a um tipo de consulta",
-});
-Paciente.hasMany(Consulta, {
-  foreignKey: "pacienteId",
-  as: "consultas",
-  comment: "Paciente pode ter várias consultas",
-});
-Profissional.hasMany(Consulta, {
-  foreignKey: "medicoId",
-  as: "consultas",
-  comment: "Profissional pode ter várias consultas",
-});
-TipoConsulta.hasMany(Consulta, {
-  foreignKey: "idTipoConsulta",
-  as: "consultas",
-  comment: "Tipo de consulta pode estar associado a várias consultas",
-});
 
 module.exports = Consulta;

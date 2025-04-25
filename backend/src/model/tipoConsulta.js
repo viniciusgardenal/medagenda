@@ -1,8 +1,10 @@
-const { DataTypes } = require("sequelize");
+// models/tipoConsulta.js
+const { DataTypes, Model } = require("sequelize");
 const sequelize = require("../config/db");
 
-const tipoConsulta = sequelize.define(
-  "tipoConsulta",
+class TipoConsulta extends Model {}
+
+TipoConsulta.init(
   {
     idTipoConsulta: {
       type: DataTypes.INTEGER,
@@ -30,7 +32,7 @@ const tipoConsulta = sequelize.define(
       allowNull: true,
     },
     prioridade: {
-      type: DataTypes.STRING, // Pode ser alterado para ENUM se houver valores específicos como "Alta", "Média", "Baixa"
+      type: DataTypes.STRING,
       allowNull: true,
     },
     dataCriacao: {
@@ -38,16 +40,16 @@ const tipoConsulta = sequelize.define(
       allowNull: false,
     },
     status: {
-      type: DataTypes.STRING, // Pode ser alterado para ENUM se os valores forem "ativo", "inativo"
+      type: DataTypes.STRING,
       allowNull: false,
       defaultValue: "ativo",
     },
   },
   {
     sequelize,
-    tableName: "tipoconsulta", // Nome da tabela no banco de dados
+    tableName: "tipoconsulta",
     timestamps: true,
   }
 );
 
-module.exports = tipoConsulta;
+module.exports = TipoConsulta;

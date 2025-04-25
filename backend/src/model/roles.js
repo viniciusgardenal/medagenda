@@ -1,5 +1,6 @@
+// models/roles.js
 const { Model, DataTypes } = require("sequelize");
-const sequelize = require("../config/db"); // importe sua configuração de conexão aqui
+const sequelize = require("../config/db");
 
 class Roles extends Model {}
 
@@ -18,8 +19,8 @@ Roles.init(
   },
   {
     sequelize,
-    tableName: "roles", // nome da tabela no banco de dados
-    timestamps: true, // se você não quiser que Sequelize adicione `createdAt` e `updatedAt`
+    tableName: "roles",
+    timestamps: true, // Habilita timestamps automáticos (createdAt, updatedAt)
   }
 );
 

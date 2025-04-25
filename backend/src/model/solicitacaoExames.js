@@ -1,19 +1,17 @@
+// models/solicitacaoExames.js
 const { Model, DataTypes } = require("sequelize");
 const sequelize = require("../config/db");
-const Profissional = require("../model/profissionais");
-const tiposExames = require("./tiposExames");
-const Paciente = require("../model/paciente");
 
-class solicitacaoExames extends Model {}
+class SolicitacaoExames extends Model {}
 
-solicitacaoExames.init(
+SolicitacaoExames.init(
   {
     idSolicitacaoExame: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
     },
-    nomeTipoExame: {  // Novo campo para armazenar o nome do tipo de exame
+    nomeTipoExame: {
       type: DataTypes.STRING,
       allowNull: true,
     },
@@ -40,15 +38,9 @@ solicitacaoExames.init(
   },
   {
     sequelize,
-    tableName: "solicitacaoExames", // Nome da tabela no banco de dados
+    tableName: "solicitacaoExames",
     timestamps: true,
   }
 );
 
-solicitacaoExames.belongsTo(Profissional, {
-  foreignKey: "matriculaProfissional",
-});
-solicitacaoExames.belongsTo(Paciente, { foreignKey: "cpfPaciente" });
-solicitacaoExames.belongsTo(tiposExames, { foreignKey: "idTipoExame" });
-
-module.exports = solicitacaoExames;
+module.exports = SolicitacaoExames;

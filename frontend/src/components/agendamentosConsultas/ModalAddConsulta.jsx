@@ -167,6 +167,8 @@ const StepAgendamento = ({
   setDadosConsulta,
   tiposConsulta,
 }) => {
+  console.log(tiposConsulta);
+
   const tipoConsultaOptions = tiposConsulta.map((tipo) => ({
     value: tipo.idTipoConsulta,
     label: tipo.nomeTipoConsulta,

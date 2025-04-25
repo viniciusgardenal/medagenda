@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { getTiposExames, updateSolicitacaoExames } from "../../config/apiServices";
+import {
+  getTiposExames,
+  updateSolicitacaoExames,
+} from "../../config/apiServices";
 import SuccessAlert from "../util/successAlert";
 import moment from "moment";
 
@@ -9,21 +12,23 @@ const ModalEditarSolicitacaoExames = ({
   solicitacaoExames,
   onUpdate,
 }) => {
+  console.log("Solicitação de Exames:", solicitacaoExames);
+
   const [tExame, setTExame] = useState(
-    solicitacaoExames?.tiposExame.idTipoExame || ""
+    solicitacaoExames?.tipoExame.idTipoExame || ""
   );
   const [periodo, setPeriodo] = useState(solicitacaoExames?.periodo || "");
   const [matriculaProfissional, setMatriculaProfissional] = useState(
-    solicitacaoExames?.Profissional || ""
+    solicitacaoExames?.profissional || ""
   );
   const [cpfPaciente, setPacienteCpf] = useState(
-    solicitacaoExames?.Paciente || ""
+    solicitacaoExames?.paciente || ""
   );
   const [dataSolicitacao, setDataSolicitacao] = useState(
     solicitacaoExames?.dataSolicitacao
       ? moment(solicitacaoExames.dataSolicitacao, "DD/MM/YYYY").format(
-        "YYYY-MM-DD"
-      )
+          "YYYY-MM-DD"
+        )
       : ""
   );
   const [dataRetorno, setDataRetorno] = useState(
@@ -34,7 +39,9 @@ const ModalEditarSolicitacaoExames = ({
   const [justificativa, setJustificativa] = useState(
     solicitacaoExames?.justificativa || ""
   );
-  const [status, setStatus] = useState(solicitacaoExames?.status || "Solicitado");
+  const [status, setStatus] = useState(
+    solicitacaoExames?.status || "Solicitado"
+  );
   const [erros, setErros] = useState({});
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const [tiposExameSelecionado, setTExameSelecionado] = useState([]);

@@ -1,5 +1,6 @@
+// models/permissao.js
 const { Model, DataTypes } = require("sequelize");
-const sequelize = require("../config/db"); // importe sua configuração de conexão aqui
+const sequelize = require("../config/db");
 
 class Permissao extends Model {}
 
@@ -18,8 +19,8 @@ Permissao.init(
   },
   {
     sequelize,
-    tableName: "permissao", // nome da tabela no banco de dados
-    timestamps: true, // se você não quiser que Sequelize adicione `createdAt` e `updatedAt`
+    tableName: "permissao",
+    timestamps: true, // Habilita timestamps automáticos (createdAt, updatedAt)
   }
 );
 

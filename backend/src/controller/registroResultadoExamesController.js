@@ -1,8 +1,19 @@
-const RegistroResultadoExames = require('../model/registroResultadoExames');
+const { models } = require("../model/index");
 
+const Paciente = models.Paciente;
+const Profissional = models.Profissional;
+const RegistroResultadoExames = models.RegistroResultadoExames;
+const SolicitacaoExames = models.SolicitacaoExames;
+const TiposExames = models.TiposExames;
 // **Criar um novo RegistroResultadoExame**
 const createRegistroResultadoExame = async (req, res) => {
-  const { idSolicitacaoExame, matriculaProfissional, cpfPaciente, observacoes, status } = req.body;
+  const {
+    idSolicitacaoExame,
+    matriculaProfissional,
+    cpfPaciente,
+    observacoes,
+    status,
+  } = req.body;
 
   try {
     const registro = await RegistroResultadoExames.create({
@@ -14,13 +25,13 @@ const createRegistroResultadoExame = async (req, res) => {
     });
 
     return res.status(201).json({
-      message: 'Registro de resultado de exame criado com sucesso',
+      message: "Registro de resultado de exame criado com sucesso",
       data: registro,
     });
   } catch (error) {
     console.error("Erro ao criar o registro:", error);
     return res.status(500).json({
-      message: 'Erro ao criar o registro',
+      message: "Erro ao criar o registro",
       error: error.message,
     });
   }
@@ -29,20 +40,50 @@ const createRegistroResultadoExame = async (req, res) => {
 // **Buscar todos os registros inativos**
 const getRegistrosInativos = async (req, res) => {
   try {
-    const registrosInativos = await RegistroResultadoExames.findInativos();
+    const registrosInativos = await RegistroResultadoExames.findAll({
+      where: {
+        status: "Inativo",
+      },
+      include: [
+        {
+          model: SolicitacaoExames,
+          as: "solicitacaoExame",
+          where: { status: "Inativo" },
+          required: true,
+          include: [
+            {
+              model: TiposExames,
+              as: "tipoExame",
+              required: false,
+              allowNull: true,
+            },
+          ],
+        },
+        {
+          model: Profissional,
+          as: "profissional",
+        },
+        {
+          model: Paciente,
+          as: "paciente",
+        },
+      ],
+    });
+
+    console.log(registrosInativos);
+
     return res.status(200).json({
-      message: 'Registros inativos encontrados com sucesso',
+      message: "Registros inativos encontrados com sucesso",
       data: registrosInativos,
     });
   } catch (error) {
     console.error("Erro ao buscar registros inativos:", error);
     return res.status(500).json({
-      message: 'Erro ao buscar registros inativos',
+      message: "Erro ao buscar registros inativos",
       error: error.message,
     });
   }
 };
-
 
 // **Buscar um registro específico por ID**
 const getRegistroPorId = async (req, res) => {
@@ -52,34 +93,34 @@ const getRegistroPorId = async (req, res) => {
     const registro = await RegistroResultadoExames.findByPk(id, {
       include: [
         {
-          model: require('../model/solicitacaoExames'),
-          as: 'solicitacaoExame',
+          model: require("../model/solicitacaoExames"),
+          as: "solicitacaoExame",
         },
         {
-          model: require('../model/profissionais'),
-          as: 'profissional',
+          model: require("../model/profissionais"),
+          as: "profissional",
         },
         {
-          model: require('../model/paciente'),
-          as: 'paciente',
+          model: require("../model/paciente"),
+          as: "paciente",
         },
       ],
     });
 
     if (!registro) {
       return res.status(404).json({
-        message: 'Registro não encontrado',
+        message: "Registro não encontrado",
       });
     }
 
     return res.status(200).json({
-      message: 'Registro encontrado com sucesso',
+      message: "Registro encontrado com sucesso",
       data: registro,
     });
   } catch (error) {
     console.error("Erro ao buscar o registro:", error);
     return res.status(500).json({
-      message: 'Erro ao buscar o registro',
+      message: "Erro ao buscar o registro",
       error: error.message,
     });
   }
@@ -88,20 +129,28 @@ const getRegistroPorId = async (req, res) => {
 // **Atualizar um RegistroResultadoExame**
 const updateRegistroResultadoExame = async (req, res) => {
   const { id } = req.params;
-  const { idSolicitacaoExame, matriculaProfissional, cpfPaciente, observacoes, status } = req.body;
+  const {
+    idSolicitacaoExame,
+    matriculaProfissional,
+    cpfPaciente,
+    observacoes,
+    status,
+  } = req.body;
 
   try {
     const registro = await RegistroResultadoExames.findByPk(id);
 
     if (!registro) {
       return res.status(404).json({
-        message: 'Registro não encontrado',
+        message: "Registro não encontrado",
       });
     }
 
     // Atualizando os campos do registro
-    registro.idSolicitacaoExame = idSolicitacaoExame || registro.idSolicitacaoExame;
-    registro.matriculaProfissional = matriculaProfissional || registro.matriculaProfissional;
+    registro.idSolicitacaoExame =
+      idSolicitacaoExame || registro.idSolicitacaoExame;
+    registro.matriculaProfissional =
+      matriculaProfissional || registro.matriculaProfissional;
     registro.cpfPaciente = cpfPaciente || registro.cpfPaciente;
     registro.observacoes = observacoes || registro.observacoes;
     registro.status = status || registro.status;
@@ -109,13 +158,13 @@ const updateRegistroResultadoExame = async (req, res) => {
     await registro.save();
 
     return res.status(200).json({
-      message: 'Registro atualizado com sucesso',
+      message: "Registro atualizado com sucesso",
       data: registro,
     });
   } catch (error) {
     console.error("Erro ao atualizar o registro:", error);
     return res.status(500).json({
-      message: 'Erro ao atualizar o registro',
+      message: "Erro ao atualizar o registro",
       error: error.message,
     });
   }
@@ -130,19 +179,19 @@ const deleteRegistroResultadoExame = async (req, res) => {
 
     if (!registro) {
       return res.status(404).json({
-        message: 'Registro não encontrado',
+        message: "Registro não encontrado",
       });
     }
 
     await registro.destroy();
 
     return res.status(200).json({
-      message: 'Registro deletado com sucesso',
+      message: "Registro deletado com sucesso",
     });
   } catch (error) {
     console.error("Erro ao deletar o registro:", error);
     return res.status(500).json({
-      message: 'Erro ao deletar o registro',
+      message: "Erro ao deletar o registro",
       error: error.message,
     });
   }

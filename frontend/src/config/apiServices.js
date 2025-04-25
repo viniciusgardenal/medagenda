@@ -99,6 +99,8 @@ export const getPlanoDeSaudeId = async (id) => {
 
 //Tipo Consulta
 export const criarTipoConsulta = async (dadosTipoConsulta) => {
+  console.log(dadosTipoConsulta);
+
   return await api.post(`${apiUrl}/tipoConsulta`, dadosTipoConsulta);
 };
 

@@ -1,7 +1,6 @@
+// models/gerarAtestados.js
 const { Model, DataTypes } = require("sequelize");
 const sequelize = require("../config/db");
-const Profissional = require("./profissionais");
-const Paciente = require("./paciente");
 
 class Atestado extends Model {}
 
@@ -13,24 +12,15 @@ Atestado.init(
       autoIncrement: true,
     },
     tipoAtestado: {
-      type: DataTypes.ENUM(
-        "Médico",
-        "Odontológico",
-        "Psicológico",
-        "Outros"
-      ),
+      type: DataTypes.ENUM("Médico", "Odontológico", "Psicológico", "Outros"),
       allowNull: false,
     },
   },
   {
     sequelize,
     tableName: "atestados",
-    timestamps: true, // Inclui `createdAt` e `updatedAt` automaticamente
+    timestamps: true,
   }
 );
-
-// Relacionamentos
-Atestado.belongsTo(Profissional, { foreignKey: "matriculaProfissional" });
-Atestado.belongsTo(Paciente, { foreignKey: "cpfPaciente" });
 
 module.exports = Atestado;

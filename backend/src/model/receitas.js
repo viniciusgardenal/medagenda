@@ -1,8 +1,6 @@
+// models/receitas.js
 const { Model, DataTypes } = require("sequelize");
 const sequelize = require("../config/db");
-const Profissional = require("./profissionais");
-const Paciente = require("./paciente");
-const Medicamento = require("./medicamentos");
 
 class Receita extends Model {}
 
@@ -28,10 +26,5 @@ Receita.init(
     timestamps: true,
   }
 );
-
-// Relacionamentos
-Receita.belongsTo(Profissional, { foreignKey: "matriculaProfissional" });
-Receita.belongsTo(Paciente, { foreignKey: "cpfPaciente" });
-Receita.belongsTo(Medicamento, { foreignKey: "idMedicamento" });
 
 module.exports = Receita;

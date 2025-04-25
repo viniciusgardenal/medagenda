@@ -1,5 +1,4 @@
-const planoDeSaude = require("../model/planoDeSaudeModel");
-const moment = require("moment");
+const planoDeSaude = require("../model/planoDeSaude"); // Importa o modelo de plano de saúde
 
 const criarPlanoDeSaude = async (req, res) => {
   try {
@@ -14,16 +13,9 @@ const criarPlanoDeSaude = async (req, res) => {
 const lerPlanoDeSaude = async (req, res) => {
   try {
     // Obter todos os planos de saúde
-    const plano = await planoDeSaude.findAll({
-      order: [['nomePlanoDeSaude', 'ASC'], ['descricao', 'ASC']],
-    });
+    const plano = await planoDeSaude.findAll();
 
-    const planoData = plano.map((p) => ({
-      ...p.dataValues,
-      dataInicio: moment.utc(p.dataInicio).add(1, "day").local().format("L"),
-      dataFim: moment.utc(p.dataFim).add(1, "day").local().format("L"),
-    }));
-    res.status(200).json(planoData); // Retorna a lista de planos de saúde
+    res.status(200).json(plano); // Retorna a lista de planos de saúde
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

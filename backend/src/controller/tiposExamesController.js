@@ -1,4 +1,5 @@
-const tiposExames = require("../model/tiposExames");
+const { models } = require("../model/index");
+const tiposExames = models.TiposExames;
 
 const criarTiposExame = async (req, res) => {
   try {
@@ -12,7 +13,7 @@ const criarTiposExame = async (req, res) => {
 const lerTiposExame = async (req, res) => {
   try {
     const TiposExames = await tiposExames.findAll({
-      order: [['nomeTipoExame', 'ASC']],
+      order: [["nomeTipoExame", "ASC"]],
     });
     res.status(200).send(TiposExames);
   } catch (error) {

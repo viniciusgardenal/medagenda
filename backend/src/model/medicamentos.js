@@ -1,5 +1,6 @@
+// models/medicamentos.js
 const { Model, DataTypes } = require("sequelize");
-const sequelize = require("../config/db"); // Certifique-se de que o sequelize foi configurado corretamente
+const sequelize = require("../config/db");
 
 class Medicamento extends Model {}
 
@@ -37,8 +38,8 @@ Medicamento.init(
   },
   {
     sequelize,
-    tableName: "medicamentos", // Nome da tabela no banco de dados
-    timestamps: true, // Desabilita timestamps automáticos (createdAt, updatedAt)
+    tableName: "medicamentos",
+    timestamps: true, // Habilita timestamps automáticos (createdAt, updatedAt)
   }
 );
 

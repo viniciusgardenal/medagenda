@@ -1,4 +1,4 @@
-const tipoConsulta = require("../model/tipoConsultaModel");
+const tipoConsulta = require("../model/tipoConsulta"); // Importa o modelo de tipo de consulta
 const moment = require("moment");
 require("moment/locale/pt-br"); // Para definir o locale em português
 

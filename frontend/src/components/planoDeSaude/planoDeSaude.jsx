@@ -1,21 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import FiltroPlanoDeSaude from './filtroPlanoDeSaude';
-import ConfirmationModal from '../util/confirmationModal';
-import AlertMessage from '../util/alertMessage';
-import SuccessAlert from '../util/successAlert';
+import React, { useState, useEffect } from "react";
+import ConfirmationModal from "../util/confirmationModal";
+import AlertMessage from "../util/alertMessage";
+import SuccessAlert from "../util/successAlert";
+import Pagination from "../util/Pagination";
 import {
   getPlanoDeSaude,
   getPlanoDeSaudeId,
   excluirPlanoDeSaude,
-} from '../../config/apiServices';
-import ModalPlanoDeSaude from './modalPlanoDeSaude';
-import TabelaPlanoDeSaude from './tabelaPlanoDeSaude';
-import ModalEditarPlanoDeSaude from './modalEditarPlanoDeSaude';
-import ModalDetalhesPlanoDeSaude from './modalDetalhesPlanoDeSaude';
+} from "../../config/apiServices";
+import ModalPlanoSaude from "./modalPlanoDeSaude";
+import TabelaPlanoSaude from "./tabelaPlanoDeSaude";
+import ModalEditarPlanoSaude from "./modalEditarPlanoDeSaude";
 
-const PlanoDeSaude = () => {
-  const [planosSaude, setPlanosDeSaude] = useState([]);
-  const [filtro, setFiltro] = useState('');
+const PlanoSaude = () => {
+  const [planosSaude, setPlanosSaude] = useState([]);
+  const [filtro, setFiltro] = useState("");
   const [isModalOpenAdd, setIsModalOpenAdd] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [idToDelete, setIdToDelete] = useState(null);
@@ -23,35 +22,43 @@ const PlanoDeSaude = () => {
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const [showEditSuccessAlert, setShowEditSuccessAlert] = useState(false);
   const [isModalOpenEditar, setIsModalOpenEditar] = useState(false);
-  const [planoDeSaudeSelecionado, setPlanoDeSaudeSelecionado] = useState(null);
-  const [isModalOpenDetalhes, setIsModalOpenDetalhes] = useState(false);
+  const [planoSaudeSelecionado, setPlanoSaudeSelecionado] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(8);
 
-  const loadPlanoDeSaude = async () => {
+  const loadPlanosSaude = async () => {
     try {
       const response = await getPlanoDeSaude();
-      setPlanosDeSaude(response.data || []);
+      setPlanosSaude(response.data);
+      setCurrentPage(1);
     } catch (error) {
-      console.error('Erro ao carregar planos de saúde:', error);
+      console.error("Erro ao carregar planos de saúde:", error);
     }
   };
 
   useEffect(() => {
-    loadPlanoDeSaude();
+    loadPlanosSaude();
   }, []);
 
   const handleFiltroChange = (e) => {
     setFiltro(e.target.value);
+    setCurrentPage(1);
   };
 
-  const planosDeSaudeFiltrados = planosSaude.filter((plano) => {
-    const pesquisa = filtro.toLowerCase();
-    return (
-      plano.nomePlanoDeSaude?.toLowerCase().includes(pesquisa) ||
-      plano.descricao?.toLowerCase().includes(pesquisa) ||
-      plano.tipoPlanoDeSaude?.toLowerCase().includes(pesquisa) ||
-      plano.status?.toLowerCase().includes(pesquisa)
-    );
-  });
+  const planosSaudeFiltrados = planosSaude.filter((ps) =>
+    ps.nomeOperadora.toLowerCase().includes(filtro.toLowerCase())
+  );
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = planosSaudeFiltrados.slice(
+    indexOfFirstItem,
+    indexOfLastItem
+  );
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
 
   const handleDelete = (id) => {
     setIdToDelete(id);
@@ -62,9 +69,9 @@ const PlanoDeSaude = () => {
     try {
       await excluirPlanoDeSaude(idToDelete);
       setShowAlert(true);
-      await loadPlanoDeSaude();
+      await loadPlanosSaude();
     } catch (error) {
-      console.error('Erro ao excluir:', error);
+      console.error("Erro ao excluir plano de saúde:", error);
     } finally {
       setIsModalOpen(false);
       setIdToDelete(null);
@@ -72,37 +79,27 @@ const PlanoDeSaude = () => {
   };
 
   const handleSave = async () => {
-    await loadPlanoDeSaude();
+    await loadPlanosSaude();
     setShowSuccessAlert(true);
   };
 
-  const handleEditar = async (idPlanoDeSaude) => {
+  const handleEditar = async (idPlanoSaude) => {
     try {
-      const response = await getPlanoDeSaudeId(idPlanoDeSaude);
-      setPlanoDeSaudeSelecionado(response.data);
+      const response = await getPlanoDeSaudeId(idPlanoSaude);
+      setPlanoSaudeSelecionado(response.data);
       setIsModalOpenEditar(true);
     } catch (error) {
-      console.error('Erro ao editar plano de saúde:', error);
-    }
-  };
-
-  const handleDetalhes = async (idPlanoDeSaude) => {
-    try {
-      const response = await getPlanoDeSaudeId(idPlanoDeSaude);
-      setPlanoDeSaudeSelecionado(response.data);
-      setIsModalOpenDetalhes(true);
-    } catch (error) {
-      console.error('Erro ao visualizar detalhes do plano de saúde:', error);
+      console.error("Erro ao editar plano de saúde:", error);
     }
   };
 
   const handleCloseModal = () => {
     setIsModalOpenEditar(false);
-    setPlanoDeSaudeSelecionado(null);
+    setPlanoSaudeSelecionado(null);
   };
 
-  const handleUpdatePlanoDeSaude = () => {
-    loadPlanoDeSaude();
+  const handleUpdatePlanoSaude = () => {
+    loadPlanosSaude();
     setShowEditSuccessAlert(true);
     handleCloseModal();
   };
@@ -111,7 +108,9 @@ const PlanoDeSaude = () => {
     <div className="min-h-screen bg-gray-200 p-6">
       <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-md p-6 space-y-6">
         <div className="border-b pb-4">
-          <h2 className="text-3xl font-bold text-blue-600">Gerenciar Planos de Saúde</h2>
+          <h2 className="text-3xl font-bold text-blue-600">
+            Gerenciar Planos de Saúde
+          </h2>
         </div>
 
         {showAlert && (
@@ -134,11 +133,14 @@ const PlanoDeSaude = () => {
         )}
 
         <div className="flex flex-col md:flex-row gap-4 mb-6">
-          <FiltroPlanoDeSaude filtro={filtro} onFiltroChange={handleFiltroChange} />
+          <input
+            type="text"
+            value={filtro}
+            onChange={handleFiltroChange}
+            placeholder="Filtrar por operadora"
+            className="w-full md:w-1/2 px-4 py-2 border rounded-md"
+          />
           <div className="flex-shrink-0">
-            <label className="block text-sm font-semibold text-gray-700 mb-1 invisible">
-              Placeholder
-            </label>
             <button
               onClick={() => setIsModalOpenAdd(true)}
               className="w-full md:w-auto px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
@@ -163,27 +165,34 @@ const PlanoDeSaude = () => {
         </div>
 
         <div className="overflow-x-auto rounded-lg shadow-md">
-          <TabelaPlanoDeSaude
-            planos={planosDeSaudeFiltrados}
+          <TabelaPlanoSaude
+            planos={currentItems}
             onExcluir={handleDelete}
             onEditar={handleEditar}
-            onDetalhes={handleDetalhes}
           />
         </div>
 
+        <Pagination
+          totalItems={planosSaudeFiltrados.length}
+          itemsPerPage={itemsPerPage}
+          currentPage={currentPage}
+          onPageChange={handlePageChange}
+          maxPageButtons={5}
+        />
+
         {isModalOpenAdd && (
-          <ModalPlanoDeSaude
+          <ModalPlanoSaude
             isOpen={isModalOpenAdd}
             onClose={() => setIsModalOpenAdd(false)}
             onSave={handleSave}
           />
         )}
-        {isModalOpenEditar && planoDeSaudeSelecionado && (
-          <ModalEditarPlanoDeSaude
+        {isModalOpenEditar && planoSaudeSelecionado && (
+          <ModalEditarPlanoSaude
             isOpen={isModalOpenEditar}
             onClose={handleCloseModal}
-            plano={planoDeSaudeSelecionado}
-            onUpdate={handleUpdatePlanoDeSaude}
+            planoSaude={planoSaudeSelecionado}
+            onUpdate={handleUpdatePlanoSaude}
           />
         )}
         {isModalOpen && (
@@ -193,16 +202,9 @@ const PlanoDeSaude = () => {
             onCancel={() => setIsModalOpen(false)}
           />
         )}
-        {isModalOpenDetalhes && planoDeSaudeSelecionado && (
-          <ModalDetalhesPlanoDeSaude
-            isOpen={isModalOpenDetalhes}
-            onClose={() => setIsModalOpenDetalhes(false)}
-            planoDeSaude={planoDeSaudeSelecionado}
-          />
-        )}
       </div>
     </div>
   );
 };
 
-export default PlanoDeSaude;
+export default PlanoSaude;

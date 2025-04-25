@@ -1,7 +1,6 @@
+// models/checkin.js
 const { Model, DataTypes } = require("sequelize");
 const sequelize = require("../config/db");
-const Profissionais = require("./profissionais"); // Ajuste o caminho
-const Consulta = require("./consulta"); // Adicione o modelo Consulta
 
 class CheckIn extends Model {}
 
@@ -14,15 +13,14 @@ CheckIn.init(
     },
     consultaId: {
       type: DataTypes.INTEGER,
-      allowNull: false, // Obrigatório, pois cada check-in deve estar ligado a uma consulta
+      allowNull: false,
       references: {
-        model: "consultas", // Nome da tabela
+        model: "consultas",
         key: "id",
       },
-      unique: true, // Garante relação 1:1
+      unique: true,
     },
-    profissionalId: {
-      // Substitui "matriculaProfissional" para consistência
+    matriculaProfissional: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
@@ -31,9 +29,9 @@ CheckIn.init(
       },
     },
     horaChegada: {
-      type: DataTypes.DATE, // Ajustado para incluir data e hora
+      type: DataTypes.DATE,
       allowNull: false,
-      defaultValue: DataTypes.NOW, // Usa timestamp atual
+      defaultValue: DataTypes.NOW,
     },
     pressaoArterial: {
       type: DataTypes.STRING,
@@ -56,7 +54,7 @@ CheckIn.init(
       allowNull: true,
     },
     status: {
-      type: DataTypes.ENUM("registrado", "finalizado"), // Mantive "finalizado" como "concluido"
+      type: DataTypes.ENUM("registrado", "finalizado"),
       defaultValue: "registrado",
       allowNull: false,
     },
@@ -69,22 +67,9 @@ CheckIn.init(
   },
   {
     sequelize,
-    tableName: "checkins", // Ajustei o nome da tabela para plural, padrão comum
+    tableName: "checkins",
     timestamps: true,
   }
 );
-
-// Relacionamentos
-CheckIn.belongsTo(Consulta, { foreignKey: "consultaId", as: "consulta" });
-Consulta.hasOne(CheckIn, { foreignKey: "consultaId", as: "checkin" });
-
-CheckIn.belongsTo(Profissionais, {
-  foreignKey: "profissionalId",
-  as: "profissionais",
-});
-Profissionais.hasMany(CheckIn, {
-  foreignKey: "profissionalId",
-  as: "checkins",
-});
 
 module.exports = CheckIn;

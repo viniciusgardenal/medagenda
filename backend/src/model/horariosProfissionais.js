@@ -1,7 +1,6 @@
-// models/HorarioProfissional.js
+// models/horariosProfissionais.js
 const { Model, DataTypes } = require("sequelize");
 const sequelize = require("../config/db");
-const Profissional = require("./profissionais");
 
 class HorarioProfissional extends Model {}
 
@@ -13,18 +12,17 @@ HorarioProfissional.init(
       primaryKey: true,
       allowNull: false,
     },
-    profissionalId: {
+    matriculaProfissional: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: Profissional,
+        model: "profissionais",
         key: "matricula",
       },
     },
     diaSemana: {
       type: DataTypes.STRING,
       allowNull: false,
-      // Removida a validação isIn temporariamente
     },
     inicio: {
       type: DataTypes.STRING,
@@ -53,8 +51,5 @@ HorarioProfissional.init(
     timestamps: true,
   }
 );
-
-Profissional.hasMany(HorarioProfissional, { foreignKey: "profissionalId", as: "horarios" });
-HorarioProfissional.belongsTo(Profissional, { foreignKey: "profissionalId", as: "profissional" });
 
 module.exports = HorarioProfissional;

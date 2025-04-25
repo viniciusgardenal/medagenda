@@ -1,29 +1,34 @@
 const express = require("express");
-const solicitacaoExames = require("../model/solicitacaoExames");
-const Paciente = require("../model/paciente");
-const Profissional = require("../model/profissionais");
-const tiposExames = require("../model/tiposExames");
-const RegistroResultadoExames = require("../model/registroResultadoExames");
+const { models } = require("../model/index");
+const TiposExame = models.TiposExames;
+const Paciente = models.Paciente;
+const Profissional = models.Profissional;
+const RegistroResultadoExames = models.RegistroResultadoExames;
+const SolicitacaoExames = models.SolicitacaoExames;
 const router = express.Router();
 const moment = require("moment");
 
 // Rota para buscar solicitacaoExames
 router.get("/solicitacaoExames", async (req, res) => {
   try {
-    const exames = await solicitacaoExames.findAll({
+    const exames = await SolicitacaoExames.findAll({
       include: [
-        { model: Paciente },
-        { model: Profissional },
-        { model: tiposExames },
+        { model: Paciente, as: "paciente" },
+        { model: Profissional, as: "profissional" },
+        { model: TiposExame, as: "tipoExame" },
       ],
       where: {
-        status: "Ativo",  // Busca apenas os registros com status inativo
+        status: "Ativo", // Busca apenas os registros com status inativo
       },
-    }); 
+    });
 
     examesFormatados = exames.map((e) => ({
       ...e.dataValues,
-      dataSolicitacao: moment.utc(e.createdAt).add(1, "day").local().format("L"),
+      dataSolicitacao: moment
+        .utc(e.createdAt)
+        .add(1, "day")
+        .local()
+        .format("L"),
       dataRetorno: moment.utc(e.dataRetorno).add(1, "day").local().format("L"),
     }));
 
@@ -39,18 +44,21 @@ router.get("/solicitacaoExames", async (req, res) => {
 router.get("/solicitacaoExames/:id", async (req, res) => {
   try {
     const idSolicitacaoExame = req.params.id;
-    const exames = await solicitacaoExames.findByPk(idSolicitacaoExame, {
+    const exames = await SolicitacaoExames.findByPk(idSolicitacaoExame, {
       include: [
         {
           model: Paciente,
+          as: "paciente",
           attributes: ["cpf", "nome", "sobrenome"], // Campos do paciente
         },
         {
           model: Profissional,
+          as: "profissional",
           attributes: ["matricula", "nome", "tipoProfissional", "crm"], // Campos do paciente
         },
         {
-          model: tiposExames,
+          model: TiposExame,
+          as: "tipoExame",
           attributes: ["idTipoExame", "nomeTipoExame"], // Campos do tipo de exame
         },
       ],
@@ -58,7 +66,11 @@ router.get("/solicitacaoExames/:id", async (req, res) => {
 
     const examesFormatados = {
       ...exames.dataValues,
-      dataSolicitacao: moment.utc(exames.createdAt).add(1, "day").local().format("L"),
+      dataSolicitacao: moment
+        .utc(exames.createdAt)
+        .add(1, "day")
+        .local()
+        .format("L"),
       dataRetorno: moment
         .utc(exames.dataRetorno)
         .add(1, "day")
@@ -97,20 +109,20 @@ router.put("/solicitacaoExames/:id", async (req, res) => {
     const idSolicitacaoExame = req.params.id;
     const dadosAtualizado = req.body;
 
-    const exames = await solicitacaoExames.findByPk(idSolicitacaoExame);
+    const exames = await SolicitacaoExames.findByPk(idSolicitacaoExame);
     if (!exames)
       return res.status(404).json({ message: "Exame não Encontrado!" });
 
     await exames.update(dadosAtualizado);
 
-    if(dadosAtualizado.status === 'Inativo'){
+    if (dadosAtualizado.status === "Inativo") {
       const data = {
-        status:dadosAtualizado.status,
-        cpfPaciente:dadosAtualizado.cpfPaciente,
-        matriculaProfissional:dadosAtualizado.matriculaProfissional,
+        status: dadosAtualizado.status,
+        cpfPaciente: dadosAtualizado.cpfPaciente,
+        matriculaProfissional: dadosAtualizado.matriculaProfissional,
         idSolicitacaoExame: parseInt(idSolicitacaoExame),
-      }      
-      RegistroResultadoExames.create(data)
+      };
+      RegistroResultadoExames.create(data);
     }
     res.status(200).json({ message: "Exame atualizado com Sucesso!", exames });
   } catch (error) {

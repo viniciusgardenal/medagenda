@@ -156,6 +156,7 @@ const AgendamentoConsulta = () => {
           getProfissionais(),
           getTipoConsulta(),
         ]);
+
         setConsultas(
           consultasResponse.data.filter((c) => c.status === "agendada")
         );

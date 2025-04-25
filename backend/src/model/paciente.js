@@ -1,10 +1,13 @@
+// models/paciente.js
 const { Model, DataTypes } = require("sequelize");
-const sequelize = require("../config/db"); // ajuste o caminho para a configuração do banco de dados
+const sequelize = require("../config/db");
+
 class Paciente extends Model {}
+
 Paciente.init(
   {
     cpf: {
-      type: DataTypes.STRING, // Alterado para STRING
+      type: DataTypes.STRING,
       primaryKey: true,
       allowNull: false,
     },
@@ -42,8 +45,8 @@ Paciente.init(
   },
   {
     sequelize,
-    tableName: "paciente", // nome da tabela no banco de dados
-    timestamps: true, // se você não quiser que Sequelize adicione `createdAt` e `updatedAt`
+    tableName: "paciente",
+    timestamps: true, // Habilita timestamps automáticos (createdAt, updatedAt)
   }
 );
 

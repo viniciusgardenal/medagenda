@@ -2,7 +2,7 @@ const Consulta = require("../model/consulta");
 const Paciente = require("../model/paciente");
 const Profissional = require("../model/profissionais");
 const CheckIn = require("../model/checkin");
-const tipoConsulta = require("../model/tipoConsultaModel");
+const tipoConsulta = require("../model/tipoConsulta");
 
 const criarConsulta = async (req, res) => {
   try {
@@ -22,8 +22,19 @@ const criarConsulta = async (req, res) => {
       status = "agendada",
     } = req.body;
 
-    if (!pacienteId || !medicoId || !idTipoConsulta || !dataConsulta || !horaConsulta || !motivo || !responsavelAgendamento) {
-      return res.status(400).json({ error: "Campos obrigatórios faltando: pacienteId, medicoId, idTipoConsulta, dataConsulta, horaConsulta, motivo, responsavelAgendamento." });
+    if (
+      !pacienteId ||
+      !medicoId ||
+      !idTipoConsulta ||
+      !dataConsulta ||
+      !horaConsulta ||
+      !motivo ||
+      !responsavelAgendamento
+    ) {
+      return res.status(400).json({
+        error:
+          "Campos obrigatórios faltando: pacienteId, medicoId, idTipoConsulta, dataConsulta, horaConsulta, motivo, responsavelAgendamento.",
+      });
     }
 
     // Validar chaves estrangeiras
@@ -40,7 +51,9 @@ const criarConsulta = async (req, res) => {
       return res.status(400).json({ error: "Médico não encontrado." });
     }
     if (!ttipoConsulta) {
-      return res.status(400).json({ error: "Tipo de consulta não encontrado." });
+      return res
+        .status(400)
+        .json({ error: "Tipo de consulta não encontrado." });
     }
 
     // Criar a consulta
@@ -85,7 +98,8 @@ const criarConsulta = async (req, res) => {
     console.error("Erro ao criar consulta:", error);
     if (error.name === "SequelizeForeignKeyConstraintError") {
       return res.status(400).json({
-        error: "Chave estrangeira inválida. Verifique pacienteId, medicoId ou idTipoConsulta.",
+        error:
+          "Chave estrangeira inválida. Verifique pacienteId, medicoId ou idTipoConsulta.",
       });
     }
     if (error.name === "SequelizeValidationError") {

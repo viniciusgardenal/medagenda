@@ -1,8 +1,10 @@
-const { DataTypes } = require("sequelize");
+// models/tiposExames.js
+const { DataTypes, Model } = require("sequelize");
 const sequelize = require("../config/db");
 
-const tiposExames = sequelize.define(
-  "tiposExames",
+class TiposExames extends Model {}
+
+TiposExames.init(
   {
     idTipoExame: {
       type: DataTypes.INTEGER,
@@ -33,13 +35,12 @@ const tiposExames = sequelize.define(
       type: DataTypes.STRING,
       allowNull: true,
     },
-    
   },
   {
     sequelize,
-    tableName: "tiposexames", // Nome da tabela no banco de dados
+    tableName: "tiposexames",
     timestamps: true,
   }
 );
 
-module.exports = tiposExames;
+module.exports = TiposExames;

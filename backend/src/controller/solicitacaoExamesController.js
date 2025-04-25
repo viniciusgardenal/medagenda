@@ -62,7 +62,6 @@ const lerSolicitacaoExamesId = async (req, res) => {
   try {
     const id = req.params.id;
     const exame = await solicitacaoExames.findByPk(id);
-
     if (exame) res.status(200).json(exame);
     else res.status(404).json({ message: "Exame não encontrado!" });
   } catch (error) {

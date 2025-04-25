@@ -1,11 +1,29 @@
 import React, { useState } from "react";
 
-const ModalAddHorario = ({ isOpen, onClose, dadosHorario, setDadosHorario, onSave, isSaving, profissionais }) => {
+const ModalAddHorario = ({
+  isOpen,
+  onClose,
+  dadosHorario,
+  setDadosHorario,
+  onSave,
+  isSaving,
+  profissionais,
+}) => {
+  // console.log(profissionais);
+
   const [selecionarTodos, setSelecionarTodos] = useState(false);
 
   if (!isOpen) return null;
 
-  const diasSemana = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"];
+  const diasSemana = [
+    "Segunda",
+    "Terça",
+    "Quarta",
+    "Quinta",
+    "Sexta",
+    "Sábado",
+    "Domingo",
+  ];
 
   const handleCheckboxChange = (dia) => {
     setDadosHorario((prev) => {
@@ -36,11 +54,11 @@ const ModalAddHorario = ({ isOpen, onClose, dadosHorario, setDadosHorario, onSav
       alert("Selecione pelo menos um dia da semana.");
       return;
     }
-    if (!dadosHorario.profissionalId) {
+    if (!dadosHorario.matriculaProfissional) {
       alert("Selecione um profissional.");
       return;
     }
-    console.log("Dados enviados:", dadosHorario);
+    // console.log("Dados enviados:", dadosHorario);
     onSave();
   };
 
@@ -59,16 +77,23 @@ const ModalAddHorario = ({ isOpen, onClose, dadosHorario, setDadosHorario, onSav
             viewBox="0 0 24 24"
             stroke="currentColor"
           >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
           </svg>
         </button>
         <h3 className="text-2xl font-bold text-blue-600 mb-6">Novo Horário</h3>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Profissional</label>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">
+              Profissional
+            </label>
             <select
-              name="profissionalId"
-              value={dadosHorario.profissionalId}
+              name="matriculaProfissional"
+              value={dadosHorario.matriculaProfissional}
               onChange={handleChange}
               className="w-full px-4 py-2 border rounded-md text-gray-700 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
               required
@@ -77,8 +102,13 @@ const ModalAddHorario = ({ isOpen, onClose, dadosHorario, setDadosHorario, onSav
               <option value="">Selecione um profissional</option>
               {profissionais && profissionais.length > 0 ? (
                 profissionais.map((prof) => (
-                  <option key={prof.matricula} value={prof.matricula.toString()}>
-                    {`${prof.nome} ${prof.sobrenome || ""} (Matrícula: ${prof.matricula})`}
+                  <option
+                    key={prof.matricula}
+                    value={prof.matricula.toString()}
+                  >
+                    {`${prof.nome} ${prof.sobrenome || ""} (Matrícula: ${
+                      prof.matricula
+                    })`}
                   </option>
                 ))
               ) : (
@@ -89,7 +119,9 @@ const ModalAddHorario = ({ isOpen, onClose, dadosHorario, setDadosHorario, onSav
             </select>
           </div>
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Dias da Semana</label>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Dias da Semana
+            </label>
             <div className="space-y-2">
               <label className="flex items-center space-x-2">
                 <input
@@ -116,7 +148,9 @@ const ModalAddHorario = ({ isOpen, onClose, dadosHorario, setDadosHorario, onSav
             </div>
           </div>
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Horário Início</label>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">
+              Horário Início
+            </label>
             <input
               type="time"
               name="inicio"
@@ -128,7 +162,9 @@ const ModalAddHorario = ({ isOpen, onClose, dadosHorario, setDadosHorario, onSav
             />
           </div>
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Horário Fim</label>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">
+              Horário Fim
+            </label>
             <input
               type="time"
               name="fim"
@@ -140,7 +176,9 @@ const ModalAddHorario = ({ isOpen, onClose, dadosHorario, setDadosHorario, onSav
             />
           </div>
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Status</label>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">
+              Status
+            </label>
             <select
               name="status"
               value={dadosHorario.status}

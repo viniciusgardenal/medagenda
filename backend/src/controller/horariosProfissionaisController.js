@@ -1,31 +1,62 @@
-const HorarioProfissional = require("../model/horariosProfissionais"); // Ajustado para o novo nome
-const Profissional = require("../model/profissionais");
+const { models } = require("../model/index");
+const HorarioProfissional = models.HorarioProfissional;
+const Profissional = models.Profissional;
 const moment = require("moment");
 require("moment/locale/pt-br");
 
 // Criar um novo horário
 const criarHorario = async (req, res) => {
   try {
-    const { profissionalId, diaSemana, inicio, fim, status } = req.body;
-    console.log("Dados recebidos:", { profissionalId, diaSemana, inicio, fim, status });
+    const { matriculaProfissional, diaSemana, inicio, fim, status } = req.body;
+    console.log("Dados recebidos:", {
+      matriculaProfissional,
+      diaSemana,
+      inicio,
+      fim,
+      status,
+    });
 
     // Validações
-    const diasValidos = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"];
-    if (!profissionalId || !diaSemana || !inicio || !fim) {
-      return res.status(400).json({ error: "Todos os campos (profissionalId, diaSemana, inicio, fim) são obrigatórios!" });
+    const diasValidos = [
+      "Segunda",
+      "Terça",
+      "Quarta",
+      "Quinta",
+      "Sexta",
+      "Sábado",
+      "Domingo",
+    ];
+    if (!matriculaProfissional || !diaSemana || !inicio || !fim) {
+      return res
+        .status(400)
+        .json({
+          error:
+            "Todos os campos (matriculaProfissional, diaSemana, inicio, fim) são obrigatórios!",
+        });
     }
     if (!diasValidos.includes(diaSemana)) {
-      return res.status(400).json({ error: `Dia da semana inválido! Recebido: ${diaSemana}` });
+      return res
+        .status(400)
+        .json({ error: `Dia da semana inválido! Recebido: ${diaSemana}` });
     }
-    if (!moment(inicio, "HH:mm", true).isValid() || !moment(fim, "HH:mm", true).isValid()) {
-      return res.status(400).json({ error: "Horários devem estar no formato HH:mm!" });
+    if (
+      !moment(inicio, "HH:mm", true).isValid() ||
+      !moment(fim, "HH:mm", true).isValid()
+    ) {
+      return res
+        .status(400)
+        .json({ error: "Horários devem estar no formato HH:mm!" });
     }
     if (moment(inicio, "HH:mm").isSameOrAfter(moment(fim, "HH:mm"))) {
-      return res.status(400).json({ error: "Horário de início deve ser anterior ao horário de fim!" });
+      return res
+        .status(400)
+        .json({
+          error: "Horário de início deve ser anterior ao horário de fim!",
+        });
     }
 
     // Verifica se o profissional existe
-    const profissional = await Profissional.findByPk(profissionalId);
+    const profissional = await Profissional.findByPk(matriculaProfissional);
     if (!profissional) {
       return res.status(404).json({ error: "Profissional não encontrado!" });
     }
@@ -37,7 +68,11 @@ const criarHorario = async (req, res) => {
     }
 
     const novoHorario = await HorarioProfissional.create({
+<<<<<<< Updated upstream
       matriculaProfissional, // Inclui o campo obrigatório
+=======
+      matriculaProfissional,
+>>>>>>> Stashed changes
       diaSemana,
       inicio: moment(inicio, "HH:mm").format("HH:mm"),
       fim: moment(fim, "HH:mm").format("HH:mm"),
@@ -60,12 +95,15 @@ const criarHorario = async (req, res) => {
 const lerHorarios = async (req, res) => {
   try {
     const horarios = await HorarioProfissional.findAll({
-      order: [["diaSemana", "ASC"], ["inicio", "ASC"]],
+      order: [
+        ["diaSemana", "ASC"],
+        ["inicio", "ASC"],
+      ],
     });
 
     const horariosFormatados = horarios.map((horario) => ({
       id: horario.id,
-      profissionalId: horario.profissionalId,
+      matriculaProfissional: horario.matriculaProfissional,
       diaSemana: horario.diaSemana,
       inicio: moment.utc(horario.inicio, "HH:mm").local().format("HH:mm"),
       fim: moment.utc(horario.fim, "HH:mm").local().format("HH:mm"),
@@ -73,13 +111,15 @@ const lerHorarios = async (req, res) => {
       createdAt: horario.createdAt,
       updatedAt: horario.updatedAt,
       profissional: null,
-      profissionalNome: `Profissional ID: ${horario.profissionalId}`,
+      profissionalNome: `Profissional ID: ${horario.matriculaProfissional}`,
     }));
 
     res.status(200).json(horariosFormatados);
   } catch (error) {
     console.error("Erro detalhado em lerHorarios:", error);
-    res.status(500).json({ error: "Erro ao listar horários", details: error.message });
+    res
+      .status(500)
+      .json({ error: "Erro ao listar horários", details: error.message });
   }
 };
 
@@ -91,7 +131,11 @@ const lerHorarioId = async (req, res) => {
       include: [
         {
           model: Profissional,
+<<<<<<< Updated upstream
           attributes: ["matricula", "nome", "sobrenome"],
+=======
+          attributes: ["id", "nome", "sobrenome"],
+>>>>>>> Stashed changes
         },
       ],
     });
@@ -125,7 +169,7 @@ const lerHorarioId = async (req, res) => {
 const atualizarHorario = async (req, res) => {
   try {
     const id = req.params.id;
-    const { profissionalId, diaSemana, inicio, fim, status } = req.body;
+    const { matriculaProfissional, diaSemana, inicio, fim, status } = req.body;
 
     const horario = await HorarioProfissional.findByPk(id);
     if (!horario) {
@@ -133,32 +177,55 @@ const atualizarHorario = async (req, res) => {
     }
 
     // Validações
-    const diasValidos = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"];
+    const diasValidos = [
+      "Segunda",
+      "Terça",
+      "Quarta",
+      "Quinta",
+      "Sexta",
+      "Sábado",
+      "Domingo",
+    ];
     if (diaSemana && !diasValidos.includes(diaSemana)) {
       return res.status(400).json({ error: "Dia da semana inválido!" });
     }
-    if ((inicio && !moment(inicio, "HH:mm", true).isValid()) || (fim && !moment(fim, "HH:mm", true).isValid())) {
-      return res.status(400).json({ error: "Horários devem estar no formato HH:mm!" });
+    if (
+      (inicio && !moment(inicio, "HH:mm", true).isValid()) ||
+      (fim && !moment(fim, "HH:mm", true).isValid())
+    ) {
+      return res
+        .status(400)
+        .json({ error: "Horários devem estar no formato HH:mm!" });
     }
-    if (inicio && fim && moment(inicio, "HH:mm").isSameOrAfter(moment(fim, "HH:mm"))) {
-      return res.status(400).json({ error: "Horário de início deve ser anterior ao horário de fim!" });
+    if (
+      inicio &&
+      fim &&
+      moment(inicio, "HH:mm").isSameOrAfter(moment(fim, "HH:mm"))
+    ) {
+      return res
+        .status(400)
+        .json({
+          error: "Horário de início deve ser anterior ao horário de fim!",
+        });
     }
-    if (profissionalId) {
-      const profissional = await Profissional.findByPk(profissionalId);
+    if (matriculaProfissional) {
+      const profissional = await Profissional.findByPk(matriculaProfissional);
       if (!profissional) {
         return res.status(404).json({ error: "Profissional não encontrado!" });
       }
     }
 
     await horario.update({
-      profissionalId: profissionalId || horario.profissionalId,
+      matriculaProfissional: matriculaProfissional || horario.matriculaProfissional,
       diaSemana: diaSemana || horario.diaSemana,
       inicio: inicio || horario.inicio,
       fim: fim || horario.fim,
       status: status || horario.status,
     });
 
-    res.status(200).json({ message: "Horário atualizado com sucesso!", horario });
+    res
+      .status(200)
+      .json({ message: "Horário atualizado com sucesso!", horario });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

@@ -4,18 +4,51 @@ import ModalEditHorario from "./modalEditHorario";
 import ModalViewHorario from "./modalViewHorario";
 import ConfirmationModal from "./confirmationModal";
 import Pagination from "../util/Pagination";
-import { criarHorario, updateHorario, excluirHorario, getHorarios, getProfissionais } from "../../config/apiServices";
+import {
+  criarHorario,
+  updateHorario,
+  excluirHorario,
+  getHorarios,
+  getProfissionais,
+} from "../../config/apiServices";
 
 const EyeIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.522 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.478 0-8.268-2.943-9.542-7z" />
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className="h-5 w-5"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+    />
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M2.458 12C3.732 7.943 7.522 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.478 0-8.268-2.943-9.542-7z"
+    />
   </svg>
 );
 
 const PlusIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className="h-5 w-5"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M12 4v16m8-8H4"
+    />
   </svg>
 );
 
@@ -35,7 +68,7 @@ const GerenciarHorariosProfissionais = () => {
   const [selectedProfissional, setSelectedProfissional] = useState(null);
   const [selectedHorario, setSelectedHorario] = useState(null);
   const [dadosHorario, setDadosHorario] = useState({
-    profissionalId: "",
+    matriculaProfissional: "",
     diaSemana: [],
     inicio: "",
     fim: "",
@@ -59,11 +92,16 @@ const GerenciarHorariosProfissionais = () => {
           (p) => p.matricula != null && p.nome
         );
         const validHorarios = horResponse.data.filter(
+<<<<<<< Updated upstream
           (h) => h.id && h.matriculaProfissional != null && h.diaSemana && h.inicio && h.fim
+=======
+          (h) =>
+            h.id && h.matriculaProfissional != null && h.diaSemana && h.inicio && h.fim
+>>>>>>> Stashed changes
         );
-        console.log("Dados brutos de profissionais:", profResponse.data);
-        console.log("Profissionais carregados:", validProfissionais);
-        console.log("Horários carregados:", validHorarios);
+        // console.log("Dados brutos de profissionais:", profResponse.data);
+        // console.log("Profissionais carregados:", validProfissionais);
+        // console.log("Horários carregados:", validHorarios);
         setProfissionais(validProfissionais);
         setHorarios(validHorarios);
       } catch (error) {
@@ -81,7 +119,12 @@ const GerenciarHorariosProfissionais = () => {
     try {
       const response = await getHorarios();
       const validHorarios = response.data.filter(
+<<<<<<< Updated upstream
         (h) => h.id && h.matriculaProfissional != null && h.diaSemana && h.inicio && h.fim
+=======
+        (h) =>
+          h.id && h.matriculaProfissional != null && h.diaSemana && h.inicio && h.fim
+>>>>>>> Stashed changes
       );
       console.log("Horários atualizados:", validHorarios);
       setHorarios(validHorarios);
@@ -120,33 +163,42 @@ const GerenciarHorariosProfissionais = () => {
 
   const profissionaisFiltrados = profissionais.filter((prof) => {
     const nomeCompleto = `${prof.nome} ${prof.sobrenome || ""}`.toLowerCase();
-    const matriculaStr = prof.matricula ? prof.matricula.toString().toLowerCase() : "";
-    const tipo = prof.tipoProfissional ? prof.tipoProfissional.toLowerCase() : "";
+    const matriculaStr = prof.matricula
+      ? prof.matricula.toString().toLowerCase()
+      : "";
+    const tipo = prof.tipoProfissional
+      ? prof.tipoProfissional.toLowerCase()
+      : "";
     return (
       nomeCompleto.includes(filtroNome.toLowerCase()) &&
       matriculaStr.includes(filtroMatricula.toLowerCase()) &&
-      (filtroTipoProfissional ? tipo === filtroTipoProfissional.toLowerCase() : true)
+      (filtroTipoProfissional
+        ? tipo === filtroTipoProfissional.toLowerCase()
+        : true)
     );
   });
 
   const profissionaisOrdenados = sortProfissionais(profissionaisFiltrados);
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentProfissionais = profissionaisOrdenados.slice(indexOfFirstItem, indexOfLastItem);
+  const currentProfissionais = profissionaisOrdenados.slice(
+    indexOfFirstItem,
+    indexOfLastItem
+  );
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
 
   useEffect(() => {
-    console.log("Profissionais filtrados:", profissionaisFiltrados);
+    // console.log("Profissionais filtrados:", profissionaisFiltrados);
   }, [profissionaisFiltrados]);
 
   const openAddModal = (prof) => {
     console.log("Abrindo ModalAddHorario, profissional:", prof);
     setSelectedProfissional(prof);
     setDadosHorario({
-      profissionalId: prof.matricula.toString(),
+      matriculaProfissional: prof.matricula.toString(),
       diaSemana: [],
       inicio: "",
       fim: "",
@@ -159,10 +211,19 @@ const GerenciarHorariosProfissionais = () => {
     console.log("Abrindo ModalEditHorario, horário:", horario);
     setSelectedHorario(horario);
     setSelectedProfissional(
+<<<<<<< Updated upstream
       profissionais.find((p) => p.matricula.toString() === horario.matriculaProfissional.toString()) || null
     );
     setDadosHorario({
       profissionalId: horario.matriculaProfissional.toString(),
+=======
+      profissionais.find(
+        (p) => p.matricula.toString() === horario.matriculaProfissional.toString()
+      ) || null
+    );
+    setDadosHorario({
+      matriculaProfissional: horario.matriculaProfissional.toString(),
+>>>>>>> Stashed changes
       diaSemana: [horario.diaSemana],
       inicio: horario.inicio,
       fim: horario.fim,
@@ -192,14 +253,28 @@ const GerenciarHorariosProfissionais = () => {
     setModalConfirmOpen(false);
     setSelectedProfissional(null);
     setSelectedHorario(null);
-    setDadosHorario({ profissionalId: "", diaSemana: [], inicio: "", fim: "", status: "Ativo" });
+    setDadosHorario({
+      matriculaProfissional: "",
+      diaSemana: [],
+      inicio: "",
+      fim: "",
+      status: "Ativo",
+    });
   };
 
   const handleSave = async () => {
     setIsSaving(true);
     try {
       const { diaSemana, ...rest } = dadosHorario;
-      const diasValidos = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"];
+      const diasValidos = [
+        "Segunda",
+        "Terça",
+        "Quarta",
+        "Quinta",
+        "Sexta",
+        "Sábado",
+        "Domingo",
+      ];
       if (diaSemana.length === 0) {
         alert("Selecione pelo menos um dia da semana.");
         return;
@@ -219,7 +294,7 @@ const GerenciarHorariosProfissionais = () => {
       await refreshHorarios();
     } catch (error) {
       console.error("Erro ao salvar horário:", error);
-      alert("Erro ao salvar horário. Tente novamente.");
+      alert("Erro ao salvar horário. Tente novamente.", error);
     } finally {
       setIsSaving(false);
     }
@@ -254,7 +329,9 @@ const GerenciarHorariosProfissionais = () => {
       if (error.response?.status === 403) {
         alert("Acesso negado. Verifique suas permissões ou tente novamente.");
       } else {
-        alert("Erro ao excluir horário. Verifique a conexão ou tente novamente.");
+        alert(
+          "Erro ao excluir horário. Verifique a conexão ou tente novamente."
+        );
       }
     } finally {
       setIsSaving(false);
@@ -264,7 +341,9 @@ const GerenciarHorariosProfissionais = () => {
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       <div className="max-w-6xl mx-auto bg-white rounded-lg shadow-xl p-6">
-        <h2 className="text-3xl font-semibold mb-6 text-blue-600">Gerenciar Horários Profissionais</h2>
+        <h2 className="text-3xl font-semibold mb-6 text-blue-600">
+          Gerenciar Horários Profissionais
+        </h2>
 
         {error && (
           <div className="bg-red-100 text-red-700 p-3 rounded-md mb-4 text-sm">
@@ -274,7 +353,9 @@ const GerenciarHorariosProfissionais = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">Nome</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Nome
+            </label>
             <input
               type="text"
               value={filtroNome}
@@ -284,7 +365,9 @@ const GerenciarHorariosProfissionais = () => {
             />
           </div>
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">Matrícula</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Matrícula
+            </label>
             <input
               type="text"
               value={filtroMatricula}
@@ -294,7 +377,9 @@ const GerenciarHorariosProfissionais = () => {
             />
           </div>
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">Tipo Profissional</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Tipo Profissional
+            </label>
             <select
               value={filtroTipoProfissional}
               onChange={(e) => setFiltroTipoProfissional(e.target.value)}
@@ -312,43 +397,68 @@ const GerenciarHorariosProfissionais = () => {
           {isLoading ? (
             <p className="text-center text-gray-500 px-4 py-4">Carregando...</p>
           ) : profissionaisOrdenados.length === 0 ? (
-            <p className="text-center text-gray-500 px-4 py-4">Nenhum profissional encontrado.</p>
+            <p className="text-center text-gray-500 px-4 py-4">
+              Nenhum profissional encontrado.
+            </p>
           ) : (
             <table className="min-w-full divide-y divide-gray-200 bg-white">
               <thead className="bg-blue-600 text-white">
                 <tr>
-                  {["Matrícula", "Nome do Profissional", "Cargo"].map((header, index) => (
-                    <th
-                      key={header}
-                      onClick={() => handleSort(["matricula", "nome", "cargo"][index])}
-                      className={`px-4 py-3 text-left text-sm font-semibold cursor-pointer ${
-                        index === 0 ? "rounded-tl-lg" : ""
-                      } ${index === 2 ? "rounded-tr-lg" : ""} ${
-                        sortField === ["matricula", "nome", "cargo"][index] ? "bg-blue-700" : ""
-                      }`}
-                    >
-                      {header}
-                      {sortField === ["matricula", "nome", "cargo"][index] && (
-                        <span className="ml-1">{sortDirection === "asc" ? "↑" : "↓"}</span>
-                      )}
-                    </th>
-                  ))}
-                  <th className="px-4 py-3 text-left text-sm font-semibold rounded-tr-lg">Ações</th>
+                  {["Matrícula", "Nome do Profissional", "Cargo"].map(
+                    (header, index) => (
+                      <th
+                        key={header}
+                        onClick={() =>
+                          handleSort(["matricula", "nome", "cargo"][index])
+                        }
+                        className={`px-4 py-3 text-left text-sm font-semibold cursor-pointer ${
+                          index === 0 ? "rounded-tl-lg" : ""
+                        } ${index === 2 ? "rounded-tr-lg" : ""} ${
+                          sortField === ["matricula", "nome", "cargo"][index]
+                            ? "bg-blue-700"
+                            : ""
+                        }`}
+                      >
+                        {header}
+                        {sortField ===
+                          ["matricula", "nome", "cargo"][index] && (
+                          <span className="ml-1">
+                            {sortDirection === "asc" ? "↑" : "↓"}
+                          </span>
+                        )}
+                      </th>
+                    )
+                  )}
+                  <th className="px-4 py-3 text-left text-sm font-semibold rounded-tr-lg">
+                    Ações
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {currentProfissionais.length === 0 ? (
                   <tr>
-                    <td colSpan="4" className="px-4 py-4 text-center text-gray-500">
+                    <td
+                      colSpan="4"
+                      className="px-4 py-4 text-center text-gray-500"
+                    >
                       Nenhum profissional encontrado.
                     </td>
                   </tr>
                 ) : (
                   currentProfissionais.map((prof) => (
-                    <tr key={prof.matricula} className="hover:bg-blue-50 transition-colors">
-                      <td className="w-24 px-4 py-3 text-sm text-gray-700">{prof.matricula || "N/A"}</td>
-                      <td className="flex-1 min-w-0 px-4 py-3 text-sm text-gray-700">{`${prof.nome} ${prof.sobrenome || ""}`}</td>
-                      <td className="flex-1 min-w-0 px-4 py-3 text-sm text-gray-700">{prof.tipoProfissional || "N/A"}</td>
+                    <tr
+                      key={prof.matricula}
+                      className="hover:bg-blue-50 transition-colors"
+                    >
+                      <td className="w-24 px-4 py-3 text-sm text-gray-700">
+                        {prof.matricula || "N/A"}
+                      </td>
+                      <td className="flex-1 min-w-0 px-4 py-3 text-sm text-gray-700">{`${
+                        prof.nome
+                      } ${prof.sobrenome || ""}`}</td>
+                      <td className="flex-1 min-w-0 px-4 py-3 text-sm text-gray-700">
+                        {prof.tipoProfissional || "N/A"}
+                      </td>
                       <td className="flex-1 min-w-0 px-4 py-3 text-sm flex gap-3">
                         <button
                           onClick={() => openViewModal(prof)}
@@ -406,11 +516,19 @@ const GerenciarHorariosProfissionais = () => {
           isOpen={modalViewOpen}
           onClose={closeModals}
           profissional={selectedProfissional}
+<<<<<<< Updated upstream
           horarios={
             selectedProfissional?.matricula
               ? horarios.filter((h) => h.matriculaProfissional.toString() === selectedProfissional.matricula.toString())
               : []
           }
+=======
+          horarios={horarios.filter(
+            (h) =>
+              h.matriculaProfissional.toString() ===
+              selectedProfissional?.matricula.toString()
+          )}
+>>>>>>> Stashed changes
           onEdit={openEditModal}
           onDelete={openConfirmDelete}
         />
@@ -421,10 +539,27 @@ const GerenciarHorariosProfissionais = () => {
           message={
             selectedHorario
               ? `Deseja excluir o horário de ${
+<<<<<<< Updated upstream
                   profissionais.find((p) => p.matricula.toString() === selectedHorario.matriculaProfissional.toString())?.nome || ""
                 } ${
                   profissionais.find((p) => p.matricula.toString() === selectedHorario.matriculaProfissional.toString())?.sobrenome || ""
                 } em ${selectedHorario.diaSemana} das ${selectedHorario.inicio} às ${selectedHorario.fim}?`
+=======
+                  profissionais.find(
+                    (p) =>
+                      p.matricula.toString() ===
+                      selectedHorario.matriculaProfissional.toString()
+                  )?.nome || ""
+                } ${
+                  profissionais.find(
+                    (p) =>
+                      p.matricula.toString() ===
+                      selectedHorario.matriculaProfissional.toString()
+                  )?.sobrenome || ""
+                } em ${selectedHorario.diaSemana} das ${
+                  selectedHorario.inicio
+                } às ${selectedHorario.fim}?`
+>>>>>>> Stashed changes
               : ""
           }
           isSaving={isSaving}

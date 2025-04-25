@@ -33,7 +33,7 @@ const ModalViewHorario = ({ isOpen, onClose, profissional, horarios, onEdit, onD
         <h3 className="text-xl font-semibold text-gray-800 mb-4">
           Horários de {profissional.nome} {profissional.sobrenome || ""}
         </h3>
-        {horarios.length === 0 ? (
+        {(!Array.isArray(horarios) || horarios.length === 0) ? (
           <p className="text-sm text-gray-500 text-center py-4">Nenhum horário cadastrado para este profissional.</p>
         ) : (
           <div className="overflow-x-auto">

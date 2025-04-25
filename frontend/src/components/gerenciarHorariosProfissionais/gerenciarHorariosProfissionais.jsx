@@ -59,7 +59,7 @@ const GerenciarHorariosProfissionais = () => {
           (p) => p.matricula != null && p.nome
         );
         const validHorarios = horResponse.data.filter(
-          (h) => h.id && h.profissionalId != null && h.diaSemana && h.inicio && h.fim
+          (h) => h.id && h.matriculaProfissional != null && h.diaSemana && h.inicio && h.fim
         );
         console.log("Dados brutos de profissionais:", profResponse.data);
         console.log("Profissionais carregados:", validProfissionais);
@@ -81,7 +81,7 @@ const GerenciarHorariosProfissionais = () => {
     try {
       const response = await getHorarios();
       const validHorarios = response.data.filter(
-        (h) => h.id && h.profissionalId != null && h.diaSemana && h.inicio && h.fim
+        (h) => h.id && h.matriculaProfissional != null && h.diaSemana && h.inicio && h.fim
       );
       console.log("Horários atualizados:", validHorarios);
       setHorarios(validHorarios);
@@ -159,10 +159,10 @@ const GerenciarHorariosProfissionais = () => {
     console.log("Abrindo ModalEditHorario, horário:", horario);
     setSelectedHorario(horario);
     setSelectedProfissional(
-      profissionais.find((p) => p.matricula.toString() === horario.profissionalId.toString()) || null
+      profissionais.find((p) => p.matricula.toString() === horario.matriculaProfissional.toString()) || null
     );
     setDadosHorario({
-      profissionalId: horario.profissionalId.toString(),
+      profissionalId: horario.matriculaProfissional.toString(),
       diaSemana: [horario.diaSemana],
       inicio: horario.inicio,
       fim: horario.fim,
@@ -209,7 +209,11 @@ const GerenciarHorariosProfissionais = () => {
         return;
       }
       for (const dia of diaSemana) {
-        await criarHorario({ ...rest, diaSemana: dia });
+        await criarHorario({
+          ...rest,
+          matriculaProfissional: rest.profissionalId,
+          diaSemana: dia,
+        });
       }
       closeModals();
       await refreshHorarios();
@@ -226,6 +230,7 @@ const GerenciarHorariosProfissionais = () => {
     try {
       await updateHorario(selectedHorario.id, {
         ...dadosHorario,
+        matriculaProfissional: dadosHorario.profissionalId,
         diaSemana: dadosHorario.diaSemana[0],
       });
       closeModals();
@@ -401,7 +406,11 @@ const GerenciarHorariosProfissionais = () => {
           isOpen={modalViewOpen}
           onClose={closeModals}
           profissional={selectedProfissional}
-          horarios={horarios.filter((h) => h.profissionalId.toString() === selectedProfissional?.matricula.toString())}
+          horarios={
+            selectedProfissional?.matricula
+              ? horarios.filter((h) => h.matriculaProfissional.toString() === selectedProfissional.matricula.toString())
+              : []
+          }
           onEdit={openEditModal}
           onDelete={openConfirmDelete}
         />
@@ -412,9 +421,9 @@ const GerenciarHorariosProfissionais = () => {
           message={
             selectedHorario
               ? `Deseja excluir o horário de ${
-                  profissionais.find((p) => p.matricula.toString() === selectedHorario.profissionalId.toString())?.nome || ""
+                  profissionais.find((p) => p.matricula.toString() === selectedHorario.matriculaProfissional.toString())?.nome || ""
                 } ${
-                  profissionais.find((p) => p.matricula.toString() === selectedHorario.profissionalId.toString())?.sobrenome || ""
+                  profissionais.find((p) => p.matricula.toString() === selectedHorario.matriculaProfissional.toString())?.sobrenome || ""
                 } em ${selectedHorario.diaSemana} das ${selectedHorario.inicio} às ${selectedHorario.fim}?`
               : ""
           }

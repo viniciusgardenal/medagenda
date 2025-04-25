@@ -30,11 +30,17 @@ const criarHorario = async (req, res) => {
       return res.status(404).json({ error: "Profissional não encontrado!" });
     }
 
+    // Obtém a matrícula do profissional
+    const matriculaProfissional = profissional.matricula;
+    if (!matriculaProfissional) {
+      return res.status(400).json({ error: "O profissional não possui uma matrícula válida!" });
+    }
+
     const novoHorario = await HorarioProfissional.create({
-      profissionalId,
+      matriculaProfissional, // Inclui o campo obrigatório
       diaSemana,
-      inicio: moment(inicio, "HH:mm").format("HH:mm"), // Garante HH:mm
-      fim: moment(fim, "HH:mm").format("HH:mm"), // Garante HH:mm
+      inicio: moment(inicio, "HH:mm").format("HH:mm"),
+      fim: moment(fim, "HH:mm").format("HH:mm"),
       status: status || "Ativo",
     });
 
@@ -82,10 +88,12 @@ const lerHorarioId = async (req, res) => {
   try {
     const id = req.params.id;
     const horario = await HorarioProfissional.findByPk(id, {
-      include: [{
-        model: Profissional,
-        attributes: ["id", "nome", "sobrenome"],
-      }],
+      include: [
+        {
+          model: Profissional,
+          attributes: ["matricula", "nome", "sobrenome"],
+        },
+      ],
     });
 
     if (!horario) {
@@ -93,15 +101,23 @@ const lerHorarioId = async (req, res) => {
     }
 
     const horarioFormatado = {
-      ...horario.dataValues,
-      profissionalNome: `${horario.Profissional.nome} ${horario.Profissional.sobrenome}`,
+      id: horario.id,
+      matriculaProfissional: horario.matriculaProfissional,
+      diaSemana: horario.diaSemana,
       inicio: moment.utc(horario.inicio, "HH:mm").local().format("HH:mm"),
       fim: moment.utc(horario.fim, "HH:mm").local().format("HH:mm"),
+      status: horario.status,
+      createdAt: horario.createdAt,
+      updatedAt: horario.updatedAt,
+      profissionalNome: horario.Profissional
+        ? `${horario.Profissional.nome} ${horario.Profissional.sobrenome}`
+        : `Matrícula: ${horario.matriculaProfissional}`,
     };
 
     res.status(200).json(horarioFormatado);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Erro ao consultar horário:", error);
+    res.status(500).json({ error: "Erro ao consultar horário", details: error.message });
   }
 };
 

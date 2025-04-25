@@ -95,7 +95,7 @@ router.get("/solicitacaoExames/:id", async (req, res) => {
 router.post("/solicitacaoExames", async (req, res) => {
   try {
     //console.log("Dados recebidos para adicionar:", req.body); // Log para debug
-    const novoExame = await solicitacaoExames.create(req.body);
+    const novoExame = await SolicitacaoExames.create(req.body);
     res.status(201).json(novoExame);
   } catch (error) {
     console.error("Erro ao adicionar exame:", error);

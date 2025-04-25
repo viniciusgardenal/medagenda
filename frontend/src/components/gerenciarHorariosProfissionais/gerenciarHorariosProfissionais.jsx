@@ -93,7 +93,11 @@ const GerenciarHorariosProfissionais = () => {
         );
         const validHorarios = horResponse.data.filter(
           (h) =>
-            h.id && h.matriculaProfissional != null && h.diaSemana && h.inicio && h.fim
+            h.id &&
+            h.matriculaProfissional != null &&
+            h.diaSemana &&
+            h.inicio &&
+            h.fim
         );
         // console.log("Dados brutos de profissionais:", profResponse.data);
         // console.log("Profissionais carregados:", validProfissionais);
@@ -116,7 +120,11 @@ const GerenciarHorariosProfissionais = () => {
       const response = await getHorarios();
       const validHorarios = response.data.filter(
         (h) =>
-          h.id && h.matriculaProfissional != null && h.diaSemana && h.inicio && h.fim
+          h.id &&
+          h.matriculaProfissional != null &&
+          h.diaSemana &&
+          h.inicio &&
+          h.fim
       );
       console.log("Horários atualizados:", validHorarios);
       setHorarios(validHorarios);
@@ -204,7 +212,8 @@ const GerenciarHorariosProfissionais = () => {
     setSelectedHorario(horario);
     setSelectedProfissional(
       profissionais.find(
-        (p) => p.matricula.toString() === horario.matriculaProfissional.toString()
+        (p) =>
+          p.matricula.toString() === horario.matriculaProfissional.toString()
       ) || null
     );
     setDadosHorario({
@@ -271,7 +280,7 @@ const GerenciarHorariosProfissionais = () => {
       for (const dia of diaSemana) {
         await criarHorario({
           ...rest,
-          matriculaProfissional: rest.profissionalId,
+          matriculaProfissional: rest.matriculaProfissional,
           diaSemana: dia,
         });
       }
@@ -290,7 +299,7 @@ const GerenciarHorariosProfissionais = () => {
     try {
       await updateHorario(selectedHorario.id, {
         ...dadosHorario,
-        matriculaProfissional: dadosHorario.profissionalId,
+        matriculaProfissional: dadosHorario.matriculaProfissional,
         diaSemana: dadosHorario.diaSemana[0],
       });
       closeModals();

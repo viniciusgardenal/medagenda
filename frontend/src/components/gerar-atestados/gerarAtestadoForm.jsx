@@ -12,19 +12,20 @@ const AtestadoForm = ({ onMatriculaChange }) => {
   }, [user, onMatriculaChange]);
 
   return (
-    <div className="flex flex-col space-y-1">
-      <label className="text-gray-700 font-semibold text-sm">
-        Profissional:
+    <div className="space-y-2">
+      <label className="block text-base font-semibold text-gray-700 mb-2">
+        Profissional (Autenticado)
       </label>
       <input
         type="text"
         name="matriculaProfissional"
-        value={`${user?.nome || "Nome não disponível"} (Matrícula: ${
-          user?.id || "Matrícula não disponível"
-        })`}
+        value={
+          user?.id
+            ? `${user.nome || "Nome não disponível"} (Matrícula: ${user.id})`
+            : "Nenhum profissional autenticado"
+        }
         readOnly
-        required
-        className="border border-gray-300 rounded-md p-1.5 text-gray-700 text-sm bg-gray-100 cursor-not-allowed"
+        className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-md text-base text-gray-700 cursor-not-allowed focus:outline-none"
       />
     </div>
   );

@@ -174,21 +174,20 @@ export const criarReceita = async (dadosReceita) => {
 // Gerar Atestados
 export const criarAtestado = async (dadosAtestado) => {
   return await api.post(`${apiUrl}/atestados`, dadosAtestado, {
-    responseType: "blob", // Ensure the response is a blob
+    responseType: "blob", // Para receber o PDF como blob
   });
 };
-
-export const getAtestados = async () => {
+export const lerAtestados = async () => {
   return await api.get(`${apiUrl}/atestados`);
 };
 
-export const getAtestadoId = async (id) => {
+export const lerAtestadoId = async (id) => {
   return await api.get(`${apiUrl}/atestados/${id}`);
 };
 
 export const downloadAtestado = async (id) => {
   return await api.get(`${apiUrl}/atestados/${id}/download`, {
-    responseType: "blob", // For file download
+    responseType: "blob", // Para receber o arquivo de texto como blob
   });
 };
 

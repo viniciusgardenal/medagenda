@@ -72,6 +72,8 @@ const GerenciarHorariosProfissionais = () => {
     diaSemana: [],
     inicio: "",
     fim: "",
+    intervaloInicio: "", // Novo campo
+    intervaloFim: "", // Novo campo
     status: "Ativo",
   });
   const [currentPage, setCurrentPage] = useState(1);
@@ -99,9 +101,6 @@ const GerenciarHorariosProfissionais = () => {
             h.inicio &&
             h.fim
         );
-        // console.log("Dados brutos de profissionais:", profResponse.data);
-        // console.log("Profissionais carregados:", validProfissionais);
-        // console.log("Horários carregados:", validHorarios);
         setProfissionais(validProfissionais);
         setHorarios(validHorarios);
       } catch (error) {
@@ -126,7 +125,6 @@ const GerenciarHorariosProfissionais = () => {
           h.inicio &&
           h.fim
       );
-      console.log("Horários atualizados:", validHorarios);
       setHorarios(validHorarios);
     } catch (error) {
       console.error("Erro ao atualizar horários:", error);
@@ -190,25 +188,21 @@ const GerenciarHorariosProfissionais = () => {
     setCurrentPage(pageNumber);
   };
 
-  useEffect(() => {
-    // console.log("Profissionais filtrados:", profissionaisFiltrados);
-  }, [profissionaisFiltrados]);
-
   const openAddModal = (prof) => {
-    console.log("Abrindo ModalAddHorario, profissional:", prof);
     setSelectedProfissional(prof);
     setDadosHorario({
       matriculaProfissional: prof.matricula.toString(),
       diaSemana: [],
       inicio: "",
       fim: "",
+      intervaloInicio: "", // Novo campo
+      intervaloFim: "", // Novo campo
       status: "Ativo",
     });
     setModalAddOpen(true);
   };
 
   const openEditModal = (horario) => {
-    console.log("Abrindo ModalEditHorario, horário:", horario);
     setSelectedHorario(horario);
     setSelectedProfissional(
       profissionais.find(
@@ -221,6 +215,8 @@ const GerenciarHorariosProfissionais = () => {
       diaSemana: [horario.diaSemana],
       inicio: horario.inicio,
       fim: horario.fim,
+      intervaloInicio: horario.intervaloInicio || "", // Novo campo
+      intervaloFim: horario.intervaloFim || "", // Novo campo
       status: horario.status,
     });
     setModalViewOpen(false);
@@ -228,19 +224,16 @@ const GerenciarHorariosProfissionais = () => {
   };
 
   const openViewModal = (prof) => {
-    // console.log("Abrindo ModalViewHorario, profissional:", prof);
     setSelectedProfissional(prof);
     setModalViewOpen(true);
   };
 
   const openConfirmDelete = (horario) => {
-    console.log("Abrindo ConfirmationModal, horário:", horario);
     setSelectedHorario(horario);
     setModalConfirmOpen(true);
   };
 
   const closeModals = () => {
-    // console.log("Fechando modais");
     setModalAddOpen(false);
     setModalEditOpen(false);
     setModalViewOpen(false);
@@ -252,6 +245,8 @@ const GerenciarHorariosProfissionais = () => {
       diaSemana: [],
       inicio: "",
       fim: "",
+      intervaloInicio: "", // Novo campo
+      intervaloFim: "", // Novo campo
       status: "Ativo",
     });
   };
@@ -261,13 +256,13 @@ const GerenciarHorariosProfissionais = () => {
     try {
       const { diaSemana, ...rest } = dadosHorario;
       const diasValidos = [
+        "Domingo",
         "Segunda",
         "Terça",
         "Quarta",
         "Quinta",
         "Sexta",
         "Sábado",
-        "Domingo",
       ];
       if (diaSemana.length === 0) {
         alert("Selecione pelo menos um dia da semana.");
@@ -282,13 +277,15 @@ const GerenciarHorariosProfissionais = () => {
           ...rest,
           matriculaProfissional: rest.matriculaProfissional,
           diaSemana: dia,
+          intervaloInicio: rest.intervaloInicio || null, // Novo campo
+          intervaloFim: rest.intervaloFim || null, // Novo campo
         });
       }
       closeModals();
       await refreshHorarios();
     } catch (error) {
       console.error("Erro ao salvar horário:", error);
-      alert("Erro ao salvar horário. Tente novamente.", error);
+      alert("Erro ao salvar horário. Tente novamente.");
     } finally {
       setIsSaving(false);
     }
@@ -301,6 +298,8 @@ const GerenciarHorariosProfissionais = () => {
         ...dadosHorario,
         matriculaProfissional: dadosHorario.matriculaProfissional,
         diaSemana: dadosHorario.diaSemana[0],
+        intervaloInicio: dadosHorario.intervaloInicio || null, // Novo campo
+        intervaloFim: dadosHorario.intervaloFim || null, // Novo campo
       });
       closeModals();
       await refreshHorarios();

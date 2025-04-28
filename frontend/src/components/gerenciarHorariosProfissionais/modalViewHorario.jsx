@@ -11,18 +11,41 @@ const ModalViewHorario = ({
 }) => {
   if (!isOpen || !profissional) return null;
 
-  // console.log("ModalViewHorario - Profissional:", profissional);
-  // console.log("ModalViewHorario - Horários:", horarios);
-
+  // Função para formatar horários como HH:mm
   const formatarHorario = (horario) => {
-    if (!horario || typeof horario !== "string") return "Não definido";
-    const [hours, minutes] = horario.split(":").slice(0, 2);
-    return `${hours.padStart(2, "0")}:${minutes.padStart(2, "0")}`;
+    if (!horario || horario === "" || horario === null || horario === undefined) {
+      return "Não definido";
+    }
+    if (typeof horario === "string" && /^\d{2}:\d{2}$/.test(horario)) {
+      const [hours, minutes] = horario.split(":");
+      return `${hours.padStart(2, "0")}:${minutes.padStart(2, "0")}`;
+    }
+    return "Não definido";
   };
+
+  // Ordem fixa dos dias da semana (Domingo a Sábado)
+  const diasSemanaOrdem = [
+    "Domingo",
+    "Segunda",
+    "Terça",
+    "Quarta",
+    "Quinta",
+    "Sexta",
+    "Sábado",
+  ];
+
+  // Ordenar os horários com base na ordem dos dias da semana
+  const horariosOrdenados = Array.isArray(horarios) && horarios.length > 0
+    ? [...horarios].sort((a, b) => {
+        const indexA = diasSemanaOrdem.indexOf(a.diaSemana);
+        const indexB = diasSemanaOrdem.indexOf(b.diaSemana);
+        return indexA - indexB;
+      })
+    : [];
 
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-10">
-      <div className="bg-white w-full max-w-3xl p-6 rounded-xl shadow-lg relative">
+      <div className="bg-white w-full max-w-5xl p-8 rounded-xl shadow-lg relative">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
@@ -42,11 +65,11 @@ const ModalViewHorario = ({
             />
           </svg>
         </button>
-        <h3 className="text-xl font-semibold text-gray-800 mb-4">
+        <h3 className="text-2xl font-semibold text-gray-800 mb-6">
           Horários de {profissional.nome} {profissional.sobrenome || ""}
         </h3>
-        {!Array.isArray(horarios) || horarios.length === 0 ? (
-          <p className="text-sm text-gray-500 text-center py-4">
+        {!horariosOrdenados.length ? (
+          <p className="text-base text-gray-500 text-center py-6">
             Nenhum horário cadastrado para este profissional.
           </p>
         ) : (
@@ -54,58 +77,64 @@ const ModalViewHorario = ({
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Dia
                   </th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Início
                   </th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Fim
                   </th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Início Intervalo
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Fim Intervalo
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Status
                   </th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Ações
                   </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {horarios.map((horario) => (
+                {horariosOrdenados.map((horario) => (
                   <tr key={horario.id}>
-                    <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">
-                      {horario.diaSemana}
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {horario.diaSemana || "Não definido"}
                     </td>
-                    <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {formatarHorario(horario.inicio)}
                     </td>
-                    <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {formatarHorario(horario.fim)}
                     </td>
-                    <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">
-                      {horario.status}
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {formatarHorario(horario.intervaloInicio)}
                     </td>
-                    <td className="px-4 py-2 whitespace-nowrap text-sm">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {formatarHorario(horario.intervaloFim)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {horario.status || "Não definido"}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm flex space-x-2">
                       <button
-                        onClick={() => {
-                          console.log("Clicou em Editar, horário:", horario);
-                          onEdit(horario);
-                        }}
-                        className="text-blue-500 hover:text-blue-700 mr-2"
+                        onClick={() => onEdit(horario)}
+                        className="text-blue-500 hover:text-blue-700"
                         title="Editar Horário"
                       >
-                        <FaEdit className="h-4 w-4" />
+                        <FaEdit className="h-5 w-5" />
                       </button>
                       <button
-                        onClick={() => {
-                          console.log("Clicou em Excluir, horário:", horario);
-                          onDelete(horario);
-                        }}
+                        onClick={() => onDelete(horario)}
                         className="text-red-500 hover:text-red-700"
                         title="Excluir Horário"
                       >
-                        <FaTrash className="h-4 w-4" />
+                        <FaTrash className="h-5 w-5" />
                       </button>
                     </td>
                   </tr>
@@ -114,10 +143,10 @@ const ModalViewHorario = ({
             </table>
           </div>
         )}
-        <div className="flex justify-end mt-4">
+        <div className="flex justify-end mt-6">
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+            className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
           >
             Fechar
           </button>

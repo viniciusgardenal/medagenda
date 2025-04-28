@@ -9,20 +9,18 @@ const ModalAddHorario = ({
   isSaving,
   profissionais,
 }) => {
-  // console.log(profissionais);
-
   const [selecionarTodos, setSelecionarTodos] = useState(false);
 
   if (!isOpen) return null;
 
   const diasSemana = [
+    "Domingo",
     "Segunda",
     "Terça",
     "Quarta",
     "Quinta",
     "Sexta",
     "Sábado",
-    "Domingo",
   ];
 
   const handleCheckboxChange = (dia) => {
@@ -58,13 +56,30 @@ const ModalAddHorario = ({
       alert("Selecione um profissional.");
       return;
     }
-    // console.log("Dados enviados:", dadosHorario);
+    if (dadosHorario.intervaloInicio && dadosHorario.intervaloFim) {
+      const inicio = new Date(`1970-01-01T${dadosHorario.inicio}`);
+      const fim = new Date(`1970-01-01T${dadosHorario.fim}`);
+      const intervaloInicio = new Date(
+        `1970-01-01T${dadosHorario.intervaloInicio}`
+      );
+      const intervaloFim = new Date(`1970-01-01T${dadosHorario.intervaloFim}`);
+      if (
+        intervaloInicio >= intervaloFim ||
+        intervaloInicio < inicio ||
+        intervaloFim > fim
+      ) {
+        alert(
+          "O intervalo deve estar dentro do período de início e fim e o início do intervalo deve ser anterior ao fim."
+        );
+        return;
+      }
+    }
     onSave();
   };
 
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white w-full max-w-md p-6 rounded-2xl shadow-md relative">
+      <div className="bg-white w-full max-w-3xl p-6 rounded-2xl shadow-md relative">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
@@ -87,7 +102,7 @@ const ModalAddHorario = ({
         </button>
         <h3 className="text-2xl font-bold text-blue-600 mb-6">Novo Horário</h3>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
+          <div className="col-span-2">
             <label className="block text-sm font-semibold text-gray-700 mb-1">
               Profissional
             </label>
@@ -118,77 +133,109 @@ const ModalAddHorario = ({
               )}
             </select>
           </div>
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Dias da Semana
-            </label>
-            <div className="space-y-2">
-              <label className="flex items-center space-x-2">
+          <div className="grid grid-cols-2 gap-x-8 gap-y-4">
+            <div className="col-span-1 space-y-6">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  Horário Início
+                </label>
                 <input
-                  type="checkbox"
-                  checked={selecionarTodos}
-                  onChange={handleSelecionarTodos}
-                  className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  type="time"
+                  name="inicio"
+                  value={dadosHorario.inicio}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border rounded-md text-gray-700 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  required
                   disabled={isSaving}
                 />
-                <span className="text-sm text-gray-700">Selecionar Todos</span>
-              </label>
-              {diasSemana.map((dia) => (
-                <label key={dia} className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    checked={dadosHorario.diaSemana.includes(dia)}
-                    onChange={() => handleCheckboxChange(dia)}
-                    className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                    disabled={isSaving}
-                  />
-                  <span className="text-sm text-gray-700">{dia}</span>
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  Horário Fim
                 </label>
-              ))}
+                <input
+                  type="time"
+                  name="fim"
+                  value={dadosHorario.fim}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border rounded-md text-gray-700 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  required
+                  disabled={isSaving}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  Início do Intervalo (opcional)
+                </label>
+                <input
+                  type="time"
+                  name="intervaloInicio"
+                  value={dadosHorario.intervaloInicio || ""}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border rounded-md text-gray-700 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  disabled={isSaving}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  Fim do Intervalo (opcional)
+                </label>
+                <input
+                  type="time"
+                  name="intervaloFim"
+                  value={dadosHorario.intervaloFim || ""}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border rounded-md text-gray-700 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  disabled={isSaving}
+                />
+              </div>
             </div>
-          </div>
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
-              Horário Início
-            </label>
-            <input
-              type="time"
-              name="inicio"
-              value={dadosHorario.inicio}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-md text-gray-700 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-              required
-              disabled={isSaving}
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
-              Horário Fim
-            </label>
-            <input
-              type="time"
-              name="fim"
-              value={dadosHorario.fim}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-md text-gray-700 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-              required
-              disabled={isSaving}
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
-              Status
-            </label>
-            <select
-              name="status"
-              value={dadosHorario.status}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-md text-gray-700 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-              disabled={isSaving}
-            >
-              <option value="Ativo">Ativo</option>
-              <option value="Inativo">Inativo</option>
-            </select>
+            <div className="col-span-1 space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Dias da Semana
+                </label>
+                <div className="space-y-2">
+                  <label className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      checked={selecionarTodos}
+                      onChange={handleSelecionarTodos}
+                      className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                      disabled={isSaving}
+                    />
+                    <span className="text-sm text-gray-700">Selecionar Todos</span>
+                  </label>
+                  {diasSemana.map((dia) => (
+                    <label key={dia} className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        checked={dadosHorario.diaSemana.includes(dia)}
+                        onChange={() => handleCheckboxChange(dia)}
+                        className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                        disabled={isSaving}
+                      />
+                      <span className="text-sm text-gray-700">{dia}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  Status
+                </label>
+                <select
+                  name="status"
+                  value={dadosHorario.status}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border rounded-md text-gray-700 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  disabled={isSaving}
+                >
+                  <option value="Ativo">Ativo</option>
+                  <option value="Inativo">Inativo</option>
+                </select>
+              </div>
+            </div>
           </div>
           <div className="flex justify-end gap-4 mt-6">
             <button

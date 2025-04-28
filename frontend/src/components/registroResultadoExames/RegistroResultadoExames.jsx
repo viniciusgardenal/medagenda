@@ -8,94 +8,52 @@ import ModalAddObservacao from "./modalAddObservacao";
 import ModalViewObservacao from "./ModalViewObservacao";
 import FiltroRegistroResultadoExames from "./filtroRegistroResultadoExames";
 import Pagination from "../util/Pagination";
+import { FaPlus, FaEdit, FaEye, FaCheckCircle, FaSyncAlt, FaFileMedical } from "react-icons/fa";
 
 // Componente para cada linha da tabela
 const TableRow = ({ registro, onAdd, onEdit, onView }) => {
-  console.log(registro);
-
   const resultadoDefinido =
     registro.observacoes && registro.observacoes.trim() !== "";
 
   return (
-    <tr className="hover:bg-blue-50 transition-colors">
-      <td className="px-4 py-3 text-sm text-gray-700">{registro.idRegistro}</td>
-      <td className="px-4 py-3 text-sm text-gray-700">
-        {registro.solicitacaoExame?.tipoExame.nomeTipoExame}
+    <tr className="hover:bg-gray-100 transition-colors">
+      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{registro.idRegistro}</td>
+      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">
+        {registro.solicitacaoExame?.tipoExame.nomeTipoExame || "N/A"}
       </td>
-      <td className="px-4 py-3 text-sm text-gray-700">
-        {new Date(registro.solicitacaoExame.dataSolicitacao).toLocaleDateString(
-          "pt-BR"
-        )}
+      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">
+        {new Date(registro.solicitacaoExame.dataSolicitacao).toLocaleDateString("pt-BR")}
       </td>
-      <td className="px-4 py-3 text-sm text-gray-700">
-        {registro.profissional.nome}
+      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">
+        {registro.profissional.nome || "N/A"}
       </td>
-      <td className="px-4 py-3 text-sm text-gray-700">
-        {registro.paciente.nome}
+      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">
+        {registro.paciente.nome || "N/A"}
       </td>
-      <td className="px-4 py-3">
+      <td className="px-4 py-2 whitespace-nowrap">
         {resultadoDefinido ? (
-          <span className="inline-flex items-center gap-1 rounded-full bg-green-600 px-3 py-1.5 text-sm font-semibold text-white shadow">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-4 w-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
+          <span className="inline-flex items-center gap-1 rounded-full bg-green-600 px-2 py-1 text-xs font-semibold text-white shadow">
+            <FaCheckCircle className="h-4 w-4" />
             Registrado
           </span>
         ) : (
           <button
             onClick={() => onAdd(registro)}
-            className="inline-flex items-center gap-2 rounded-full bg-orange-600 px-3 py-1.5 text-sm font-semibold text-white shadow hover:bg-orange-700 transition"
+            className="inline-flex items-center gap-1 rounded-full bg-orange-600 px-2 py-1 text-xs font-semibold text-white shadow hover:bg-orange-700 transition"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-4 w-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 4v16m8-8H4"
-              />
-            </svg>
+            <FaPlus className="h-4 w-4" />
             Definir
           </button>
         )}
       </td>
-      <td className="px-4 py-3 flex gap-3">
+      <td className="px-4 py-2 whitespace-nowrap flex gap-2">
         <button
           onClick={() => onEdit(registro)}
           className="text-green-500 hover:text-green-700"
           title="Editar Resultado"
           aria-label="Editar resultado do exame"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-            />
-          </svg>
+          <FaEdit className="h-5 w-5" />
         </button>
         <button
           onClick={() => onView(registro)}
@@ -103,26 +61,7 @@ const TableRow = ({ registro, onAdd, onEdit, onView }) => {
           title="Visualizar Resultado"
           aria-label="Visualizar resultado do exame"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-            />
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M2.458 12C3.732 7.943 7.522 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.478 0-8.268-2.943-9.542-7z"
-            />
-          </svg>
+          <FaEye className="h-5 w-5" />
         </button>
       </td>
     </tr>
@@ -144,22 +83,21 @@ const RegistroResultadoExames = () => {
   const [sortField, setSortField] = useState("idRegistro");
   const [sortDirection, setSortDirection] = useState("asc");
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const response = await getRegistrosInativosResultadoExames();
-        console.log("Registros:", response.data.data);
+  const fetchData = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await getRegistrosInativosResultadoExames();
+      setRegistros(response.data.data || []);
+    } catch (error) {
+      console.error("Erro ao carregar registros:", error);
+      setError("Erro ao carregar os registros. Tente novamente mais tarde.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-        setRegistros(response.data.data || []);
-      } catch (error) {
-        console.error("Erro ao carregar registros:", error);
-        setError("Erro ao carregar os registros. Tente novamente mais tarde.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  useEffect(() => {
     fetchData();
   }, []);
 
@@ -280,31 +218,84 @@ const RegistroResultadoExames = () => {
     setObservacaoEditada("");
   };
 
+  const handleRefresh = () => {
+    fetchData();
+  };
+
+  const examesPendentes = registros.filter(
+    (registro) => !registro.observacoes || registro.observacoes.trim() === ""
+  ).length;
+
+  const examesRegistrados = registros.length - examesPendentes;
+
+  const ultimosResultados = registros
+    .filter((registro) => registro.observacoes && registro.observacoes.trim() !== "")
+    .slice(0, 3);
+
   return (
-    <div className="min-h-screen bg-gray-200 backdrop-blur-sm p-6">
-      <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-md p-6 space-y-6">
-        <div className="border-b pb-4">
-          <h2 className="text-3xl font-bold text-blue-600">
-            Resultados de Exames
-          </h2>
+    <section className="max-w-6xl mx-auto mt-6 px-4 py-6 bg-gray-50 rounded-2xl shadow-lg">
+      {/* Cabeçalho */}
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold text-blue-600 flex items-center gap-2">
+          <FaFileMedical className="h-6 w-6" />
+          Resultados de Exames
+        </h2>
+        <button
+          onClick={handleRefresh}
+          className="flex items-center gap-1 px-3 py-1 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors disabled:opacity-50 text-sm"
+          disabled={isLoading}
+        >
+          <FaSyncAlt className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
+          {isLoading ? "Atualizando..." : "Atualizar"}
+        </button>
+      </div>
+
+      {/* Mensagem de Erro */}
+      {error && (
+        <div className="bg-red-100 text-red-700 p-3 rounded-lg mb-4 text-sm">
+          {error}
         </div>
+      )}
 
-        {error && (
-          <div className="p-4 text-sm text-red-700 bg-red-100 rounded-lg border border-red-300">
-            {error}
-          </div>
-        )}
+      {/* Cards de Estatísticas */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="bg-white p-4 rounded-lg shadow-md">
+          <h3 className="text-sm font-semibold text-gray-700 mb-1">
+            Total de Registros
+          </h3>
+          <p className="text-xl font-bold text-blue-600">{registros.length}</p>
+        </div>
+        <div className="bg-white p-4 rounded-lg shadow-md">
+          <h3 className="text-sm font-semibold text-gray-700 mb-1">
+            Exames Pendentes
+          </h3>
+          <p className="text-xl font-bold text-blue-600">{examesPendentes}</p>
+        </div>
+        <div className="bg-white p-4 rounded-lg shadow-md">
+          <h3 className="text-sm font-semibold text-gray-700 mb-1">
+            Exames Registrados
+          </h3>
+          <p className="text-xl font-bold text-blue-600">{examesRegistrados}</p>
+        </div>
+      </div>
 
+      {/* Filtros */}
+      <div className="bg-white p-4 rounded-lg shadow-md mb-6">
         <FiltroRegistroResultadoExames onFiltroChange={handleFiltroChange} />
+      </div>
 
+      {/* Tabela de Registros */}
+      <div className="bg-white p-4 rounded-lg shadow-md mb-6">
         {isLoading ? (
-          <div className="text-center py-4">
-            <p className="text-sm text-gray-500">Carregando registros...</p>
-          </div>
+          <p className="text-center text-gray-500 py-2">Carregando registros...</p>
+        ) : registrosOrdenadosFiltrados.length === 0 ? (
+          <p className="text-center text-gray-500 py-2">
+            Nenhum registro encontrado.
+          </p>
         ) : (
-          <div className="overflow-x-auto rounded-lg shadow-md">
-            <table className="min-w-full divide-y divide-gray-200 bg-white">
-              <thead className="bg-blue-600 text-white">
+          <div className="overflow-x-auto rounded-lg">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-blue-600 text-white ">
                 <tr>
                   {[
                     "ID Registro",
@@ -326,20 +317,7 @@ const RegistroResultadoExames = () => {
                           ][index]
                         )
                       }
-                      className={`px-4 py-3 text-left text-sm font-semibold cursor-pointer ${
-                        index === 0 ? "rounded-tl-lg" : ""
-                      } ${index === 4 ? "rounded-tr-lg" : ""} ${
-                        sortField ===
-                        [
-                          "idRegistro",
-                          "nomeExame",
-                          "dataSolicitacao",
-                          "profissional",
-                          "paciente",
-                        ][index]
-                          ? "bg-blue-700"
-                          : ""
-                      }`}
+                      className="px-4 py-2 text-left text-xs font-medium  uppercase tracking-wider cursor-pointer"
                     >
                       {header}
                       {sortField ===
@@ -356,20 +334,20 @@ const RegistroResultadoExames = () => {
                       )}
                     </th>
                   ))}
-                  <th className="px-4 py-3 text-left text-sm font-semibold">
+                  <th className="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider">
                     Definir Resultado
                   </th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold">
+                  <th className="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider">
                     Ações
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
+              <tbody className="bg-white divide-y divide-gray-200">
                 {currentRegistros.length === 0 ? (
                   <tr>
                     <td
                       colSpan="7"
-                      className="px-4 py-4 text-center text-gray-500"
+                      className="px-4 py-2 text-center text-gray-500 text-sm"
                     >
                       Nenhum registro encontrado.
                     </td>
@@ -389,8 +367,11 @@ const RegistroResultadoExames = () => {
             </table>
           </div>
         )}
+      </div>
 
-        {registrosOrdenadosFiltrados.length > 0 && (
+      {/* Paginação */}
+      {registrosOrdenadosFiltrados.length > 0 && (
+        <div className="mb-6">
           <Pagination
             totalItems={registrosOrdenadosFiltrados.length}
             itemsPerPage={itemsPerPage}
@@ -398,39 +379,40 @@ const RegistroResultadoExames = () => {
             onPageChange={handlePageChange}
             maxPageButtons={5}
           />
-        )}
+        </div>
+      )}
 
-        {modalAddOpen && registroSelecionado && (
-          <ModalAddObservacao
-            isOpen={modalAddOpen}
-            onClose={closeModal}
-            registro={registroSelecionado}
-            observacaoEditada={observacaoEditada}
-            setObservacaoEditada={setObservacaoEditada}
-            onSave={handleUpdateObservacao}
-          />
-        )}
+      {/* Modals */}
+      {modalAddOpen && registroSelecionado && (
+        <ModalAddObservacao
+          isOpen={modalAddOpen}
+          onClose={closeModal}
+          registro={registroSelecionado}
+          observacaoEditada={observacaoEditada}
+          setObservacaoEditada={setObservacaoEditada}
+          onSave={handleUpdateObservacao}
+        />
+      )}
 
-        {modalEditOpen && registroSelecionado && (
-          <ModalEditObservacao
-            isOpen={modalEditOpen}
-            onClose={closeModal}
-            registro={registroSelecionado}
-            observacaoEditada={observacaoEditada}
-            setObservacaoEditada={setObservacaoEditada}
-            onSave={handleUpdateObservacao}
-          />
-        )}
+      {modalEditOpen && registroSelecionado && (
+        <ModalEditObservacao
+          isOpen={modalEditOpen}
+          onClose={closeModal}
+          registro={registroSelecionado}
+          observacaoEditada={observacaoEditada}
+          setObservacaoEditada={setObservacaoEditada}
+          onSave={handleUpdateObservacao}
+        />
+      )}
 
-        {modalViewOpen && registroSelecionado && (
-          <ModalViewObservacao
-            isOpen={modalViewOpen}
-            onClose={closeModal}
-            registro={registroSelecionado}
-          />
-        )}
-      </div>
-    </div>
+      {modalViewOpen && registroSelecionado && (
+        <ModalViewObservacao
+          isOpen={modalViewOpen}
+          onClose={closeModal}
+          registro={registroSelecionado}
+        />
+      )}
+    </section>
   );
 };
 

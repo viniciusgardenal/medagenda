@@ -11,46 +11,7 @@ import {
   getHorarios,
   getProfissionais,
 } from "../../config/apiServices";
-
-const EyeIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    className="h-5 w-5"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-    />
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M2.458 12C3.732 7.943 7.522 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.478 0-8.268-2.943-9.542-7z"
-    />
-  </svg>
-);
-
-const PlusIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    className="h-5 w-5"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M12 4v16m8-8H4"
-    />
-  </svg>
-);
+import { FaPlus, FaEye, FaSyncAlt, FaClock } from "react-icons/fa";
 
 const GerenciarHorariosProfissionais = () => {
   const [profissionais, setProfissionais] = useState([]);
@@ -72,8 +33,8 @@ const GerenciarHorariosProfissionais = () => {
     diaSemana: [],
     inicio: "",
     fim: "",
-    intervaloInicio: "", // Novo campo
-    intervaloFim: "", // Novo campo
+    intervaloInicio: "",
+    intervaloFim: "",
     status: "Ativo",
   });
   const [currentPage, setCurrentPage] = useState(1);
@@ -81,35 +42,36 @@ const GerenciarHorariosProfissionais = () => {
   const [sortField, setSortField] = useState("nome");
   const [sortDirection, setSortDirection] = useState("asc");
 
+  const fetchData = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const [profResponse, horResponse] = await Promise.all([
+        getProfissionais(),
+        getHorarios(),
+      ]);
+      const validProfissionais = profResponse.data.filter(
+        (p) => p.matricula != null && p.nome
+      );
+      const validHorarios = horResponse.data.filter(
+        (h) =>
+          h.id &&
+          h.matriculaProfissional != null &&
+          h.diaSemana &&
+          h.inicio &&
+          h.fim
+      );
+      setProfissionais(validProfissionais);
+      setHorarios(validHorarios);
+    } catch (error) {
+      console.error("Erro ao carregar dados:", error);
+      setError("Não foi possível carregar os dados. Tente novamente.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const [profResponse, horResponse] = await Promise.all([
-          getProfissionais(),
-          getHorarios(),
-        ]);
-        const validProfissionais = profResponse.data.filter(
-          (p) => p.matricula != null && p.nome
-        );
-        const validHorarios = horResponse.data.filter(
-          (h) =>
-            h.id &&
-            h.matriculaProfissional != null &&
-            h.diaSemana &&
-            h.inicio &&
-            h.fim
-        );
-        setProfissionais(validProfissionais);
-        setHorarios(validHorarios);
-      } catch (error) {
-        console.error("Erro ao carregar dados:", error);
-        setError("Não foi possível carregar os dados. Tente novamente.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
     fetchData();
   }, []);
 
@@ -195,8 +157,8 @@ const GerenciarHorariosProfissionais = () => {
       diaSemana: [],
       inicio: "",
       fim: "",
-      intervaloInicio: "", // Novo campo
-      intervaloFim: "", // Novo campo
+      intervaloInicio: "",
+      intervaloFim: "",
       status: "Ativo",
     });
     setModalAddOpen(true);
@@ -215,8 +177,8 @@ const GerenciarHorariosProfissionais = () => {
       diaSemana: [horario.diaSemana],
       inicio: horario.inicio,
       fim: horario.fim,
-      intervaloInicio: horario.intervaloInicio || "", // Novo campo
-      intervaloFim: horario.intervaloFim || "", // Novo campo
+      intervaloInicio: horario.intervaloInicio || "",
+      intervaloFim: horario.intervaloFim || "",
       status: horario.status,
     });
     setModalViewOpen(false);
@@ -245,8 +207,8 @@ const GerenciarHorariosProfissionais = () => {
       diaSemana: [],
       inicio: "",
       fim: "",
-      intervaloInicio: "", // Novo campo
-      intervaloFim: "", // Novo campo
+      intervaloInicio: "",
+      intervaloFim: "",
       status: "Ativo",
     });
   };
@@ -277,8 +239,8 @@ const GerenciarHorariosProfissionais = () => {
           ...rest,
           matriculaProfissional: rest.matriculaProfissional,
           diaSemana: dia,
-          intervaloInicio: rest.intervaloInicio || null, // Novo campo
-          intervaloFim: rest.intervaloFim || null, // Novo campo
+          intervaloInicio: rest.intervaloInicio || null,
+          intervaloFim: rest.intervaloFim || null,
         });
       }
       closeModals();
@@ -298,8 +260,8 @@ const GerenciarHorariosProfissionais = () => {
         ...dadosHorario,
         matriculaProfissional: dadosHorario.matriculaProfissional,
         diaSemana: dadosHorario.diaSemana[0],
-        intervaloInicio: dadosHorario.intervaloInicio || null, // Novo campo
-        intervaloFim: dadosHorario.intervaloFim || null, // Novo campo
+        intervaloInicio: dadosHorario.intervaloInicio || null,
+        intervaloFim: dadosHorario.intervaloFim || null,
       });
       closeModals();
       await refreshHorarios();
@@ -331,21 +293,68 @@ const GerenciarHorariosProfissionais = () => {
     }
   };
 
+  const handleRefresh = () => {
+    fetchData();
+  };
+
+  const profissionaisAtivos = profissionais.filter((prof) =>
+    horarios.some(
+      (h) => h.matriculaProfissional.toString() === prof.matricula.toString()
+    )
+  ).length;
+
+
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
-      <div className="max-w-6xl mx-auto bg-white rounded-lg shadow-xl p-6">
-        <h2 className="text-3xl font-semibold mb-6 text-blue-600">
-          Gerenciar Horários Profissionais
+    <section className="max-w-6xl mx-auto mt-6 px-4 py-6 bg-gray-50 rounded-2xl shadow-lg">
+      {/* Cabeçalho */}
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-2xl font-bold text-blue-600 flex items-center gap-2">
+          <FaClock className="h-6 w-6" />
+          Gerenciar Horários
         </h2>
+        <button
+          onClick={handleRefresh}
+          className="flex items-center gap-1 px-3 py-1 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors disabled:opacity-50 text-sm"
+          disabled={isLoading}
+        >
+          <FaSyncAlt className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
+          {isLoading ? "Atualizando..." : "Atualizar"}
+        </button>
+      </div>
 
-        {error && (
-          <div className="bg-red-100 text-red-700 p-3 rounded-md mb-4 text-sm">
-            {error}
-          </div>
-        )}
+      {/* Mensagem de Erro */}
+      {error && (
+        <div className="bg-red-100 text-red-700 p-3 rounded-lg mb-4 text-sm">
+          {error}
+        </div>
+      )}
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div className="space-y-2">
+      {/* Cards de Estatísticas */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+        <div className="bg-white p-4 rounded-lg shadow-md">
+          <h3 className="text-sm font-semibold text-gray-700 mb-1">
+            Total de Profissionais
+          </h3>
+          <p className="text-xl font-bold text-blue-600">{profissionais.length}</p>
+        </div>
+        <div className="bg-white p-4 rounded-lg shadow-md">
+          <h3 className="text-sm font-semibold text-gray-700 mb-1">
+            Horários Cadastrados
+          </h3>
+          <p className="text-xl font-bold text-blue-600">{horarios.length}</p>
+        </div>
+        <div className="bg-white p-4 rounded-lg shadow-md">
+          <h3 className="text-sm font-semibold text-gray-700 mb-1">
+            Profissionais Ativos
+          </h3>
+          <p className="text-xl font-bold text-blue-600">{profissionaisAtivos}</p>
+        </div>
+      </div>
+
+      {/* Filtros */}
+      <div className="bg-white p-4 rounded-lg shadow-md mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div className="space-y-1">
             <label className="block text-sm font-medium text-gray-700">
               Nome
             </label>
@@ -353,11 +362,11 @@ const GerenciarHorariosProfissionais = () => {
               type="text"
               value={filtroNome}
               onChange={(e) => setFiltroNome(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Filtrar por nome"
             />
           </div>
-          <div className="space-y-2">
+          <div className="space-y-1">
             <label className="block text-sm font-medium text-gray-700">
               Matrícula
             </label>
@@ -365,18 +374,18 @@ const GerenciarHorariosProfissionais = () => {
               type="text"
               value={filtroMatricula}
               onChange={(e) => setFiltroMatricula(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Filtrar por matrícula"
             />
           </div>
-          <div className="space-y-2">
+          <div className="space-y-1">
             <label className="block text-sm font-medium text-gray-700">
               Tipo Profissional
             </label>
             <select
               value={filtroTipoProfissional}
               onChange={(e) => setFiltroTipoProfissional(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">Filtrar por tipo</option>
               <option value="medico">Médico</option>
@@ -385,16 +394,19 @@ const GerenciarHorariosProfissionais = () => {
             </select>
           </div>
         </div>
+      </div>
 
-        <div className="overflow-x-auto rounded-lg shadow-md">
-          {isLoading ? (
-            <p className="text-center text-gray-500 px-4 py-4">Carregando...</p>
-          ) : profissionaisOrdenados.length === 0 ? (
-            <p className="text-center text-gray-500 px-4 py-4">
-              Nenhum profissional encontrado.
-            </p>
-          ) : (
-            <table className="min-w-full divide-y divide-gray-200 bg-white">
+      {/* Tabela de Profissionais */}
+      <div className="bg-white p-4 rounded-lg shadow-md mb-4">
+        {isLoading ? (
+          <p className="text-center text-gray-500 py-2">Carregando...</p>
+        ) : profissionaisOrdenados.length === 0 ? (
+          <p className="text-center text-gray-500 py-2">
+            Nenhum profissional encontrado.
+          </p>
+        ) : (
+          <div className="overflow-x-auto rounded-lg">
+            <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-blue-600 text-white">
                 <tr>
                   {["Matrícula", "Nome do Profissional", "Cargo"].map(
@@ -404,13 +416,7 @@ const GerenciarHorariosProfissionais = () => {
                         onClick={() =>
                           handleSort(["matricula", "nome", "cargo"][index])
                         }
-                        className={`px-4 py-3 text-left text-sm font-semibold cursor-pointer ${
-                          index === 0 ? "rounded-tl-lg" : ""
-                        } ${index === 2 ? "rounded-tr-lg" : ""} ${
-                          sortField === ["matricula", "nome", "cargo"][index]
-                            ? "bg-blue-700"
-                            : ""
-                        }`}
+                        className="px-4 py-2 text-left text-xs font-medium  uppercase tracking-wider cursor-pointer"
                       >
                         {header}
                         {sortField ===
@@ -422,17 +428,17 @@ const GerenciarHorariosProfissionais = () => {
                       </th>
                     )
                   )}
-                  <th className="px-4 py-3 text-left text-sm font-semibold rounded-tr-lg">
+                  <th className="px-4 py-2 text-left text-xs font-medium  uppercase tracking-wider">
                     Ações
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
+              <tbody className="bg-white divide-y divide-gray-200">
                 {currentProfissionais.length === 0 ? (
                   <tr>
                     <td
                       colSpan="4"
-                      className="px-4 py-4 text-center text-gray-500"
+                      className="px-4 py-2 text-center text-gray-500 text-sm"
                     >
                       Nenhum profissional encontrado.
                     </td>
@@ -441,31 +447,31 @@ const GerenciarHorariosProfissionais = () => {
                   currentProfissionais.map((prof) => (
                     <tr
                       key={prof.matricula}
-                      className="hover:bg-blue-50 transition-colors"
+                      className="hover:bg-gray-100 transition-colors"
                     >
-                      <td className="w-24 px-4 py-3 text-sm text-gray-700">
+                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">
                         {prof.matricula || "N/A"}
                       </td>
-                      <td className="flex-1 min-w-0 px-4 py-3 text-sm text-gray-700">{`${
+                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{`${
                         prof.nome
                       } ${prof.sobrenome || ""}`}</td>
-                      <td className="flex-1 min-w-0 px-4 py-3 text-sm text-gray-700">
+                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">
                         {prof.tipoProfissional || "N/A"}
                       </td>
-                      <td className="flex-1 min-w-0 px-4 py-3 text-sm flex gap-3">
+                      <td className="px-4 py-2 whitespace-nowrap text-sm flex gap-2">
                         <button
                           onClick={() => openViewModal(prof)}
                           className="text-blue-500 hover:text-blue-700"
                           title="Ver Horários"
                         >
-                          <EyeIcon />
+                          <FaEye className="h-4 w-4" />
                         </button>
                         <button
                           onClick={() => openAddModal(prof)}
                           className="text-green-500 hover:text-green-700"
                           title="Adicionar Horário"
                         >
-                          <PlusIcon />
+                          <FaPlus className="h-4 w-4" />
                         </button>
                       </td>
                     </tr>
@@ -473,10 +479,13 @@ const GerenciarHorariosProfissionais = () => {
                 )}
               </tbody>
             </table>
-          )}
-        </div>
+          </div>
+        )}
+      </div>
 
-        {profissionaisOrdenados.length > 0 && (
+      {/* Paginação */}
+      {profissionaisOrdenados.length > 0 && (
+        <div className="mb-4">
           <Pagination
             totalItems={profissionaisOrdenados.length}
             itemsPerPage={itemsPerPage}
@@ -484,66 +493,67 @@ const GerenciarHorariosProfissionais = () => {
             onPageChange={handlePageChange}
             maxPageButtons={5}
           />
-        )}
+        </div>
+      )}
 
-        <ModalAddHorario
-          isOpen={modalAddOpen}
-          onClose={closeModals}
-          dadosHorario={dadosHorario}
-          setDadosHorario={setDadosHorario}
-          onSave={handleSave}
-          isSaving={isSaving}
-          profissionais={profissionais}
-        />
-        <ModalEditHorario
-          isOpen={modalEditOpen}
-          onClose={closeModals}
-          horario={selectedHorario}
-          dadosHorario={dadosHorario}
-          setDadosHorario={setDadosHorario}
-          onSave={handleUpdate}
-          isSaving={isSaving}
-          profissionais={profissionais}
-        />
-        <ModalViewHorario
-          isOpen={modalViewOpen}
-          onClose={closeModals}
-          profissional={selectedProfissional}
-          horarios={horarios.filter(
-            (h) =>
-              h.matriculaProfissional.toString() ===
-              selectedProfissional?.matricula.toString()
-          )}
-          onEdit={openEditModal}
-          onDelete={openConfirmDelete}
-        />
-        <ConfirmationModal
-          isOpen={modalConfirmOpen}
-          onConfirm={handleDelete}
-          onCancel={closeModals}
-          message={
-            selectedHorario
-              ? `Deseja excluir o horário de ${
-                  profissionais.find(
-                    (p) =>
-                      p.matricula.toString() ===
-                      selectedHorario.matriculaProfissional.toString()
-                  )?.nome || ""
-                } ${
-                  profissionais.find(
-                    (p) =>
-                      p.matricula.toString() ===
-                      selectedHorario.matriculaProfissional.toString()
-                  )?.sobrenome || ""
-                } em ${selectedHorario.diaSemana} das ${
-                  selectedHorario.inicio
-                } às ${selectedHorario.fim}?`
-              : ""
-          }
-          isSaving={isSaving}
-        />
-      </div>
-    </div>
+      {/* Modals */}
+      <ModalAddHorario
+        isOpen={modalAddOpen}
+        onClose={closeModals}
+        dadosHorario={dadosHorario}
+        setDadosHorario={setDadosHorario}
+        onSave={handleSave}
+        isSaving={isSaving}
+        profissionais={profissionais}
+      />
+      <ModalEditHorario
+        isOpen={modalEditOpen}
+        onClose={closeModals}
+        horario={selectedHorario}
+        dadosHorario={dadosHorario}
+        setDadosHorario={setDadosHorario}
+        onSave={handleUpdate}
+        isSaving={isSaving}
+        profissionais={profissionais}
+      />
+      <ModalViewHorario
+        isOpen={modalViewOpen}
+        onClose={closeModals}
+        profissional={selectedProfissional}
+        horarios={horarios.filter(
+          (h) =>
+            h.matriculaProfissional.toString() ===
+            selectedProfissional?.matricula.toString()
+        )}
+        onEdit={openEditModal}
+        onDelete={openConfirmDelete}
+      />
+      <ConfirmationModal
+        isOpen={modalConfirmOpen}
+        onConfirm={handleDelete}
+        onCancel={closeModals}
+        message={
+          selectedHorario
+            ? `Deseja excluir o horário de ${
+                profissionais.find(
+                  (p) =>
+                    p.matricula.toString() ===
+                    selectedHorario.matriculaProfissional.toString()
+                )?.nome || ""
+              } ${
+                profissionais.find(
+                  (p) =>
+                    p.matricula.toString() ===
+                    selectedHorario.matriculaProfissional.toString()
+                )?.sobrenome || ""
+              } em ${selectedHorario.diaSemana} das ${
+                selectedHorario.inicio
+              } às ${selectedHorario.fim}?`
+            : ""
+        }
+        isSaving={isSaving}
+      />
+    </section>
   );
 };
 

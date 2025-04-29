@@ -100,13 +100,25 @@ const GerenciarHorariosProfissionais = () => {
     return [...profissionais].sort((a, b) => {
       let valueA, valueB;
       const fieldMap = {
-        matricula: (item) => item.matricula.toString().toLowerCase(),
+        matricula: (item) => {
+          const matricula = item.matricula.toString();
+          return /^\d+$/.test(matricula) ? parseInt(matricula, 10) : matricula.toLowerCase();
+        },
         nome: (item) => `${item.nome} ${item.sobrenome || ""}`.toLowerCase(),
         cargo: (item) => item.tipoProfissional.toLowerCase(),
       };
       valueA = fieldMap[sortField](a);
       valueB = fieldMap[sortField](b);
+
       const direction = sortDirection === "asc" ? 1 : -1;
+
+      if (sortField === "matricula") {
+        if (typeof valueA === "number" && typeof valueB === "number") {
+          return (valueA - valueB) * direction;
+        }
+        return valueA.localeCompare(valueB) * direction;
+      }
+
       return valueA > valueB ? direction : -direction;
     });
   };
@@ -303,7 +315,6 @@ const GerenciarHorariosProfissionais = () => {
     )
   ).length;
 
-
   return (
     <section className="max-w-6xl mx-auto mt-6 px-4 py-6 bg-gray-50 rounded-2xl shadow-lg">
       {/* Cabeçalho */}
@@ -312,14 +323,6 @@ const GerenciarHorariosProfissionais = () => {
           <FaClock className="h-6 w-6" />
           Gerenciar Horários
         </h2>
-        <button
-          onClick={handleRefresh}
-          className="flex items-center gap-1 px-3 py-1 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors disabled:opacity-50 text-sm"
-          disabled={isLoading}
-        >
-          <FaSyncAlt className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
-          {isLoading ? "Atualizando..." : "Atualizar"}
-        </button>
       </div>
 
       {/* Mensagem de Erro */}
@@ -328,28 +331,6 @@ const GerenciarHorariosProfissionais = () => {
           {error}
         </div>
       )}
-
-      {/* Cards de Estatísticas */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-        <div className="bg-white p-4 rounded-lg shadow-md">
-          <h3 className="text-sm font-semibold text-gray-700 mb-1">
-            Total de Profissionais
-          </h3>
-          <p className="text-xl font-bold text-blue-600">{profissionais.length}</p>
-        </div>
-        <div className="bg-white p-4 rounded-lg shadow-md">
-          <h3 className="text-sm font-semibold text-gray-700 mb-1">
-            Horários Cadastrados
-          </h3>
-          <p className="text-xl font-bold text-blue-600">{horarios.length}</p>
-        </div>
-        <div className="bg-white p-4 rounded-lg shadow-md">
-          <h3 className="text-sm font-semibold text-gray-700 mb-1">
-            Profissionais Ativos
-          </h3>
-          <p className="text-xl font-bold text-blue-600">{profissionaisAtivos}</p>
-        </div>
-      </div>
 
       {/* Filtros */}
       <div className="bg-white p-4 rounded-lg shadow-md mb-4">
@@ -397,11 +378,11 @@ const GerenciarHorariosProfissionais = () => {
       </div>
 
       {/* Tabela de Profissionais */}
-      <div className="bg-white p-4 rounded-lg shadow-md mb-4">
+      <div className="bg-white p-5 rounded-lg shadow-md mb-4">
         {isLoading ? (
-          <p className="text-center text-gray-500 py-2">Carregando...</p>
+          <p className="text-center text-gray-500 py-2 text-sm">Carregando...</p>
         ) : profissionaisOrdenados.length === 0 ? (
-          <p className="text-center text-gray-500 py-2">
+          <p className="text-center text-gray-500 py-2 text-sm">
             Nenhum profissional encontrado.
           </p>
         ) : (
@@ -416,7 +397,7 @@ const GerenciarHorariosProfissionais = () => {
                         onClick={() =>
                           handleSort(["matricula", "nome", "cargo"][index])
                         }
-                        className="px-4 py-2 text-left text-xs font-medium  uppercase tracking-wider cursor-pointer"
+                        className="px-5 py-3 text-left text-sm font-semibold uppercase tracking-wider cursor-pointer"
                       >
                         {header}
                         {sortField ===
@@ -428,7 +409,7 @@ const GerenciarHorariosProfissionais = () => {
                       </th>
                     )
                   )}
-                  <th className="px-4 py-2 text-left text-xs font-medium  uppercase tracking-wider">
+                  <th className="px-5 py-3 text-left text-sm font-semibold uppercase tracking-wider">
                     Ações
                   </th>
                 </tr>
@@ -438,7 +419,7 @@ const GerenciarHorariosProfissionais = () => {
                   <tr>
                     <td
                       colSpan="4"
-                      className="px-4 py-2 text-center text-gray-500 text-sm"
+                      className="px-5 py-3 text-center text-gray-500 text-sm"
                     >
                       Nenhum profissional encontrado.
                     </td>
@@ -449,29 +430,29 @@ const GerenciarHorariosProfissionais = () => {
                       key={prof.matricula}
                       className="hover:bg-gray-100 transition-colors"
                     >
-                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-5 py-3 whitespace-nowrap text-sm text-gray-900">
                         {prof.matricula || "N/A"}
                       </td>
-                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{`${
+                      <td className="px-5 py-3 whitespace-nowrap text-sm text-gray-900">{`${
                         prof.nome
                       } ${prof.sobrenome || ""}`}</td>
-                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-5 py-3 whitespace-nowrap text-sm text-gray-900">
                         {prof.tipoProfissional || "N/A"}
                       </td>
-                      <td className="px-4 py-2 whitespace-nowrap text-sm flex gap-2">
+                      <td className="px-5 py-3 whitespace-nowrap text-sm flex gap-2">
                         <button
                           onClick={() => openViewModal(prof)}
                           className="text-blue-500 hover:text-blue-700"
                           title="Ver Horários"
                         >
-                          <FaEye className="h-4 w-4" />
+                          <FaEye className="h-4.5 w-4.5" />
                         </button>
                         <button
                           onClick={() => openAddModal(prof)}
                           className="text-green-500 hover:text-green-700"
                           title="Adicionar Horário"
                         >
-                          <FaPlus className="h-4 w-4" />
+                          <FaPlus className="h-4.5 w-4.5" />
                         </button>
                       </td>
                     </tr>

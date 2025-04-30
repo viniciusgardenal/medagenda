@@ -4,7 +4,7 @@ const ModalEditObservacao = ({ isOpen, onClose, registro, observacaoEditada, set
     if (!isOpen || !registro) return null;
 
     return (
-        <div className="fixed inset-0 backdrop-blur-sm  flex items-center justify-center z-200">
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-10">
             <div className="relative bg-white w-full max-w-2xl p-8 rounded-2xl shadow-lg">
                 <button
                     onClick={onClose}

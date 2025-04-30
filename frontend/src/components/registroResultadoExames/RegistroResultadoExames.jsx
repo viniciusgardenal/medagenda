@@ -17,36 +17,36 @@ const TableRow = ({ registro, onAdd, onEdit, onView }) => {
 
   return (
     <tr className="hover:bg-gray-100 transition-colors">
-      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{registro.idRegistro}</td>
-      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">
+      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{registro.idRegistro}</td>
+      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
         {registro.solicitacaoExame?.tipoExame.nomeTipoExame || "N/A"}
       </td>
-      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">
+      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
         {new Date(registro.solicitacaoExame.dataSolicitacao).toLocaleDateString("pt-BR")}
       </td>
-      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">
+      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
         {registro.profissional.nome || "N/A"}
       </td>
-      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">
+      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
         {registro.paciente.nome || "N/A"}
       </td>
-      <td className="px-4 py-2 whitespace-nowrap">
+      <td className="px-4 py-3 whitespace-nowrap">
         {resultadoDefinido ? (
-          <span className="inline-flex items-center gap-1 rounded-full bg-green-600 px-2 py-1 text-xs font-semibold text-white shadow">
+          <span className="inline-flex items-center gap-1 rounded-full bg-green-600 px-2 py-1 text-sm font-semibold text-white shadow">
             <FaCheckCircle className="h-4 w-4" />
             Registrado
           </span>
         ) : (
           <button
             onClick={() => onAdd(registro)}
-            className="inline-flex items-center gap-1 rounded-full bg-orange-600 px-2 py-1 text-xs font-semibold text-white shadow hover:bg-orange-700 transition"
+            className="inline-flex items-center gap-1 rounded-full bg-orange-600 px-2 py-1 text-sm font-semibold text-white shadow hover:bg-orange-700 transition"
           >
             <FaPlus className="h-4 w-4" />
             Definir
           </button>
         )}
       </td>
-      <td className="px-4 py-2 whitespace-nowrap flex gap-2">
+      <td className="px-4 py-3 whitespace-nowrap flex gap-2">
         <button
           onClick={() => onEdit(registro)}
           className="text-green-500 hover:text-green-700"
@@ -218,19 +218,12 @@ const RegistroResultadoExames = () => {
     setObservacaoEditada("");
   };
 
-  const handleRefresh = () => {
-    fetchData();
-  };
-
   const examesPendentes = registros.filter(
     (registro) => !registro.observacoes || registro.observacoes.trim() === ""
   ).length;
 
   const examesRegistrados = registros.length - examesPendentes;
 
-  const ultimosResultados = registros
-    .filter((registro) => registro.observacoes && registro.observacoes.trim() !== "")
-    .slice(0, 3);
 
   return (
     <section className="max-w-6xl mx-auto mt-6 px-4 py-6 bg-gray-50 rounded-2xl shadow-lg">
@@ -240,14 +233,6 @@ const RegistroResultadoExames = () => {
           <FaFileMedical className="h-6 w-6" />
           Resultados de Exames
         </h2>
-        <button
-          onClick={handleRefresh}
-          className="flex items-center gap-1 px-3 py-1 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors disabled:opacity-50 text-sm"
-          disabled={isLoading}
-        >
-          <FaSyncAlt className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
-          {isLoading ? "Atualizando..." : "Atualizar"}
-        </button>
       </div>
 
       {/* Mensagem de Erro */}
@@ -317,7 +302,7 @@ const RegistroResultadoExames = () => {
                           ][index]
                         )
                       }
-                      className="px-4 py-2 text-left text-xs font-medium  uppercase tracking-wider cursor-pointer"
+                      className="px-3 py-3 text-left text-sm font-semibold uppercase tracking-wider cursor-pointer"
                     >
                       {header}
                       {sortField ===
@@ -334,10 +319,10 @@ const RegistroResultadoExames = () => {
                       )}
                     </th>
                   ))}
-                  <th className="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider">
+                  <th className="px-3 py-3 text-left text-sm font-semibold uppercase tracking-wider cursor-pointer">
                     Definir Resultado
                   </th>
-                  <th className="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider">
+                  <th className="px-3 py-3 text-left text-sm font-semibold uppercase tracking-wider cursor-pointer">
                     Ações
                   </th>
                 </tr>
@@ -347,7 +332,7 @@ const RegistroResultadoExames = () => {
                   <tr>
                     <td
                       colSpan="7"
-                      className="px-4 py-2 text-center text-gray-500 text-sm"
+                      className="px-4 py-3 text-center text-gray-500 text-sm"
                     >
                       Nenhum registro encontrado.
                     </td>

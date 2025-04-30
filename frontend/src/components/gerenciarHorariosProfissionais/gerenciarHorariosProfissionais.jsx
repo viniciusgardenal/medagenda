@@ -445,14 +445,14 @@ const GerenciarHorariosProfissionais = () => {
                           className="text-blue-500 hover:text-blue-700"
                           title="Ver Horários"
                         >
-                          <FaEye className="h-4.5 w-4.5" />
+                          <FaEye className="h-5 w-5" />
                         </button>
                         <button
                           onClick={() => openAddModal(prof)}
                           className="text-green-500 hover:text-green-700"
                           title="Adicionar Horário"
                         >
-                          <FaPlus className="h-4.5 w-4.5" />
+                          <FaPlus className="h-5 w-5" />
                         </button>
                       </td>
                     </tr>

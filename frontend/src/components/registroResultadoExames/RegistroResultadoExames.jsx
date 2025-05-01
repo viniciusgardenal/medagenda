@@ -75,7 +75,7 @@ const RegistroResultadoExames = () => {
   const [modalViewOpen, setModalViewOpen] = useState(false);
   const [registroSelecionado, setRegistroSelecionado] = useState(null);
   const [observacaoEditada, setObservacaoEditada] = useState("");
-  const [filtros, setFiltros] = useState({ filtroId: "", filtroNome: "" });
+  const [filtros, setFiltros] = useState({ filtroId: "", filtroNome: "", filtroNomeExame: "" });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -106,11 +106,11 @@ const RegistroResultadoExames = () => {
       let valueA, valueB;
       const fieldMap = {
         idRegistro: (item) => item.idRegistro,
-        nomeExame: (item) => item.tiposExames?.nomeTipoExame.toLowerCase(),
+        nomeExame: (item) => item.solicitacaoExame?.tipoExame.nomeTipoExame.toLowerCase() || "",
         dataSolicitacao: (item) =>
           new Date(item.solicitacaoExame.dataSolicitacao),
-        profissional: (item) => item.profissional.nome.toLowerCase(),
-        paciente: (item) => item.paciente.nome.toLowerCase(),
+        profissional: (item) => item.profissional.nome.toLowerCase() || "",
+        paciente: (item) => item.paciente.nome.toLowerCase() || "",
         status: (item) =>
           item.observacoes && item.observacoes.trim() !== ""
             ? "registrado"
@@ -128,10 +128,13 @@ const RegistroResultadoExames = () => {
 
   const handleFiltroChange = (novosFiltros) => {
     setFiltros(novosFiltros);
+    setCurrentPage(1); // Resetar a página ao mudar os filtros
   };
 
   const registrosFiltrados = registros.filter((registro) => {
-    const { filtroId, filtroNome } = filtros;
+    const { filtroId, filtroNome, filtroNomeExame } = filtros;
+
+    // Filtro por ID
     const idMatch = filtroId
       ? String(registro.idRegistro)
           .toLowerCase()
@@ -140,6 +143,8 @@ const RegistroResultadoExames = () => {
           .toLowerCase()
           .includes(filtroId.toLowerCase())
       : true;
+
+    // Filtro por nome (profissional, paciente ou observações)
     const nomeMatch = filtroNome
       ? registro.profissional.nome
           .toLowerCase()
@@ -150,7 +155,15 @@ const RegistroResultadoExames = () => {
         (registro.observacoes &&
           registro.observacoes.toLowerCase().includes(filtroNome.toLowerCase()))
       : true;
-    return idMatch && nomeMatch;
+
+    // Filtro por nome do exame
+    const nomeExameMatch = filtroNomeExame
+      ? registro.solicitacaoExame?.tipoExame.nomeTipoExame
+          .toLowerCase()
+          .includes(filtroNomeExame.toLowerCase())
+      : true;
+
+    return idMatch && nomeMatch && nomeExameMatch;
   });
 
   const registrosOrdenadosFiltrados = sortRegistros(registrosFiltrados);
@@ -224,7 +237,6 @@ const RegistroResultadoExames = () => {
 
   const examesRegistrados = registros.length - examesPendentes;
 
-
   return (
     <section className="max-w-6xl mx-auto mt-6 px-4 py-6 bg-gray-50 rounded-2xl shadow-lg">
       {/* Cabeçalho */}
@@ -280,7 +292,7 @@ const RegistroResultadoExames = () => {
         ) : (
           <div className="overflow-x-auto rounded-lg">
             <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-blue-600 text-white ">
+              <thead className="bg-blue-600 text-white">
                 <tr>
                   {[
                     "ID Registro",

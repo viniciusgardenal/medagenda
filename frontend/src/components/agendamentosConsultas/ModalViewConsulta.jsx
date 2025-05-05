@@ -36,7 +36,7 @@ const ModalViewConsulta = ({
               Tipo de Consulta:
             </label>
             <p className="text-sm text-gray-600">
-              {consulta.tipoConsulta.nome}
+              {consulta.idTipoConsulta.nome}
             </p>
           </div>
           <div>

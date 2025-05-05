@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useAuthContext } from "../../context/authContext";
 import {
   getPacientes,
   getProfissionais,
@@ -35,7 +36,7 @@ const TableRow = ({ consulta, onView, onCancel, formatarDataHoraBR }) => {
           title="Visualizar Consulta"
         >
           <svg
-            xmlns="[invalid url, do not cite]"
+            xmlns="http://www.w3.org/2000/svg"
             className="h-5 w-5"
             fill="none"
             viewBox="0 0 24 24"
@@ -62,7 +63,7 @@ const TableRow = ({ consulta, onView, onCancel, formatarDataHoraBR }) => {
             title="Cancelar Consulta"
           >
             <svg
-              xmlns="[invalid url, do not cite]"
+              xmlns="http://www.w3.org/2000/svg"
               className="h-5 w-5"
               fill="none"
               viewBox="0 0 24 24"
@@ -82,46 +83,91 @@ const TableRow = ({ consulta, onView, onCancel, formatarDataHoraBR }) => {
   );
 };
 
-const AgendamentoConsulta = () => {
-  const [consultas, setConsultas] = useState([]);
-  const [pacientes, setPacientes] = useState([]);
-  const [medicos, setMedicos] = useState([]);
-  const [tiposConsulta, setTiposConsulta] = useState([]);
-  const [modalAddOpen, setModalAddOpen] = useState(false);
-  const [modalViewOpen, setModalViewOpen] = useState(false);
-  const [consultaSelecionada, setConsultaSelecionada] = useState(null);
-  const [dadosConsulta, setDadosConsulta] = useState({
-    pacienteId: "",
-    medicoId: "",
-    idTipoConsulta: "",
-    dataConsulta: "",
-    horaConsulta: "",
-    motivo: "",
-    responsavelAgendamento: "",
-  });
-  const [filtros, setFiltros] = useState({
-    filtroNome: "",
-    filtroData: new Date().toISOString().split("T")[0],
-  });
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(8);
-  const [sortField, setSortField] = useState("nome");
-  const [sortDirection, setSortDirection] = useState("asc");
+// Componente para os filtros de busca e data
+const FilterSection = ({ filtros, setFiltros }) => (
+  <div className="flex gap-4">
+    <div className="flex-1">
+      <label className="block text-sm font-semibold text-gray-700 mb-1">
+        Busca por Nome
+      </label>
+      <input
+        type="text"
+        placeholder="Digite o nome do paciente ou médico..."
+        className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+        value={filtros.filtroNome}
+        onChange={(e) => setFiltros({ ...filtros, filtroNome: e.target.value })}
+      />
+    </div>
+    <div className="flex-1">
+      <label className="block text-sm font-semibold text-gray-700 mb-1">
+        Data da Consulta
+      </label>
+      <input
+        type="date"
+        className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+        value={filtros.filtroData}
+        onChange={(e) => setFiltros({ ...filtros, filtroData: e.target.value })}
+      />
+    </div>
+  </div>
+);
 
-  const formatarDataHoraBR = (data, hora) => {
-    if (!data || !hora) return "";
-    try {
-      const [ano, mes, dia] = data.split("-");
-      const dataBR = `${dia}/${mes}/${ano}`;
-      const horaBR = hora.split(":").slice(0, 2).join(":");
-      return `${dataBR} - ${horaBR}`;
-    } catch (error) {
-      return `${data} - ${hora}`;
-    }
-  };
+// Componente para o cabeçalho com botões de ação
+const HeaderSection = ({ openAddModal, isLoading, toggleStatus, status }) => (
+  <div className="border-b pb-4 flex justify-between items-center">
+    <h2 className="text-3xl font-bold text-blue-600">
+      Agendamento de Consultas
+    </h2>
+    <div className="flex gap-3">
+      <button
+        onClick={toggleStatus}
+        className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-white shadow transition bg-gray-600 hover:bg-gray-700"
+      >
+        {status === "agendada" ? "Ver Canceladas" : "Ver Agendadas"}
+      </button>
+      <button
+        onClick={openAddModal}
+        disabled={isLoading}
+        className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-white shadow transition ${
+          isLoading
+            ? "bg-gray-400 cursor-not-allowed"
+            : "bg-blue-600 hover:bg-blue-700"
+        }`}
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-4 w-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M12 4v16m8-8H4"
+          />
+        </svg>
+        Nova Consulta
+      </button>
+    </div>
+  </div>
+);
 
+// Componente para a tabela e paginação
+const ConsultaTable = ({
+  consultas,
+  isLoading,
+  formatarDataHoraBR,
+  openViewModal,
+  handleCancelConsulta,
+  sortField,
+  sortDirection,
+  handleSort,
+  currentPage,
+  setCurrentPage,
+  itemsPerPage,
+}) => {
   const sortConsultas = (consultas) => {
     return [...consultas].sort((a, b) => {
       let valueA, valueB;
@@ -138,6 +184,147 @@ const AgendamentoConsulta = () => {
       const direction = sortDirection === "asc" ? 1 : -1;
       return valueA > valueB ? direction : -direction;
     });
+  };
+
+  const consultasOrdenadas = sortConsultas(consultas);
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentConsultas = consultasOrdenadas.slice(
+    indexOfFirstItem,
+    indexOfLastItem
+  );
+
+  return (
+    <>
+      {isLoading ? (
+        <div className="text-center py-4">
+          <p className="text-sm text-gray-500">Carregando consultas...</p>
+        </div>
+      ) : (
+        <div className="overflow-x-auto rounded-lg shadow-md">
+          <table className="min-w-full divide-y divide-gray-200 bg-white">
+            <thead className="bg-blue-600 text-white">
+              <tr>
+                {[
+                  "Paciente",
+                  "Médico",
+                  "Tipo de Consulta",
+                  "Data - Hora",
+                  "Motivo",
+                  "Ações",
+                ].map((header, index) => (
+                  <th
+                    key={header}
+                    onClick={() =>
+                      ["nome", "medico", "tipo", "horario", "motivo"][index] &&
+                      handleSort(
+                        ["nome", "medico", "tipo", "horario", "motivo"][index]
+                      )
+                    }
+                    className={`px-4 py-3 text-left text-sm font-semibold cursor-pointer ${
+                      index === 0 ? "rounded-tl-lg" : ""
+                    } ${index === 5 ? "rounded-tr-lg" : ""} ${
+                      ["nome", "medico", "tipo", "horario", "motivo"].includes(
+                        sortField
+                      ) &&
+                      sortField ===
+                        ["nome", "medico", "tipo", "horario", "motivo"][index]
+                        ? "bg-blue-700"
+                        : ""
+                    }`}
+                  >
+                    {header}
+                    {sortField ===
+                      ["nome", "medico", "tipo", "horario", "motivo"][
+                        index
+                      ] && (
+                      <span className="ml-1">
+                        {sortDirection === "asc" ? "↑" : "↓"}
+                      </span>
+                    )}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {currentConsultas.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan="6"
+                    className="px-4 py-4 text-center text-gray-500"
+                  >
+                    Nenhuma consulta encontrada.
+                  </td>
+                </tr>
+              ) : (
+                currentConsultas.map((consulta) => (
+                  <TableRow
+                    key={consulta.id}
+                    consulta={consulta}
+                    onView={openViewModal}
+                    onCancel={handleCancelConsulta}
+                    formatarDataHoraBR={formatarDataHoraBR}
+                  />
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
+      {consultasOrdenadas.length > 0 && (
+        <Pagination
+          totalItems={consultasOrdenadas.length}
+          itemsPerPage={itemsPerPage}
+          currentPage={currentPage}
+          onPageChange={(pageNumber) => setCurrentPage(pageNumber)}
+          maxPageButtons={5}
+        />
+      )}
+    </>
+  );
+};
+
+const AgendamentoConsulta = () => {
+  const { user } = useAuthContext();
+  const [consultas, setConsultas] = useState([]);
+  const [pacientes, setPacientes] = useState([]);
+  const [medicos, setMedicos] = useState([]);
+  const [tiposConsulta, setTiposConsulta] = useState([]);
+  const [modalAddOpen, setModalAddOpen] = useState(false);
+  const [modalViewOpen, setModalViewOpen] = useState(false);
+  const [consultaSelecionada, setConsultaSelecionada] = useState(null);
+  const [dadosConsulta, setDadosConsulta] = useState({
+    cpfPaciente: "",
+    medicoId: "",
+    idTipoConsulta: "",
+    dataConsulta: "",
+    horaConsulta: "",
+    motivo: "",
+    responsavelAgendamento: "",
+    prioridade: "",
+  });
+  const [filtros, setFiltros] = useState({
+    filtroNome: "",
+    filtroData: new Date().toISOString().split("T")[0],
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(8);
+  const [sortField, setSortField] = useState("nome");
+  const [sortDirection, setSortDirection] = useState("asc");
+  const [status, setStatus] = useState("agendada"); // Novo estado para controlar o status
+
+  const formatarDataHoraBR = (data, hora) => {
+    if (!data || !hora) return "";
+    try {
+      const [ano, mes, dia] = data.split("-");
+      const dataBR = `${dia}/${mes}/${ano}`;
+      const horaBR = hora.split(":").slice(0, 2).join(":");
+      return `${dataBR} - ${horaBR}`;
+    } catch (error) {
+      return `${data} - ${hora}`;
+    }
   };
 
   useEffect(() => {
@@ -157,9 +344,7 @@ const AgendamentoConsulta = () => {
           getTipoConsulta(),
         ]);
 
-        setConsultas(
-          consultasResponse.data.filter((c) => c.status === "agendada")
-        );
+        setConsultas(consultasResponse.data.filter((c) => c.status === status));
         setPacientes(pacientesResponse.data);
         setMedicos(medicosResponse.data);
         setTiposConsulta(tiposConsultaResponse.data);
@@ -173,7 +358,7 @@ const AgendamentoConsulta = () => {
       }
     };
     fetchData();
-  }, [filtros.filtroData]);
+  }, [filtros.filtroData, status]);
 
   const consultasFiltradas = consultas.filter((consulta) => {
     const { filtroNome } = filtros;
@@ -192,18 +377,6 @@ const AgendamentoConsulta = () => {
     );
   });
 
-  const consultasOrdenadasFiltradas = sortConsultas(consultasFiltradas);
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentConsultas = consultasOrdenadasFiltradas.slice(
-    indexOfFirstItem,
-    indexOfLastItem
-  );
-
-  const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
-  };
-
   const handleSalvarConsulta = async () => {
     setError(null);
     try {
@@ -212,16 +385,19 @@ const AgendamentoConsulta = () => {
         status: "agendada",
       };
       const response = await agendarConsulta(consultaData);
-      setConsultas([...consultas, response.data]);
+      if (status === "agendada") {
+        setConsultas([...consultas, response.data]);
+      }
       setModalAddOpen(false);
       setDadosConsulta({
-        pacienteId: "",
+        cpfPaciente: "",
         medicoId: "",
         idTipoConsulta: "",
         dataConsulta: "",
         horaConsulta: "",
         motivo: "",
-        responsavelAgendamento: "",
+        responsavelAgendamento: user?.nome,
+        prioridade: 1,
       });
     } catch (error) {
       console.error("Erro ao salvar consulta:", error);
@@ -231,13 +407,14 @@ const AgendamentoConsulta = () => {
 
   const openAddModal = () => {
     setDadosConsulta({
-      pacienteId: "",
+      cpfPaciente: "",
       medicoId: "",
       idTipoConsulta: "",
       dataConsulta: "",
       horaConsulta: "",
       motivo: "",
-      responsavelAgendamento: "",
+      responsavelAgendamento: user?.nome,
+      prioridade: 1,
     });
     setModalAddOpen(true);
   };
@@ -250,7 +427,6 @@ const AgendamentoConsulta = () => {
   const handleCancelConsulta = async (consulta) => {
     setError(null);
     try {
-      // Simula chamada à API para cancelar consulta
       const updatedConsulta = { ...consulta, status: "cancelada" };
       setConsultas(
         consultas.map((c) => (c.id === consulta.id ? updatedConsulta : c))
@@ -277,39 +453,20 @@ const AgendamentoConsulta = () => {
     setCurrentPage(1);
   };
 
+  const toggleStatus = () => {
+    setStatus(status === "agendada" ? "cancelada" : "agendada");
+    setCurrentPage(1);
+  };
+
   return (
     <div className="min-h-screen bg-gray-200 backdrop-blur-sm p-6">
       <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-md p-6 space-y-6">
-        <div className="border-b pb-4 flex justify-between items-center">
-          <h2 className="text-3xl font-bold text-blue-600">
-            Agendamento de Consultas
-          </h2>
-          <button
-            onClick={openAddModal}
-            disabled={isLoading}
-            className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-white shadow transition ${
-              isLoading
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-700"
-            }`}
-          >
-            <svg
-              xmlns="[invalid url, do not cite]"
-              className="h-4 w-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 4v16m8-8H4"
-              />
-            </svg>
-            Nova Consulta
-          </button>
-        </div>
+        <HeaderSection
+          openAddModal={openAddModal}
+          isLoading={isLoading}
+          toggleStatus={toggleStatus}
+          status={status}
+        />
 
         {error && (
           <div className="p-4 text-sm text-red-700 bg-red-100 rounded-lg border border-red-300">
@@ -317,127 +474,21 @@ const AgendamentoConsulta = () => {
           </div>
         )}
 
-        <div className="flex gap-4">
-          <div className="flex-1">
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
-              Busca por Nome
-            </label>
-            <input
-              type="text"
-              placeholder="Digite o nome do paciente ou médico..."
-              className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-              value={filtros.filtroNome}
-              onChange={(e) =>
-                setFiltros({ ...filtros, filtroNome: e.target.value })
-              }
-            />
-          </div>
-          <div className="flex-1">
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
-              Data da Consulta
-            </label>
-            <input
-              type="date"
-              className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-              value={filtros.filtroData}
-              onChange={(e) =>
-                setFiltros({ ...filtros, filtroData: e.target.value })
-              }
-            />
-          </div>
-        </div>
+        <FilterSection filtros={filtros} setFiltros={setFiltros} />
 
-        {isLoading ? (
-          <div className="text-center py-4">
-            <p className="text-sm text-gray-500">Carregando consultas...</p>
-          </div>
-        ) : (
-          <div className="overflow-x-auto rounded-lg shadow-md">
-            <table className="min-w-full divide-y divide-gray-200 bg-white">
-              <thead className="bg-blue-600 text-white">
-                <tr>
-                  {[
-                    "Paciente",
-                    "Médico",
-                    "Tipo de Consulta",
-                    "Data - Hora",
-                    "Motivo",
-                    "Ações",
-                  ].map((header, index) => (
-                    <th
-                      key={header}
-                      onClick={() =>
-                        ["nome", "medico", "tipo", "horario", "motivo"][
-                          index
-                        ] &&
-                        handleSort(
-                          ["nome", "medico", "tipo", "horario", "motivo"][index]
-                        )
-                      }
-                      className={`px-4 py-3 text-left text-sm font-semibold cursor-pointer ${
-                        index === 0 ? "rounded-tl-lg" : ""
-                      } ${index === 5 ? "rounded-tr-lg" : ""} ${
-                        [
-                          "nome",
-                          "medico",
-                          "tipo",
-                          "horario",
-                          "motivo",
-                        ].includes(sortField) &&
-                        sortField ===
-                          ["nome", "medico", "tipo", "horario", "motivo"][index]
-                          ? "bg-blue-700"
-                          : ""
-                      }`}
-                    >
-                      {header}
-                      {sortField ===
-                        ["nome", "medico", "tipo", "horario", "motivo"][
-                          index
-                        ] && (
-                        <span className="ml-1">
-                          {sortDirection === "asc" ? "↑" : "↓"}
-                        </span>
-                      )}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {currentConsultas.length === 0 ? (
-                  <tr>
-                    <td
-                      colSpan="6"
-                      className="px-4 py-4 text-center text-gray-500"
-                    >
-                      Nenhuma consulta agendada para esta data.
-                    </td>
-                  </tr>
-                ) : (
-                  currentConsultas.map((consulta) => (
-                    <TableRow
-                      key={consulta.id}
-                      consulta={consulta}
-                      onView={openViewModal}
-                      onCancel={handleCancelConsulta}
-                      formatarDataHoraBR={formatarDataHoraBR}
-                    />
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        {consultasOrdenadasFiltradas.length > 0 && (
-          <Pagination
-            totalItems={consultasOrdenadasFiltradas.length}
-            itemsPerPage={itemsPerPage}
-            currentPage={currentPage}
-            onPageChange={handlePageChange}
-            maxPageButtons={5}
-          />
-        )}
+        <ConsultaTable
+          consultas={consultasFiltradas}
+          isLoading={isLoading}
+          formatarDataHoraBR={formatarDataHoraBR}
+          openViewModal={openViewModal}
+          handleCancelConsulta={handleCancelConsulta}
+          sortField={sortField}
+          sortDirection={sortDirection}
+          handleSort={handleSort}
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+          itemsPerPage={itemsPerPage}
+        />
 
         {modalAddOpen && (
           <ModalAddConsulta

@@ -11,7 +11,6 @@ const BUTTON_CLASSES = {
     "px-4 py-2 text-sm font-semibold text-white bg-gray-400 rounded-md cursor-not-allowed",
 };
 
-// Componente reutilizável para campos de input
 const InputField = ({
   label,
   name,
@@ -19,19 +18,28 @@ const InputField = ({
   onChange,
   type = "text",
   required = false,
-}) => (
-  <div className="space-y-1">
-    <label className="block text-sm font-semibold text-gray-700">{label}</label>
-    <input
-      type={type}
-      name={name}
-      value={value}
-      onChange={onChange}
-      className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-      required={required}
-    />
-  </div>
-);
+  disabled,
+  hidden,
+}) => {
+  if (hidden) return null; // não renderiza nada se hidden for true
+
+  return (
+    <div className="space-y-1">
+      <label className="block text-sm font-semibold text-gray-700">
+        {label}
+      </label>
+      <input
+        type={type}
+        name={name}
+        value={value}
+        onChange={onChange}
+        className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+        required={required}
+        disabled={disabled}
+      />
+    </div>
+  );
+};
 
 // Componente reutilizável para campos de select
 const SelectField = ({
@@ -103,13 +111,13 @@ const StepPaciente = ({
         options={pacienteOptions}
         value={
           pacienteOptions.find(
-            (option) => option.value === dadosConsulta.pacienteId
+            (option) => option.value === dadosConsulta.cpfPaciente
           ) || null
         }
         onChange={(selected) =>
           setDadosConsulta({
             ...dadosConsulta,
-            pacienteId: selected ? selected.value : "",
+            cpfPaciente: selected ? selected.value : "",
           })
         }
         placeholder="Digite o nome ou CPF do paciente..."
@@ -225,14 +233,16 @@ const StepAgendamento = ({
         value={dadosConsulta.responsavelAgendamento}
         onChange={handleChange}
         required
+        disabled
       />
       <InputField
         label="Prioridade (0 a 5)"
         name="prioridade"
-        value={dadosConsulta.prioridade}
+        value={1}
         onChange={handleChange}
         type="number"
         required
+        hidden={true}
       />
     </div>
   );
@@ -246,11 +256,25 @@ const StepResumo = ({
   tiposConsulta,
   goToStep,
 }) => {
-  const paciente = pacientes.find((p) => p.cpf === dadosConsulta.pacienteId);
+  const paciente = pacientes.find((p) => p.cpf === dadosConsulta.cpfPaciente);
   const medico = medicos.find((m) => m.matricula === dadosConsulta.medicoId);
   const tipoConsulta = tiposConsulta.find(
     (t) => t.idTipoConsulta == dadosConsulta.idTipoConsulta
   );
+
+  const formatarDataHoraBR = (data, hora) => {
+    if (!data || !hora) return "";
+    try {
+      const [ano, mes, dia] = data.split("-");
+      const dataBR = `${dia}/${mes}/${ano}`;
+      const horaBR = hora.split(":").slice(0, 2).join(":");
+      return `${dataBR} - ${horaBR}`;
+    } catch (error) {
+      return `${data} - ${hora}`;
+    }
+  };
+
+  console.log(dadosConsulta.dataConsulta, dadosConsulta.horaConsulta);
 
   const fields = [
     {
@@ -262,7 +286,7 @@ const StepResumo = ({
     },
     {
       label: "Médico",
-      value: medico ? `${medico.nome} ${medico.sobrenome}` : "Não selecionado",
+      value: medico ? `${medico.nome} ${medico.crm}` : "Não selecionado",
       step: 2,
     },
     {
@@ -273,11 +297,10 @@ const StepResumo = ({
     {
       label: "Data e Hora",
       value:
-        dadosConsulta.dataConsulta && dadosConsulta.horaConsulta
-          ? `${new Date(dadosConsulta.dataConsulta).toLocaleDateString(
-              "pt-BR"
-            )} - ${dadosConsulta.horaConsulta}`
-          : "Não informado",
+        formatarDataHoraBR(
+          dadosConsulta.dataConsulta,
+          dadosConsulta.horaConsulta
+        ) || "Não informado",
       step: 3,
     },
     {
@@ -290,7 +313,7 @@ const StepResumo = ({
       value: dadosConsulta.responsavelAgendamento || "Não informado",
       step: 3,
     },
-    { label: "Prioridade", value: dadosConsulta.prioridade || "0", step: 3 },
+    // { label: "Prioridade", value: dadosConsulta.prioridade || "0", step: 3 },
   ];
 
   return (
@@ -449,7 +472,7 @@ const ModalAddConsulta = ({
     {
       title: "Paciente",
       component: StepPaciente,
-      requiredFields: ["pacienteId"],
+      requiredFields: ["cpfPaciente"],
     },
     { title: "Médico", component: StepMedico, requiredFields: ["medicoId"] },
     {
@@ -478,10 +501,10 @@ const ModalAddConsulta = ({
   const handleCadastrarPaciente = async () => {
     try {
       // Simula chamada à API (substitua pela chamada real)
-      const pacienteId = `temp_${Date.now()}`; // ID temporário
-      const pacienteCadastrado = { id: pacienteId, ...novoPaciente };
+      const cpfPaciente = `temp_${Date.now()}`; // ID temporário
+      const pacienteCadastrado = { id: cpfPaciente, ...novoPaciente };
       pacientes.push(pacienteCadastrado); // Atualiza lista local (simulação)
-      setDadosConsulta({ ...dadosConsulta, pacienteId: novoPaciente.cpf });
+      setDadosConsulta({ ...dadosConsulta, cpfPaciente: novoPaciente.cpf });
       setIsCadastroPacienteOpen(false);
       setNovoPaciente({
         nome: "",

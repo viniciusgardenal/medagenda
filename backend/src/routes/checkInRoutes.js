@@ -1,15 +1,28 @@
 const express = require("express");
 const router = express.Router();
 const checkInController = require("../controller/checkInController");
+const checkpermissao = require("../middlewares/checarPermissao");
 
 // Rota para realizar check-in
-router.post("/checkin", checkInController.realizarCheckIn);
+router.post(
+  "/checkin",
+  checkpermissao("consultar"),
+  checkInController.realizarCheckIn
+);
 
 // Rota para listar fila de atendimento
-router.get("/getCheckIn", checkInController.getCheckIn);
+router.get(
+  "/getCheckIn",
+  checkpermissao("consultar"),
+  checkInController.getCheckIn
+);
 
 // Rota para chamar próximo paciente
-router.get('/checkIn/consulta/:consultaId', checkInController.getCheckInConsultas);
+router.get(
+  "/checkIn/consulta/:consultaId",
+  checkpermissao("consultar"),
+  checkInController.getCheckInConsultas
+);
 
 // // Rota para finalizar atendimento
 // router.put('/:checkInId/finalizar', checkInController.finalizarAtendimento);

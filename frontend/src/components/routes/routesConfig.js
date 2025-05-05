@@ -95,11 +95,11 @@ const routes = [
     rolesPermitidos: ["Diretor", "Médico"],
   },
   {
-    path: "/agendar-consultas",
+    path: "/consultas",
     element: <AgendamentoConsulta />,
     protected: true,
     permissao: "consultar",
-    rolesPermitidos: ["Diretor", "Médico"],
+    rolesPermitidos: ["Diretor", "Médico", "Atendente"],
   },
 
   {
@@ -107,7 +107,7 @@ const routes = [
     element: <CheckInPacientes />,
     protected: true,
     permissao: "consultar",
-    rolesPermitidos: ["Diretor", "Médico"],
+    rolesPermitidos: ["Diretor", "Médico", "Atendente"],
   },
   {
     path: "/horarios-profissionais",

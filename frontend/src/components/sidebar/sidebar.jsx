@@ -282,7 +282,7 @@ const Sidebar = () => {
               />
             </svg>
           ),
-          path: "/agendar-consultas",
+          path: "/consultas",
           roles: ["Diretor", "Médico", "Atendente"],
         },
       ],

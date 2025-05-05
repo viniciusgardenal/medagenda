@@ -11,7 +11,7 @@ const criarConsulta = async (req, res) => {
 
     // Extrair e validar campos obrigatórios
     const {
-      pacienteId,
+      cpfPaciente,
       medicoId,
       idTipoConsulta,
       dataConsulta,
@@ -23,7 +23,7 @@ const criarConsulta = async (req, res) => {
     } = req.body;
 
     if (
-      !pacienteId ||
+      !cpfPaciente ||
       !medicoId ||
       !idTipoConsulta ||
       !dataConsulta ||
@@ -33,13 +33,13 @@ const criarConsulta = async (req, res) => {
     ) {
       return res.status(400).json({
         error:
-          "Campos obrigatórios faltando: pacienteId, medicoId, idTipoConsulta, dataConsulta, horaConsulta, motivo, responsavelAgendamento.",
+          "Campos obrigatórios faltando: cpfPaciente, medicoId, idTipoConsulta, dataConsulta, horaConsulta, motivo, responsavelAgendamento.",
       });
     }
 
     // Validar chaves estrangeiras
     const [paciente, medico, ttipoConsulta] = await Promise.all([
-      Paciente.findByPk(pacienteId),
+      Paciente.findByPk(cpfPaciente),
       Profissional.findByPk(medicoId),
       tipoConsulta.findByPk(idTipoConsulta),
     ]);
@@ -58,7 +58,7 @@ const criarConsulta = async (req, res) => {
 
     // Criar a consulta
     const novaConsulta = await Consulta.create({
-      pacienteId,
+      cpfPaciente,
       medicoId,
       idTipoConsulta,
       dataConsulta,
@@ -99,7 +99,7 @@ const criarConsulta = async (req, res) => {
     if (error.name === "SequelizeForeignKeyConstraintError") {
       return res.status(400).json({
         error:
-          "Chave estrangeira inválida. Verifique pacienteId, medicoId ou idTipoConsulta.",
+          "Chave estrangeira inválida. Verifique cpfPaciente, medicoId ou idTipoConsulta.",
       });
     }
     if (error.name === "SequelizeValidationError") {

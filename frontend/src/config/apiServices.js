@@ -256,5 +256,7 @@ export const getHorarioId = async (id) => {
 //Agendar Consultas
 
 export const agendarConsulta = async (dadosConsulta) => {
-  return await api.post(`${apiUrl}/consulta`, dadosConsulta);
+  console.log(dadosConsulta);
+
+  return await api.post(`${apiUrl}/consultas`, dadosConsulta);
 };

@@ -256,7 +256,12 @@ export const getHorarioId = async (id) => {
 //Agendar Consultas
 
 export const agendarConsulta = async (dadosConsulta) => {
-  console.log(dadosConsulta);
-
   return await api.post(`${apiUrl}/consultas`, dadosConsulta);
+};
+
+// Buscar consultas por data e matrícula do médico
+export const getConsultasPorDataEMedico = async (data, matricula) => {
+  return await api.get(`${apiUrl}/consultas`, {
+    params: { dataConsulta: data, medicoId: matricula },
+  });
 };

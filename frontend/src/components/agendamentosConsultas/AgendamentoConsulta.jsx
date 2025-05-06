@@ -88,11 +88,11 @@ const FilterSection = ({ filtros, setFiltros }) => (
   <div className="flex gap-4">
     <div className="flex-1">
       <label className="block text-sm font-semibold text-gray-700 mb-1">
-        Busca por Nome
+        Buscar
       </label>
       <input
         type="text"
-        placeholder="Digite o nome do paciente ou médico..."
+        placeholder="Paciente, Médico, Tipo de Consulta, Data - Hora, Motivo"
         className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
         value={filtros.filtroNome}
         onChange={(e) => setFiltros({ ...filtros, filtroNome: e.target.value })}
@@ -169,13 +169,15 @@ const ConsultaTable = ({
   itemsPerPage,
 }) => {
   const sortConsultas = (consultas) => {
+    // console.log("consultas", consultas);
+
     return [...consultas].sort((a, b) => {
       let valueA, valueB;
       const fieldMap = {
         nome: (item) => item.paciente.nome.toLowerCase(),
         medico: (item) =>
           `${item.medico.nome} ${item.medico.sobrenome}`.toLowerCase(),
-        tipo: (item) => item.tipoConsulta.nome.toLowerCase(),
+        tipo: (item) => item.tipoConsulta.nomeTipoConsulta.toLowerCase(),
         horario: (item) => item.horaConsulta,
         motivo: (item) => item.motivo.toLowerCase(),
       };
@@ -369,7 +371,9 @@ const AgendamentoConsulta = () => {
       `${consulta.medico.nome} ${consulta.medico.sobrenome}`
         .toLowerCase()
         .includes(termoBusca) ||
-      consulta.tipoConsulta.nome.toLowerCase().includes(termoBusca) ||
+      consulta.tipoConsulta.nomeTipoConsulta
+        .toLowerCase()
+        .includes(termoBusca) ||
       formatarDataHoraBR(consulta.dataConsulta, consulta.horaConsulta)
         .toLowerCase()
         .includes(termoBusca) ||

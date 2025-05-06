@@ -5,7 +5,43 @@ import ModalEditCheckIn from "./ModalEditCheckIn";
 import ModalViewCheckIn from "./ModalViewCheckIn";
 import Pagination from "../util/Pagination";
 
-// Componente para cada linha da tabela
+// Novo componente para os filtros de busca
+const SearchFilter = ({
+  filtroNome,
+  filtroData,
+  onFiltroNomeChange,
+  onFiltroDataChange,
+}) => {
+  return (
+    <div className="flex gap-4">
+      <div className="flex-1">
+        <label className="block text-sm font-semibold text-gray-700 mb-1">
+          Busca Geral
+        </label>
+        <input
+          type="text"
+          placeholder="Digite nome, médico, horário, prioridade ou status..."
+          className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+          value={filtroNome}
+          onChange={(e) => onFiltroNomeChange(e.target.value)}
+        />
+      </div>
+      <div className="flex-1">
+        <label className="block text-sm font-semibold text-gray-700 mb-1">
+          Data da Consulta
+        </label>
+        <input
+          type="date"
+          className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+          value={filtroData}
+          onChange={(e) => onFiltroDataChange(e.target.value)}
+        />
+      </div>
+    </div>
+  );
+};
+
+// Componente para cada linha da tabela (mantido inalterado)
 const TableRow = ({
   consulta,
   onAdd,
@@ -14,8 +50,6 @@ const TableRow = ({
   getPrioridadeLegenda,
   formatarDataHoraBR,
 }) => {
-  // console.log(consulta);
-
   const checkInRealizado =
     consulta.checkin && consulta.checkin.status === "registrado";
   return (
@@ -192,7 +226,7 @@ const CheckInPacientes = () => {
       const fieldMap = {
         nome: (item) => item.paciente.nome.toLowerCase(),
         medico: (item) =>
-          `${item.profissionais.nome} ${item.profissionais.sobrenome}`.toLowerCase(),
+          `${item.medico.nome} ${item.medico.crm}`.toLowerCase(),
         horario: (item) => item.horaConsulta,
         prioridade: (item) =>
           item.checkin ? item.checkin.prioridade : item.prioridade || 0,
@@ -214,8 +248,6 @@ const CheckInPacientes = () => {
       setError(null);
       try {
         const consultasResponse = await getConsultasPorData(filtros.filtroData);
-        // console.log(consultasResponse.data);
-
         const consultasDoDia = consultasResponse.data.filter((consulta) => {
           const agora = new Date();
           const dataConsulta = new Date(
@@ -240,13 +272,19 @@ const CheckInPacientes = () => {
     if (!filtroNome) return true;
     const termoBusca = filtroNome.toLowerCase();
     return (
-      consulta.paciente.nome.toLowerCase().includes(termoBusca) ||
-      `${consulta.profissionais.nome} ${consulta.profissionais.sobrenome}`
+      // Busca por nome do paciente
+      `${consulta.paciente.nome} ${consulta.paciente.sobrenome}`
         .toLowerCase()
         .includes(termoBusca) ||
+      // Busca por nome do médico ou CRM
+      `${consulta.medico.nome} ${consulta.medico.crm}`
+        .toLowerCase()
+        .includes(termoBusca) ||
+      // Busca por horário
       formatarDataHoraBR(consulta.dataConsulta, consulta.horaConsulta)
         .toLowerCase()
         .includes(termoBusca) ||
+      // Busca por prioridade
       getPrioridadeLegenda(
         consulta.checkin
           ? consulta.checkin.prioridade
@@ -254,10 +292,13 @@ const CheckInPacientes = () => {
       )
         .toLowerCase()
         .includes(termoBusca) ||
+      // Busca por status
       (consulta.checkin && consulta.checkin.status === "registrado"
         ? "chegada confirmada"
         : "registrar chegada"
-      ).includes(termoBusca)
+      )
+        .toLowerCase()
+        .includes(termoBusca)
     );
   });
 
@@ -279,7 +320,7 @@ const CheckInPacientes = () => {
       const checkInData = {
         ...dadosCheckIn,
         consultaId: consultaSelecionada.id,
-        profissionalId: 3,
+        matriculaProfissional: 3,
         horaChegada: new Date(),
         status: "registrado",
       };
@@ -378,35 +419,16 @@ const CheckInPacientes = () => {
           </div>
         )}
 
-        <div className="flex gap-4">
-          <div className="flex-1">
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
-              Busca por Nome
-            </label>
-            <input
-              type="text"
-              placeholder="Digite o nome do paciente ou médico..."
-              className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-              value={filtros.filtroNome}
-              onChange={(e) =>
-                setFiltros({ ...filtros, filtroNome: e.target.value })
-              }
-            />
-          </div>
-          <div className="flex-1">
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
-              Data da Consulta
-            </label>
-            <input
-              type="date"
-              className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-              value={filtros.filtroData}
-              onChange={(e) =>
-                setFiltros({ ...filtros, filtroData: e.target.value })
-              }
-            />
-          </div>
-        </div>
+        <SearchFilter
+          filtroNome={filtros.filtroNome}
+          filtroData={filtros.filtroData}
+          onFiltroNomeChange={(value) =>
+            setFiltros({ ...filtros, filtroNome: value })
+          }
+          onFiltroDataChange={(value) =>
+            setFiltros({ ...filtros, filtroData: value })
+          }
+        />
 
         {isLoading ? (
           <div className="text-center py-4">

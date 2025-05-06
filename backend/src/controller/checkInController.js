@@ -11,7 +11,7 @@ exports.realizarCheckIn = async (req, res) => {
       altura,
       observacoes,
       prioridade,
-      profissionalId,
+      matriculaProfissional,
       status,
     } = req.body;
 
@@ -25,7 +25,7 @@ exports.realizarCheckIn = async (req, res) => {
       observacoes,
       prioridade,
       status,
-      profissionalId,
+      matriculaProfissional,
     });
 
     res.status(201).json({

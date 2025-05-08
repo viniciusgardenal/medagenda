@@ -1,0 +1,205 @@
+import React, { useState, useEffect } from "react";
+
+const ModalEditObito = ({ isOpen, onClose, onSubmit, obito, pacientes, profissionais, isSaving }) => {
+  const [formData, setFormData] = useState({
+    cpfPaciente: "",
+    matriculaProfissional: "",
+    dataObito: "",
+    causaObito: "",
+    localObito: "",
+    numeroAtestadoObito: "",
+    observacoes: "",
+    status: "Ativo",
+  });
+
+  useEffect(() => {
+    if (obito) {
+      setFormData({
+        cpfPaciente: obito.cpfPaciente || "",
+        matriculaProfissional: obito.matriculaProfissional || "",
+        dataObito: obito.dataObito ? new Date(obito.dataObito).toISOString().slice(0, 16) : "",
+        causaObito: obito.causaObito || "",
+        localObito: obito.localObito || "",
+        numeroAtestadoObito: obito.numeroAtestadoObito || "",
+        observacoes: obito.observacoes || "",
+        status: obito.status || "Ativo",
+      });
+    }
+  }, [obito]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSubmit(obito.idRegistroObito, formData);
+  };
+
+  if (!isOpen) return null;
+
+  const pacientesOptions = Array.isArray(pacientes) && pacientes.length > 0 ? pacientes : [];
+  const profissionaisOptions = Array.isArray(profissionais) && profissionais.length > 0 ? profissionais : [];
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+      <div className="bg-white p-6 rounded-2xl shadow-lg w-full max-w-4xl">
+        <h2 className="text-2xl font-bold text-blue-600 mb-6 flex items-center gap-2">
+          Editar Registro de Óbito
+        </h2>
+        <form onSubmit={handleSubmit}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div className="space-y-1">
+              <label className="block text-sm font-medium text-gray-700">
+                Paciente (CPF)
+              </label>
+              <select
+                name="cpfPaciente"
+                value={formData.cpfPaciente}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              >
+                <option value="">Selecione um paciente</option>
+                {pacientesOptions.length > 0 ? (
+                  pacientesOptions.map((paciente) => (
+                    <option key={paciente.cpf} value={paciente.cpf}>
+                      {paciente.nome} {paciente.sobrenome || ""} ({paciente.cpf})
+                    </option>
+                  ))
+                ) : (
+                  <option value="" disabled>
+                    Nenhum paciente disponível
+                  </option>
+                )}
+              </select>
+            </div>
+            <div className="space-y-1">
+              <label className="block text-sm font-medium text-gray-700">
+                Profissional (Matrícula)
+              </label>
+              <select
+                name="matriculaProfissional"
+                value={formData.matriculaProfissional}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              >
+                <option value="">Selecione um profissional</option>
+                {profissionaisOptions.length > 0 ? (
+                  profissionaisOptions.map((profissional) => (
+                    <option key={profissional.matricula} value={profissional.matricula}>
+                      {profissional.nome} {profissional.sobrenome || ""} ({profissional.matricula})
+                    </option>
+                  ))
+                ) : (
+                  <option value="" disabled>
+                    Nenhum profissional disponível
+                  </option>
+                )}
+              </select>
+            </div>
+            <div className="space-y-1">
+              <label className="block text-sm font-medium text-gray-700">
+                Data do Óbito
+              </label>
+              <input
+                type="datetime-local"
+                name="dataObito"
+                value={formData.dataObito}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="block text-sm font-medium text-gray-700">
+                Causa do Óbito
+              </label>
+              <input
+                type="text"
+                name="causaObito"
+                value={formData.causaObito}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="block text-sm font-medium text-gray-700">
+                Local do Óbito
+              </label>
+              <input
+                type="text"
+                name="localObito"
+                value={formData.localObito}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="block text-sm font-medium text-gray-700">
+                Número do Atestado de Óbito
+              </label>
+              <input
+                type="text"
+                name="numeroAtestadoObito"
+                value={formData.numeroAtestadoObito}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+            <div className="space-y-1 md:col-span-2">
+              <label className="block text-sm font-medium text-gray-700">
+                Observações
+              </label>
+              <textarea
+                name="observacoes"
+                value={formData.observacoes}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                rows="4"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="block text-sm font-medium text-gray-700">
+                Status
+              </label>
+              <select
+                name="status"
+                value={formData.status}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="Ativo">Ativo</option>
+                <option value="Inativo">Inativo</option>
+              </select>
+            </div>
+          </div>
+          <div className="flex justify-end space-x-3">
+            <button
+              type="button"
+              onClick={onClose}
+              className="bg-gray-500 hover:bg-gray-600 text-white font-medium px-4 py-2 rounded-lg text-sm"
+              disabled={isSaving}
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg text-sm"
+              disabled={isSaving}
+            >
+              {isSaving ? "Salvando..." : "Salvar"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default ModalEditObito;

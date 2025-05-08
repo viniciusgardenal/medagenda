@@ -18,6 +18,7 @@ const Roles = require("./roles");
 const Permissao = require("./permissao");
 const SolicitacaoExames = require("./solicitacaoExames");
 const RegistroResultadoExames = require("./registroResultadoExames");
+const RegistroObitos = require("./registroObitos")(sequelize, Sequelize.DataTypes);
 
 // Objeto contendo todos os modelos
 const models = {
@@ -36,6 +37,7 @@ const models = {
   Permissao,
   SolicitacaoExames,
   RegistroResultadoExames,
+  RegistroObitos,
 };
 
 // Definição das associações
@@ -208,6 +210,24 @@ models.RegistroResultadoExames.belongsTo(models.Paciente, {
 models.Paciente.hasMany(models.RegistroResultadoExames, {
   foreignKey: "cpfPaciente",
   as: "resultadosExames",
+});
+
+// RegistroObitos
+models.RegistroObitos.belongsTo(models.Paciente, {
+  foreignKey: "cpfPaciente",
+  as: "paciente",
+});
+models.Paciente.hasMany(models.RegistroObitos, {
+  foreignKey: "cpfPaciente",
+  as: "registrosObitos",
+});
+models.RegistroObitos.belongsTo(models.Profissional, {
+  foreignKey: "matriculaProfissional",
+  as: "profissional",
+});
+models.Profissional.hasMany(models.RegistroObitos, {
+  foreignKey: "matriculaProfissional",
+  as: "registrosObitos",
 });
 
 // Exportação dos modelos e sequelize

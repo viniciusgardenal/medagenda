@@ -34,7 +34,7 @@ router.put(
 // Excluir um horário
 router.delete(
   "/horarios-profissionais/:id",
-  checkpermissao("excluir"), // Permissão para excluir (assumido, ajustar conforme necessário)
+  checkpermissao("consultar"), // Permissão para excluir (assumido, ajustar conforme necessário)
   horariosProfissionaisController.excluirHorario
 );
 

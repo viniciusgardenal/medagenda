@@ -44,7 +44,6 @@ export const getPacientes = async () => {
 export const getPacientesId = async (cpf) => {
   try {
     const response = await api.get(`/pacientes/${cpf}`);
-
     return response.data; // Retorna os dados do paciente
   } catch (error) {
     if (error.response && error.response.status === 404) {
@@ -100,7 +99,6 @@ export const getPlanoDeSaudeId = async (id) => {
 //Tipo Consulta
 export const criarTipoConsulta = async (dadosTipoConsulta) => {
   console.log(dadosTipoConsulta);
-
   return await api.post(`${apiUrl}/tipoConsulta`, dadosTipoConsulta);
 };
 
@@ -166,7 +164,6 @@ export const getSolicitacaoExamesId = async (id) => {
 };
 
 //Receita
-
 export const criarReceita = async (dadosReceita) => {
   return await api.post(`/receitas`, dadosReceita);
 };
@@ -177,6 +174,7 @@ export const criarAtestado = async (dadosAtestado) => {
     responseType: "blob", // Para receber o PDF como blob
   });
 };
+
 export const lerAtestados = async () => {
   return await api.get(`${apiUrl}/atestados`);
 };
@@ -254,7 +252,6 @@ export const getHorarioId = async (id) => {
 };
 
 //Agendar Consultas
-
 export const agendarConsulta = async (dadosConsulta) => {
   return await api.post(`${apiUrl}/consultas`, dadosConsulta);
 };
@@ -264,4 +261,40 @@ export const getConsultasPorDataEMedico = async (data, matricula) => {
   return await api.get(`${apiUrl}/consultas`, {
     params: { dataConsulta: data, medicoId: matricula },
   });
+};
+
+//Registro de Óbitos
+export const criarRegistroObito = async (dadosObito) => {
+  try {
+    const response = await api.post(`${apiUrl}/registro-obitos`, dadosObito);
+    return response;
+  } catch (error) {
+    console.error("Erro em criarRegistroObito:", error.response?.data || error.message);
+    throw error;
+  }
+};
+
+export const updateRegistroObito = async (id, dadosObito) => {
+  return await api.put(`${apiUrl}/registro-obitos/${id}`, dadosObito);
+};
+
+export const excluirRegistroObito = async (id) => {
+  return await api.delete(`${apiUrl}/registro-obitos/${id}`);
+};
+
+export const getRegistroObitos = async () => {
+  return await api.get(`${apiUrl}/registro-obitos`);
+};
+
+export const getRegistroObitoId = async (id) => {
+  try {
+    const response = await api.get(`${apiUrl}/registro-obitos/${id}`);
+    return response.data; // Retorna os dados do registro de óbito
+  } catch (error) {
+    if (error.response && error.response.status === 404) {
+      //console.log("Registro de óbito não encontrado");
+      return null; // Retorna null para registros inexistentes
+    }
+    throw error; // Lança erros inesperados
+  }
 };

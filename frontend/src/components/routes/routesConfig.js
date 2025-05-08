@@ -15,6 +15,7 @@ import TipoConsulta from "../tipoConsulta/tipoConsulta";
 import CheckInPacientes from "../checkinPacientes/CheckInPacientes";
 import GerenciarHorariosProfissionais from "../gerenciarHorariosProfissionais/gerenciarHorariosProfissionais"; // Novo import
 import AgendamentoConsulta from "../agendamentosConsultas/AgendamentoConsulta";
+import GerenciarRegistroObitos from "../registroObitos/GerenciarRegistroObitos.jsx";
 
 const routes = [
   { path: "/", element: <LoginScreen />, protected: false },
@@ -115,6 +116,13 @@ const routes = [
     protected: true,
     permissao: "consultar",
     rolesPermitidos: ["Diretor"], // Apenas Diretor pode gerenciar horários
+  },
+  {
+    path: "/registro-obitos",
+    element: <GerenciarRegistroObitos />,
+    protected: true,
+    permissao: "consultar",
+    rolesPermitidos: ["Diretor"],
   },
   {
     path: "/unauthorized",

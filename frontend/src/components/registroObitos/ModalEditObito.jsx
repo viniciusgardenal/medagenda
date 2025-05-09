@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import moment from "moment";
+import { FaStethoscope, FaFileMedical, FaCalendarAlt, FaInfoCircle, FaMapMarkerAlt, FaClipboardList, FaSave, FaTimes } from "react-icons/fa";
 
 // Função para formatar CPF com pontuação
 const formatarCpfComPontuacao = (cpf) => {
@@ -114,171 +115,243 @@ const ModalEditObito = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md">
-        <h2 className="text-xl font-bold text-blue-600 mb-4">Editar Registro de Óbito</h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Paciente</label>
-            <select
-              name="cpfPaciente"
-              value={formData.cpfPaciente}
-              onChange={handleChange}
-              className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors.cpfPaciente ? "border-red-500" : "border-gray-300"
-              }`}
-              disabled={pacientes.length === 0}
-            >
-              {pacientes.length === 0 ? (
-                <option value="">Nenhum paciente disponível</option>
-              ) : (
-                <>
-                  <option value="">Selecione um paciente</option>
-                  {pacientes.map((paciente) => (
-                    <option key={paciente.cpf} value={paciente.cpf}>
-                      {`${paciente.nome} ${paciente.sobrenome || ""} (${paciente.cpf})`}
-                    </option>
-                  ))}
-                </>
+    <div className="fixed inset-0 bg-gray-800 bg-opacity-60 flex items-center justify-center z-50">
+      <div className="bg-white w-full max-w-3xl p-8 rounded-2xl shadow-2xl relative transform transition-all">
+        {/* Cabeçalho */}
+        <div className="flex items-center gap-3 mb-6">
+          <FaStethoscope className="h-8 w-8 text-blue-600" />
+          <h2 className="text-2xl font-bold text-gray-800">Editar Registro de Óbito</h2>
+        </div>
+
+        {/* Botão de fechar */}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors"
+          aria-label="Fechar modal"
+          disabled={isSaving}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+
+        {/* Formulário */}
+        <form onSubmit={handleSubmit}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-6">
+            {/* Paciente */}
+            <div className="sm:col-span-2 border-b border-gray-200 pb-4">
+              <label className="flex items-center gap-2 text-sm font-semibold text-gray-900">
+                <FaFileMedical className="h-4 w-4 text-blue-500" />
+                Paciente
+              </label>
+              <select
+                name="cpfPaciente"
+                value={formData.cpfPaciente}
+                onChange={handleChange}
+                className={`mt-1 w-full px-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors ${
+                  errors.cpfPaciente ? "border-red-500" : "border-gray-300"
+                }`}
+                disabled={pacientes.length === 0 || isSaving}
+              >
+                {pacientes.length === 0 ? (
+                  <option value="">Nenhum paciente disponível</option>
+                ) : (
+                  <>
+                    <option value="">Selecione um paciente</option>
+                    {pacientes.map((paciente) => (
+                      <option key={paciente.cpf} value={paciente.cpf}>
+                        {`${paciente.nome} ${paciente.sobrenome || ""} (${paciente.cpf})`}
+                      </option>
+                    ))}
+                  </>
+                )}
+              </select>
+              {errors.cpfPaciente && (
+                <p className="text-red-500 text-xs mt-1 pl-6">{errors.cpfPaciente}</p>
               )}
-            </select>
-            {errors.cpfPaciente && (
-              <p className="text-red-500 text-xs mt-1">{errors.cpfPaciente}</p>
-            )}
-          </div>
+            </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Profissional</label>
-            <select
-              name="matriculaProfissional"
-              value={formData.matriculaProfissional}
-              onChange={handleChange}
-              className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors.matriculaProfissional ? "border-red-500" : "border-gray-300"
-              }`}
-              disabled={profissionais.length === 0}
-            >
-              {profissionais.length === 0 ? (
-                <option value="">Nenhum profissional disponível</option>
-              ) : (
-                <>
-                  <option value="">Selecione um profissional</option>
-                  {profissionais.map((profissional) => (
-                    <option key={profissional.matricula} value={profissional.matricula}>
-                      {`${profissional.nome} ${profissional.sobrenome || ""} (${profissional.matricula})`}
-                    </option>
-                  ))}
-                </>
+            {/* Profissional */}
+            <div className="sm:col-span-2 border-b border-gray-200 pb-4">
+              <label className="flex items-center gap-2 text-sm font-semibold text-gray-900">
+                <FaFileMedical className="h-4 w-4 text-blue-500" />
+                Profissional Responsável
+              </label>
+              <select
+                name="matriculaProfissional"
+                value={formData.matriculaProfissional}
+                onChange={handleChange}
+                className={`mt-1 w-full px-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors ${
+                  errors.matriculaProfissional ? "border-red-500" : "border-gray-300"
+                }`}
+                disabled={profissionais.length === 0 || isSaving}
+              >
+                {profissionais.length === 0 ? (
+                  <option value="">Nenhum profissional disponível</option>
+                ) : (
+                  <>
+                    <option value="">Selecione um profissional</option>
+                    {profissionais.map((profissional) => (
+                      <option key={profissional.matricula} value={profissional.matricula}>
+                        {`${profissional.nome} ${profissional.sobrenome || ""} (${profissional.matricula})`}
+                      </option>
+                    ))}
+                  </>
+                )}
+              </select>
+              {errors.matriculaProfissional && (
+                <p className="text-red-500 text-xs mt-1 pl-6">{errors.matriculaProfissional}</p>
               )}
-            </select>
-            {errors.matriculaProfissional && (
-              <p className="text-red-500 text-xs mt-1">{errors.matriculaProfissional}</p>
-            )}
+            </div>
+
+            {/* Data do Óbito */}
+            <div>
+              <label className="flex items-center gap-2 text-sm font-semibold text-gray-900">
+                <FaCalendarAlt className="h-4 w-4 text-blue-500" />
+                Data do Óbito
+              </label>
+              <input
+                type="datetime-local"
+                name="dataObito"
+                value={formData.dataObito}
+                onChange={handleChange}
+                className={`mt-1 w-full px-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors ${
+                  errors.dataObito ? "border-red-500" : "border-gray-300"
+                }`}
+                disabled={isSaving}
+              />
+              {errors.dataObito && (
+                <p className="text-red-500 text-xs mt-1 pl-6">{errors.dataObito}</p>
+              )}
+            </div>
+
+            {/* Causa do Óbito */}
+            <div>
+              <label className="flex items-center gap-2 text-sm font-semibold text-gray-900">
+                <FaInfoCircle className="h-4 w-4 text-blue-500" />
+                Causa do Óbito
+              </label>
+              <input
+                type="text"
+                name="causaObito"
+                value={formData.causaObito}
+                onChange={handleChange}
+                className={`mt-1 w-full px-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors ${
+                  errors.causaObito ? "border-red-500" : "border-gray-300"
+                }`}
+                disabled={isSaving}
+              />
+              {errors.causaObito && (
+                <p className="text-red-500 text-xs mt-1 pl-6">{errors.causaObito}</p>
+              )}
+            </div>
+
+            {/* Local do Óbito */}
+            <div>
+              <label className="flex items-center gap-2 text-sm font-semibold text-gray-900">
+                <FaMapMarkerAlt className="h-4 w-4 text-blue-500" />
+                Local do Óbito
+              </label>
+              <input
+                type="text"
+                name="localObito"
+                value={formData.localObito}
+                onChange={handleChange}
+                className={`mt-1 w-full px-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors ${
+                  errors.localObito ? "border-red-500" : "border-gray-300"
+                }`}
+                disabled={isSaving}
+              />
+              {errors.localObito && (
+                <p className="text-red-500 text-xs mt-1 pl-6">{errors.localObito}</p>
+              )}
+            </div>
+
+            {/* Número do Atestado de Óbito */}
+            <div>
+              <label className="flex items-center gap-2 text-sm font-semibold text-gray-900">
+                <FaClipboardList className="h-4 w-4 text-blue-500" />
+                Nº Atestado de Óbito
+              </label>
+              <input
+                type="text"
+                name="numeroAtestadoObito"
+                value={formData.numeroAtestadoObito}
+                onChange={handleChange}
+                className={`mt-1 w-full px-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors ${
+                  errors.numeroAtestadoObito ? "border-red-500" : "border-gray-300"
+                }`}
+                disabled={isSaving}
+              />
+              {errors.numeroAtestadoObito && (
+                <p className="text-red-500 text-xs mt-1 pl-6">{errors.numeroAtestadoObito}</p>
+              )}
+            </div>
+
+            {/* Status */}
+            <div>
+              <label className="flex items-center gap-2 text-sm font-semibold text-gray-900">
+                <FaInfoCircle className="h-4 w-4 text-blue-500" />
+                Status
+              </label>
+              <select
+                name="status"
+                value={formData.status}
+                onChange={handleChange}
+                className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+                disabled={isSaving}
+              >
+                <option value="Ativo">Ativo</option>
+                <option value="Inativo">Inativo</option>
+              </select>
+            </div>
+
+            {/* Observações */}
+            <div className="sm:col-span-2 border-b border-gray-200 pb-4">
+              <label className="flex items-center gap-2 text-sm font-semibold text-gray-900">
+                <FaInfoCircle className="h-4 w-4 text-blue-500" />
+                Observações
+              </label>
+              <textarea
+                name="observacoes"
+                value={formData.observacoes}
+                onChange={handleChange}
+                className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors h-24"
+                disabled={isSaving}
+              />
+            </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Data do Óbito</label>
-            <input
-              type="datetime-local"
-              name="dataObito"
-              value={formData.dataObito}
-              onChange={handleChange}
-              className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors.dataObito ? "border-red-500" : "border-gray-300"
-              }`}
-            />
-            {errors.dataObito && (
-              <p className="text-red-500 text-xs mt-1">{errors.dataObito}</p>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Causa do Óbito</label>
-            <input
-              type="text"
-              name="causaObito"
-              value={formData.causaObito}
-              onChange={handleChange}
-              className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors.causaObito ? "border-red-500" : "border-gray-300"
-              }`}
-            />
-            {errors.causaObito && (
-              <p className="text-red-500 text-xs mt-1">{errors.causaObito}</p>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Local do Óbito</label>
-            <input
-              type="text"
-              name="localObito"
-              value={formData.localObito}
-              onChange={handleChange}
-              className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors.localObito ? "border-red-500" : "border-gray-300"
-              }`}
-            />
-            {errors.localObito && (
-              <p className="text-red-500 text-xs mt-1">{errors.localObito}</p>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Número do Atestado de Óbito
-            </label>
-            <input
-              type="text"
-              name="numeroAtestadoObito"
-              value={formData.numeroAtestadoObito}
-              onChange={handleChange}
-              className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors.numeroAtestadoObito ? "border-red-500" : "border-gray-300"
-              }`}
-            />
-            {errors.numeroAtestadoObito && (
-              <p className="text-red-500 text-xs mt-1">{errors.numeroAtestadoObito}</p>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Observações</label>
-            <textarea
-              name="observacoes"
-              value={formData.observacoes}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Status</label>
-            <select
-              name="status"
-              value={formData.status}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="Ativo">Ativo</option>
-              <option value="Inativo">Inativo</option>
-            </select>
-          </div>
-
-          <div className="flex justify-end gap-2">
+          {/* Botões de Ação */}
+          <div className="flex justify-end gap-4 mt-8">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-lg text-sm"
+              className="inline-flex items-center px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors text-sm disabled:opacity-50"
               disabled={isSaving}
+              aria-label="Cancelar edição"
             >
+              <FaTimes className="h-4 w-4 mr-2" />
               Cancelar
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm"
+              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm disabled:opacity-50"
               disabled={isSaving || pacientes.length === 0}
+              aria-label="Salvar alterações"
             >
+              <FaSave className="h-4 w-4 mr-2" />
               {isSaving ? "Salvando..." : "Salvar"}
             </button>
           </div>

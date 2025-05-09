@@ -187,22 +187,6 @@ const ModalViewObito = ({
         {/* Botões de Ação */}
         <div className="flex justify-end gap-4 mt-8">
           <button
-            onClick={onEdit}
-            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            aria-label="Editar registro"
-          >
-            <FaEdit className="h-4 w-4 mr-2" />
-            Editar
-          </button>
-          <button
-            onClick={onDelete}
-            className="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-            aria-label="Excluir registro"
-          >
-            <FaTrash className="h-4 w-4 mr-2" />
-            Excluir
-          </button>
-          <button
             onClick={onClose}
             className="inline-flex items-center px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
             aria-label="Fechar modal"

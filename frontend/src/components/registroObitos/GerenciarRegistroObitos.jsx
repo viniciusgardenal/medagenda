@@ -338,83 +338,85 @@ const GerenciarRegistroObitos = () => {
   };
 
   return (
-    <section className="max-w-6xl mx-auto mt-6 px-4 py-6 bg-gray-50 rounded-2xl shadow-lg">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold text-blue-600 flex items-center gap-2">
-          <FaSkullCrossbones className="h-6 w-6" />
+    <section className="max-w-7xl mx-auto mt-8 px-6 py-8 bg-gray-100 rounded-xl shadow-xl">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-3xl font-semibold text-indigo-700 flex items-center gap-3">
+          <FaSkullCrossbones className="h-7 w-7 text-indigo-600" />
           Gerenciar Registro de Óbitos
         </h2>
         <button
           onClick={() => setIsAddModalOpen(true)}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg flex items-center gap-2 text-sm"
+          className="inline-flex items-center px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-md shadow-md transition-colors text-base"
         >
-          <FaPlus className="h-4 w-4" />
-          Adicionar Registro
+          <FaPlus className="h-5 w-5 mr-2" />
+          Novo Registro
         </button>
       </div>
 
       {error && (
-        <div className="bg-red-100 text-red-700 p-3 rounded-lg mb-4 text-sm">
+        <div className="bg-rose-50 text-rose-600 p-4 rounded-md mb-6 text-sm font-medium">
           {error}
         </div>
       )}
 
-      <div className="bg-white p-4 rounded-lg shadow-md mb-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <div className="space-y-1">
-            <label className="block text-sm font-medium text-gray-700">
+      <div className="bg-white p-6 rounded-lg shadow-md mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="space-y-2">
+            <label className="block text-sm font-semibold text-gray-800">
               Nome do Paciente
             </label>
             <input
               type="text"
               value={filtroPaciente}
               onChange={(e) => setFiltroPaciente(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Filtrar por nome do paciente"
+              className="w-full px-4 py-2.5 border border-gray-200 rounded-md text-sm text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+              placeholder="Filtrar por paciente"
             />
           </div>
-          <div className="space-y-1">
-            <label className="block text-sm font-medium text-gray-700">
+          <div className="space-y-2">
+            <label className="block text-sm font-semibold text-gray-800">
               Nome do Profissional
             </label>
             <input
               type="text"
               value={filtroProfissional}
               onChange={(e) => setFiltroProfissional(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Filtrar por nome do profissional"
+              className="w-full px-4 py-2.5 border border-gray-200 rounded-md text-sm text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+              placeholder="Filtrar por profissional"
             />
           </div>
-          <div className="space-y-1">
-            <label className="block text-sm font-medium text-gray-700">
+          <div className="space-y-2">
+            <label className="block text-sm font-semibold text-gray-800">
               Causa do Óbito
             </label>
             <input
               type="text"
               value={filtroCausa}
               onChange={(e) => setFiltroCausa(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Filtrar por causa do óbito"
+              className="w-full px-4 py-2.5 border border-gray-200 rounded-md text-sm text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+              placeholder="Filtrar por causa"
             />
           </div>
         </div>
       </div>
 
-      <div className="bg-white p-5 rounded-lg shadow-md mb-4">
+      <div className="bg-white p-6 rounded-lg shadow-md">
         {isLoading ? (
-          <p className="text-center text-gray-500 py-2 text-sm">Carregando...</p>
+          <p className="text-center text-gray-600 py-4 text-base font-medium">
+            Carregando registros...
+          </p>
         ) : pacientes.length === 0 || profissionais.length === 0 ? (
-          <p className="text-center text-gray-500 py-2 text-sm">
-            Dados incompletos (pacientes ou profissionais não carregados). Verifique a conexão com a API.
+          <p className="text-center text-gray-600 py-4 text-base font-medium">
+            Dados incompletos. Verifique a conexão com a API.
           </p>
         ) : obitosOrdenados.length === 0 ? (
-          <p className="text-center text-gray-500 py-2 text-sm">
+          <p className="text-center text-gray-600 py-4 text-base font-medium">
             Nenhum registro de óbito encontrado.
           </p>
         ) : (
-          <div className="rounded-lg">
-            <table className="min-w-full divide-y divide-gray-200 table-auto">
-              <thead className="bg-blue-600 text-white">
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-100">
+              <thead className="bg-indigo-600 text-white">
                 <tr>
                   {["ID", "Paciente", "Profissional", "Data do Óbito", "Causa"].map(
                     (header, index) => (
@@ -431,7 +433,7 @@ const GerenciarRegistroObitos = () => {
                             ][index]
                           )
                         }
-                        className="px-5 py-3 text-left text-sm font-semibold uppercase tracking-wider cursor-pointer w-[20%]"
+                        className="px-6 py-3.5 text-left text-sm font-semibold uppercase tracking-wide cursor-pointer"
                       >
                         {header}
                         {sortField ===
@@ -442,64 +444,64 @@ const GerenciarRegistroObitos = () => {
                             "dataObito",
                             "causaObito",
                           ][index] && (
-                          <span className="ml-1">
+                          <span className="ml-2">
                             {sortDirection === "asc" ? "↑" : "↓"}
                           </span>
                         )}
                       </th>
                     )
                   )}
-                  <th className="px-5 py-3 text-left text-sm font-semibold uppercase tracking-wider w-[10%]">
+                  <th className="px-6 py-3.5 text-left text-sm font-semibold uppercase tracking-wide">
                     Ações
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="divide-y divide-gray-100">
                 {currentObitos.length === 0 ? (
                   <tr>
                     <td
                       colSpan="6"
-                      className="px-5 py-3 text-center text-gray-500 text-sm"
+                      className="px-6 py-4 text-center text-gray-600 text-base font-medium"
                     >
-                      Nenhum registro de óbito encontrado após filtragem.
+                      Nenhum registro encontrado após filtragem.
                     </td>
                   </tr>
                 ) : (
                   currentObitos.map((obito) => (
-                    <tr key={obito.idRegistroObito} className="hover:bg-gray-100 transition-colors">
-                      <td className="px-5 py-3 text-sm text-gray-900">
+                    <tr key={obito.idRegistroObito} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-6 py-4 text-sm text-gray-800 font-medium">
                         {obito.idRegistroObito}
                       </td>
-                      <td className="px-5 py-3 text-sm text-gray-900">
+                      <td className="px-6 py-4 text-sm text-gray-800">
                         {getPacienteNome(obito.cpfPaciente)}
                       </td>
-                      <td className="px-5 py-3 text-sm text-gray-900">
+                      <td className="px-6 py-4 text-sm text-gray-800">
                         {getProfissionalNome(obito.matriculaProfissional)}
                       </td>
-                      <td className="px-5 py-3 text-sm text-gray-900">
+                      <td className="px-6 py-4 text-sm text-gray-800">
                         {formatDate(obito.dataObito)}
                       </td>
-                      <td className="px-5 py-3 text-sm text-gray-900">
+                      <td className="px-6 py-4 text-sm text-gray-800">
                         {obito.causaObito || "N/A"}
                       </td>
-                      <td className="px-5 py-3 text-sm flex gap-2">
+                      <td className="px-6 py-4 text-sm flex gap-3">
                         <button
                           onClick={() => openViewModal(obito)}
-                          className="text-blue-500 hover:text-blue-700"
+                          className="text-teal-500 hover:text-teal-600 transition-colors"
                           title="Ver Detalhes"
                         >
                           <FaEye className="h-5 w-5" />
                         </button>
                         <button
                           onClick={() => openEditModal(obito)}
-                          className="text-green-500 hover:text-green-700"
+                          className="text-teal-500 hover:text-teal-600 transition-colors"
                           title="Editar Registro"
                         >
                           <FaEdit className="h-5 w-5" />
                         </button>
                         <button
                           onClick={() => openConfirmDelete(obito)}
-                          className="text-red-500 hover:text-red-700"
+                          className="text-rose-500 hover:text-rose-600 transition-colors"
                           title="Excluir Registro"
                         >
                           <FaTrash className="h-5 w-5" />
@@ -515,7 +517,7 @@ const GerenciarRegistroObitos = () => {
       </div>
 
       {obitosOrdenados.length > 0 && (
-        <div className="mb-4">
+        <div className="mt-6">
           <Pagination
             totalItems={obitosOrdenados.length}
             itemsPerPage={itemsPerPage}

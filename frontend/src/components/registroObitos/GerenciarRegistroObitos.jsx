@@ -13,6 +13,19 @@ import ModalViewObito from "./ModalViewObito";
 import ConfirmationModal from "./confirmationModal";
 import Pagination from "../util/Pagination";
 import { FaPlus, FaEye, FaEdit, FaTrash, FaSkullCrossbones } from "react-icons/fa";
+import moment from "moment";
+
+// Função para formatar CPF com pontuação
+const formatarCpfComPontuacao = (cpf) => {
+  const cpfLimpo = cpf.replace(/\D/g, "");
+  if (cpfLimpo.length !== 11) return cpf;
+  return `${cpfLimpo.slice(0, 3)}.${cpfLimpo.slice(3, 6)}.${cpfLimpo.slice(6, 9)}-${cpfLimpo.slice(9)}`;
+};
+
+// Função para normalizar CPF (remover pontuação)
+const normalizarCpf = (cpf) => {
+  return cpf ? cpf.replace(/\D/g, "") : "";
+};
 
 const GerenciarRegistroObitos = () => {
   const [obitos, setObitos] = useState([]);
@@ -43,35 +56,62 @@ const GerenciarRegistroObitos = () => {
         getPacientes(),
         getProfissionais(),
       ]);
-      const validObitos = obitosData.data.filter(
-        (o) => o.idRegistroObito && o.cpfPaciente && o.matriculaProfissional && o.dataObito
-      );
-      const validPacientes = pacientesData.data.filter(
-        (p) => p && p.cpf && p.nome && typeof p.cpf !== "undefined"
-      );
-      const validProfissionais = profissionaisData.data.filter(
-        (p) => p && p.matricula && p.nome && typeof p.matricula !== "undefined"
-      );
-      setObitos(validObitos || []);
-      setPacientes(validPacientes || []);
-      setProfissionais(validProfissionais || []);
-      console.log("Pacientes carregados:", validPacientes);
-      console.log("Profissionais carregados:", validProfissionais);
-      console.log("Óbitos carregados:", validObitos);
-      if (validPacientes.length === 0) {
+      console.log("Resposta de getRegistroObitos:", obitosData);
+      console.log("Tipo de obitosData.data:", typeof obitosData.data, Array.isArray(obitosData.data) ? "Array" : "Não é array");
+
+      const validObitos = Array.isArray(obitosData.data)
+        ? obitosData.data.filter(
+            (o) => o && o.idRegistroObito && o.cpfPaciente && o.matriculaProfissional && o.dataObito
+          )
+        : [];
+      if (!Array.isArray(obitosData.data)) {
+        console.warn("obitosData.data não é um array:", obitosData.data);
+        setError("Formato de dados inválido retornado pela API de óbitos. Esperado: array.");
+      }
+
+      const validPacientes = Array.isArray(pacientesData.data)
+        ? pacientesData.data.filter((p) => p && p.cpf && p.nome && typeof p.cpf !== "undefined")
+        : [];
+      const validProfissionais = Array.isArray(profissionaisData.data)
+        ? profissionaisData.data.filter((p) => p && p.matricula && p.nome && typeof p.matricula !== "undefined")
+        : [];
+
+      // Normalizar dados
+      const normalizedObitos = validObitos.map((obito) => ({
+        ...obito,
+        cpfPaciente: obito.cpfPaciente, // Mantém o formato do banco
+        matriculaProfissional: parseInt(obito.matriculaProfissional, 10).toString(),
+      }));
+      const normalizedPacientes = validPacientes.map((paciente) => ({
+        ...paciente,
+        cpf: paciente.cpf, // Mantém com pontuação
+      }));
+      const normalizedProfissionais = validProfissionais.map((profissional) => ({
+        ...profissional,
+        matricula: parseInt(profissional.matricula, 10).toString(),
+      }));
+
+      setObitos(normalizedObitos || []);
+      setPacientes(normalizedPacientes || []);
+      setProfissionais(normalizedProfissionais || []);
+      console.log("Pacientes carregados:", normalizedPacientes);
+      console.log("Profissionais carregados:", normalizedProfissionais);
+      console.log("Óbitos carregados:", normalizedObitos);
+
+      if (normalizedPacientes.length === 0) {
         console.warn("Nenhum paciente válido encontrado.");
         setError("Nenhum paciente válido encontrado. Verifique a fonte de dados.");
       }
-      if (validProfissionais.length === 0) {
+      if (normalizedProfissionais.length === 0) {
         console.warn("Nenhum profissional válido encontrado.");
         setError("Nenhum profissional válido encontrado. Verifique a fonte de dados.");
       }
-      if (validObitos.length === 0) {
+      if (normalizedObitos.length === 0) {
         console.warn("Nenhum óbito válido encontrado.");
       }
     } catch (err) {
       console.error("Erro ao carregar dados:", err);
-      setError("Não foi possível carregar os dados. Tente novamente.");
+      setError("Não foi possível carregar os dados. Verifique a conexão com a API.");
     } finally {
       setIsLoading(false);
     }
@@ -87,9 +127,9 @@ const GerenciarRegistroObitos = () => {
       const response = await criarRegistroObito(dadosObito);
       const newObito = {
         ...response.data,
-        idRegistroObito: response.data.idRegistroObito || Date.now(), // Fallback para garantir ID único
-        cpfPaciente: response.data.cpfPaciente,
-        matriculaProfissional: response.data.matriculaProfissional,
+        idRegistroObito: response.data.idRegistroObito || Date.now(),
+        cpfPaciente: response.data.cpfPaciente, // Mantém com pontuação
+        matriculaProfissional: parseInt(response.data.matriculaProfissional, 10).toString(),
         dataObito: response.data.dataObito,
         causaObito: response.data.causaObito || "",
       };
@@ -100,11 +140,10 @@ const GerenciarRegistroObitos = () => {
         return updatedObitos;
       });
       setIsAddModalOpen(false);
-      // Opcional: Resetar filtros para garantir que o novo registro apareça
       setFiltroPaciente("");
       setFiltroProfissional("");
       setFiltroCausa("");
-      setCurrentPage(1); // Voltar para a primeira página
+      setCurrentPage(1);
     } catch (err) {
       console.error("Erro ao adicionar registro:", err);
       setError("Erro ao adicionar registro. Tente novamente.");
@@ -115,13 +154,35 @@ const GerenciarRegistroObitos = () => {
 
   const handleEditObito = async (id, dadosObito) => {
     setIsSaving(true);
+    console.log("Editando registro ID:", id, "com dados:", dadosObito);
+    console.log("Lista de pacientes disponíveis:", pacientes);
     try {
+      // Validar CPF antes de enviar
+      if (!pacientes.length) {
+        throw new Error("Nenhum paciente disponível. Carregue a lista de pacientes primeiro.");
+      }
+      if (dadosObito.cpfPaciente) {
+        const cpfComPontuacao = formatarCpfComPontuacao(dadosObito.cpfPaciente);
+        const pacienteExiste = pacientes.find((p) => p.cpf === cpfComPontuacao);
+        if (!pacienteExiste) {
+          throw new Error(`Paciente com CPF ${dadosObito.cpfPaciente} não encontrado na lista de pacientes.`);
+        }
+        dadosObito.cpfPaciente = cpfComPontuacao; // Usa CPF com pontuação
+      } else {
+        throw new Error("CPF do paciente é obrigatório.");
+      }
+
       const response = await updateRegistroObito(id, dadosObito);
-      setObitos(obitos.map((obito) => (obito.idRegistroObito === id ? response.data : obito)));
+      setObitos(obitos.map((obito) => (obito.idRegistroObito === id ? {
+        ...response.registro,
+        cpfPaciente: response.registro.cpfPaciente, // Mantém com pontuação
+        matriculaProfissional: parseInt(response.registro.matriculaProfissional, 10).toString(),
+      } : obito)));
       setIsEditModalOpen(false);
     } catch (err) {
       console.error("Erro ao editar registro:", err);
-      setError("Erro ao editar registro. Tente novamente.");
+      const errorMessage = err.response?.data?.message || err.message || "Erro ao editar registro. Verifique os dados e tente novamente.";
+      setError(errorMessage);
     } finally {
       setIsSaving(false);
     }
@@ -170,8 +231,16 @@ const GerenciarRegistroObitos = () => {
   };
 
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return isNaN(date.getTime()) ? "Data inválida" : `${date.toLocaleDateString("pt-BR")} ${date.toLocaleTimeString("pt-BR")}`;
+    if (!dateString) {
+      console.warn("Data inválida fornecida:", dateString);
+      return "Data inválida";
+    }
+    const parsedDate = moment(dateString, ["YYYY-MM-DDTHH:mm", "YYYY-MM-DD HH:mm:ss", moment.ISO_8601]);
+    if (!parsedDate.isValid()) {
+      console.warn("Formato de data inválido:", dateString);
+      return "Data inválida";
+    }
+    return parsedDate.format("DD/MM/YYYY HH:mm");
   };
 
   const getPacienteNome = (cpf) => {
@@ -179,13 +248,17 @@ const GerenciarRegistroObitos = () => {
       console.warn("CPF inválido fornecido:", cpf);
       return "Paciente não encontrado";
     }
+    const cpfNormalizado = normalizarCpf(cpf);
     const paciente = pacientes.find((p) => {
       if (!p || typeof p.cpf === "undefined") {
         console.warn("Paciente inválido:", p);
         return false;
       }
-      return p.cpf.toString() === cpf.toString();
+      return normalizarCpf(p.cpf) === cpfNormalizado;
     });
+    if (!paciente) {
+      console.warn("Nenhum paciente encontrado para CPF:", cpf, "Normalizado:", cpfNormalizado);
+    }
     return paciente ? `${paciente.nome} ${paciente.sobrenome || ''}` : "Paciente não encontrado";
   };
 
@@ -194,15 +267,17 @@ const GerenciarRegistroObitos = () => {
       console.warn("Matrícula inválida fornecida:", matricula);
       return "Profissional não encontrado";
     }
+    const normalizedMatricula = parseInt(matricula, 10).toString();
     const profissional = profissionais.find((p) => {
       if (!p || typeof p.matricula === "undefined") {
         console.warn("Profissional inválido:", p);
         return false;
       }
-      return p.matricula.toString() === matricula.toString();
+      const normalizedProfissionalMatricula = parseInt(p.matricula, 10).toString();
+      return normalizedProfissionalMatricula === normalizedMatricula;
     });
     if (!profissional) {
-      console.warn("Nenhum profissional encontrado para matrícula:", matricula);
+      console.warn("Nenhum profissional encontrado para matrícula:", normalizedMatricula);
     }
     return profissional ? `${profissional.nome} ${profissional.sobrenome || ''}` : "Profissional não encontrado";
   };
@@ -214,7 +289,7 @@ const GerenciarRegistroObitos = () => {
         idRegistroObito: (item) => item.idRegistroObito,
         paciente: (item) => getPacienteNome(item.cpfPaciente).toLowerCase(),
         profissional: (item) => getProfissionalNome(item.matriculaProfissional).toLowerCase(),
-        dataObito: (item) => new Date(item.dataObito).getTime(),
+        dataObito: (item) => moment(item.dataObito).valueOf(),
         causaObito: (item) => (item.causaObito || "").toLowerCase(),
       };
       valueA = fieldMap[sortField](a);
@@ -264,7 +339,6 @@ const GerenciarRegistroObitos = () => {
 
   return (
     <section className="max-w-6xl mx-auto mt-6 px-4 py-6 bg-gray-50 rounded-2xl shadow-lg">
-      {/* Cabeçalho */}
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-bold text-blue-600 flex items-center gap-2">
           <FaSkullCrossbones className="h-6 w-6" />
@@ -279,14 +353,12 @@ const GerenciarRegistroObitos = () => {
         </button>
       </div>
 
-      {/* Mensagem de Erro */}
       {error && (
         <div className="bg-red-100 text-red-700 p-3 rounded-lg mb-4 text-sm">
           {error}
         </div>
       )}
 
-      {/* Filtros */}
       <div className="bg-white p-4 rounded-lg shadow-md mb-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div className="space-y-1">
@@ -328,7 +400,6 @@ const GerenciarRegistroObitos = () => {
         </div>
       </div>
 
-      {/* Tabela de Óbitos */}
       <div className="bg-white p-5 rounded-lg shadow-md mb-4">
         {isLoading ? (
           <p className="text-center text-gray-500 py-2 text-sm">Carregando...</p>
@@ -443,7 +514,6 @@ const GerenciarRegistroObitos = () => {
         )}
       </div>
 
-      {/* Paginação */}
       {obitosOrdenados.length > 0 && (
         <div className="mb-4">
           <Pagination
@@ -456,7 +526,6 @@ const GerenciarRegistroObitos = () => {
         </div>
       )}
 
-      {/* Modais */}
       <ModalAddObito
         isOpen={isAddModalOpen}
         onClose={closeModals}

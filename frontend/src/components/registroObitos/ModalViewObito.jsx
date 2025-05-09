@@ -1,5 +1,5 @@
 import React from "react";
-import { FaEdit, FaTrash } from "react-icons/fa";
+import { FaStethoscope, FaCalendarAlt, FaFileMedical, FaMapMarkerAlt, FaClipboardList, FaInfoCircle, FaEdit, FaTrash } from "react-icons/fa";
 
 const ModalViewObito = ({
   isOpen,
@@ -13,11 +13,50 @@ const ModalViewObito = ({
   // Verifica se a modal deve ser aberta
   if (!isOpen || !obito) return null;
 
-  // Verifica se pacientes e profissionais são arrays e não undefined
-  const paciente = pacientes?.find((p) => p.cpf === obito.cpfPaciente);
-  const profissional = profissionais?.find(
-    (p) => p.matricula.toString() === obito.matriculaProfissional.toString()
-  );
+  // Função para normalizar CPF (remover pontuação)
+  const normalizarCpf = (cpf) => {
+    if (!cpf) return "";
+    return typeof cpf === "string" ? cpf.replace(/\D/g, "") : "";
+  };
+
+  // Função para normalizar matrícula (converter para string)
+  const normalizarMatricula = (matricula) => {
+    if (!matricula) return "";
+    return typeof matricula === "number" ? matricula.toString() : matricula.toString().trim();
+  };
+
+  // Depuração: Logar dados recebidos
+  console.log("Obito recebido:", obito);
+  console.log("Pacientes disponíveis:", pacientes);
+  console.log("Profissionais disponíveis:", profissionais);
+
+  // Busca paciente e profissional
+  const paciente = pacientes?.find((p) => {
+    const cpfPacienteNormalizado = normalizarCpf(obito.cpfPaciente);
+    const cpfListaNormalizado = normalizarCpf(p.cpf);
+    const match = cpfPacienteNormalizado === cpfListaNormalizado;
+    if (!match) {
+      console.log(
+        `CPF não corresponde: obito.cpfPaciente=${obito.cpfPaciente} (normalizado: ${cpfPacienteNormalizado}), paciente.cpf=${p.cpf} (normalizado: ${cpfListaNormalizado})`
+      );
+    }
+    return match;
+  });
+
+  const profissional = profissionais?.find((p) => {
+    const matriculaObitoNormalizada = normalizarMatricula(obito.matriculaProfissional);
+    const matriculaListaNormalizada = normalizarMatricula(p.matricula);
+    const match = matriculaObitoNormalizada === matriculaListaNormalizada;
+    if (!match) {
+      console.log(
+        `Matrícula não corresponde: obito.matriculaProfissional=${obito.matriculaProfissional} (normalizado: ${matriculaObitoNormalizada}), profissional.matricula=${p.matricula} (normalizado: ${matriculaListaNormalizada})`
+      );
+    }
+    return match;
+  });
+
+  console.log("Paciente encontrado:", paciente);
+  console.log("Profissional encontrado:", profissional);
 
   // Função para formatar a data
   const formatDate = (dateString) => {
@@ -30,11 +69,19 @@ const ModalViewObito = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-10">
-      <div className="bg-white w-full max-w-5xl p-8 rounded-xl shadow-lg relative">
+    <div className="fixed inset-0 bg-gray-800 bg-opacity-60 flex items-center justify-center z-50">
+      <div className="bg-white w-full max-w-3xl p-8 rounded-2xl shadow-2xl relative transform transition-all">
+        {/* Cabeçalho */}
+        <div className="flex items-center gap-3 mb-6">
+          <FaStethoscope className="h-8 w-8 text-blue-600" />
+          <h3 className="text-2xl font-bold text-gray-800">Detalhes do Registro de Óbito</h3>
+        </div>
+
+        {/* Botão de fechar */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors"
+          aria-label="Fechar modal"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -51,101 +98,114 @@ const ModalViewObito = ({
             />
           </svg>
         </button>
-        <h3 className="text-2xl font-semibold text-gray-800 mb-6">
-          Detalhes do Registro de Óbito
-        </h3>
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <tbody className="bg-white divide-y divide-gray-200">
-              <tr>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  Paciente
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {paciente
-                    ? `${paciente.nome} ${paciente.sobrenome || ""} (CPF: ${obito.cpfPaciente})`
-                    : obito.cpfPaciente}
-                </td>
-              </tr>
-              <tr>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  Profissional
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {profissional
-                    ? `${profissional.nome} ${profissional.sobrenome || ""} (Matrícula: ${obito.matriculaProfissional})`
-                    : obito.matriculaProfissional}
-                </td>
-              </tr>
-              <tr>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  Data do Óbito
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {formatDate(obito.dataObito)}
-                </td>
-              </tr>
-              <tr>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  Causa do Óbito
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {obito.causaObito || "Não definida"}
-                </td>
-              </tr>
-              <tr>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  Local do Óbito
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {obito.localObito || "Não definido"}
-                </td>
-              </tr>
-              <tr>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  Nº Atestado de Óbito
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {obito.numeroAtestadoObito || "Não definido"}
-                </td>
-              </tr>
-              <tr>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  Observações
-                </td>
-                <td className="px-6 py-4 text-sm text-gray-900">
-                  {obito.observacoes || "Não definidas"}
-                </td>
-              </tr>
-              <tr>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  Status
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {obito.status || "Não definido"}
-                </td>
-              </tr>
-            </tbody>
-          </table>
+
+        {/* Conteúdo */}
+        <div className="space-y-6">
+          <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-6">
+            {/* Paciente */}
+            <div className="sm:col-span-2 border-b border-gray-200 pb-4">
+              <dt className="flex items-center gap-2 text-sm font-semibold text-gray-900">
+                <FaFileMedical className="h-4 w-4 text-blue-500" />
+                Paciente
+              </dt>
+              <dd className="mt-1 text-sm text-gray-700 pl-6">
+                {paciente
+                  ? `${paciente.nome} ${paciente.sobrenome || ""} (CPF: ${obito.cpfPaciente})`
+                  : `Não encontrado (CPF: ${obito.cpfPaciente || "Inválido"})`}
+              </dd>
+            </div>
+
+            {/* Profissional */}
+            <div className="sm:col-span-2 border-b border-gray-200 pb-4">
+              <dt className="flex items-center gap-2 text-sm font-semibold text-gray-900">
+                <FaFileMedical className="h-4 w-4 text-blue-500" />
+                Profissional Responsável
+              </dt>
+              <dd className="mt-1 text-sm text-gray-700 pl-6">
+                {profissional
+                  ? `${profissional.nome} ${profissional.sobrenome || ""} (Matrícula: ${obito.matriculaProfissional})`
+                  : `Não encontrado (Matrícula: ${obito.matriculaProfissional || "Inválida"})`}
+              </dd>
+            </div>
+
+            {/* Data do Óbito */}
+            <div>
+              <dt className="flex items-center gap-2 text-sm font-semibold text-gray-900">
+                <FaCalendarAlt className="h-4 w-4 text-blue-500" />
+                Data do Óbito
+              </dt>
+              <dd className="mt-1 text-sm text-gray-700 pl-6">{formatDate(obito.dataObito)}</dd>
+            </div>
+
+            {/* Causa do Óbito */}
+            <div>
+              <dt className="flex items-center gap-2 text-sm font-semibold text-gray-900">
+                <FaInfoCircle className="h-4 w-4 text-blue-500" />
+                Causa do Óbito
+              </dt>
+              <dd className="mt-1 text-sm text-gray-700 pl-6">{obito.causaObito || "Não definida"}</dd>
+            </div>
+
+            {/* Local do Óbito */}
+            <div>
+              <dt className="flex items-center gap-2 text-sm font-semibold text-gray-900">
+                <FaMapMarkerAlt className="h-4 w-4 text-blue-500" />
+                Local do Óbito
+              </dt>
+              <dd className="mt-1 text-sm text-gray-700 pl-6">{obito.localObito || "Não definido"}</dd>
+            </div>
+
+            {/* Nº Atestado de Óbito */}
+            <div>
+              <dt className="flex items-center gap-2 text-sm font-semibold text-gray-900">
+                <FaClipboardList className="h-4 w-4 text-blue-500" />
+                Nº Atestado de Óbito
+              </dt>
+              <dd className="mt-1 text-sm text-gray-700 pl-6">{obito.numeroAtestadoObito || "Não definido"}</dd>
+            </div>
+
+            {/* Observações */}
+            <div className="sm:col-span-2 border-b border-gray-200 pb-4">
+              <dt className="flex items-center gap-2 text-sm font-semibold text-gray-900">
+                <FaInfoCircle className="h-4 w-4 text-blue-500" />
+                Observações
+              </dt>
+              <dd className="mt-1 text-sm text-gray-700 pl-6">{obito.observacoes || "Não definidas"}</dd>
+            </div>
+
+            {/* Status */}
+            <div>
+              <dt className="flex items-center gap-2 text-sm font-semibold text-gray-900">
+                <FaInfoCircle className="h-4 w-4 text-blue-500" />
+                Status
+              </dt>
+              <dd className="mt-1 text-sm text-gray-700 pl-6">{obito.status || "Não definido"}</dd>
+            </div>
+          </dl>
         </div>
-        <div className="flex justify-end gap-4 mt-6">
+
+        {/* Botões de Ação */}
+        <div className="flex justify-end gap-4 mt-8">
           <button
-            onClick={() => onEdit(obito)}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center gap-2"
+            onClick={onEdit}
+            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            aria-label="Editar registro"
           >
-            <FaEdit className="h-5 w-5" />
+            <FaEdit className="h-4 w-4 mr-2" />
             Editar
           </button>
           <button
-            onClick={() => onDelete(obito)}
-            className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors flex items-center gap-2"
+            onClick={onDelete}
+            className="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+            aria-label="Excluir registro"
           >
-            <FaTrash className="h-5 w-5" />
+            <FaTrash className="h-4 w-4 mr-2" />
             Excluir
           </button>
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors"
+            className="inline-flex items-center px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+            aria-label="Fechar modal"
           >
             Fechar
           </button>

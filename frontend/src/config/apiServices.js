@@ -267,7 +267,8 @@ export const getConsultasPorDataEMedico = async (data, matricula) => {
 export const criarRegistroObito = async (dadosObito) => {
   try {
     const response = await api.post(`${apiUrl}/registro-obitos`, dadosObito);
-    return response;
+    console.log("Resposta de criarRegistroObito:", response.data);
+    return response.data;
   } catch (error) {
     console.error("Erro em criarRegistroObito:", error.response?.data || error.message);
     throw error;
@@ -275,26 +276,55 @@ export const criarRegistroObito = async (dadosObito) => {
 };
 
 export const updateRegistroObito = async (id, dadosObito) => {
-  return await api.put(`${apiUrl}/registro-obitos/${id}`, dadosObito);
+  try {
+    const response = await api.put(`${apiUrl}/registro-obitos/${id}`, dadosObito);
+    console.log("Resposta de updateRegistroObito:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Erro em updateRegistroObito:", error.response?.data || error.message);
+    throw error;
+  }
 };
 
 export const excluirRegistroObito = async (id) => {
-  return await api.delete(`${apiUrl}/registro-obitos/${id}`);
+  try {
+    const response = await api.delete(`${apiUrl}/registro-obitos/${id}`);
+    console.log("Resposta de excluirRegistroObito:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Erro em excluirRegistroObito:", error.response?.data || error.message);
+    throw error;
+  }
 };
 
 export const getRegistroObitos = async () => {
-  return await api.get(`${apiUrl}/registro-obitos`);
+  try {
+    const response = await api.get(`${apiUrl}/registro-obitos`);
+    console.log("Resposta bruta de getRegistroObitos:", response.data);
+    // Normalizar a resposta para garantir que data seja um array
+    const data = Array.isArray(response.data.data)
+      ? response.data.data
+      : Array.isArray(response.data)
+        ? response.data
+        : [];
+    return { data };
+  } catch (error) {
+    console.error("Erro em getRegistroObitos:", error.response?.data || error.message);
+    throw error;
+  }
 };
 
 export const getRegistroObitoId = async (id) => {
   try {
     const response = await api.get(`${apiUrl}/registro-obitos/${id}`);
-    return response.data; // Retorna os dados do registro de óbito
+    console.log("Resposta de getRegistroObitoId:", response.data);
+    return response.data;
   } catch (error) {
     if (error.response && error.response.status === 404) {
-      //console.log("Registro de óbito não encontrado");
-      return null; // Retorna null para registros inexistentes
+      console.log("Registro de óbito não encontrado para ID:", id);
+      return null;
     }
-    throw error; // Lança erros inesperados
+    console.error("Erro em getRegistroObitoId:", error.response?.data || error.message);
+    throw error;
   }
 };

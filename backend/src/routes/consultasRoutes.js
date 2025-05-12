@@ -15,4 +15,11 @@ router.get(
   ConsultaController.listarConsultasDoDia
 );
 
+router.get(
+  "/consultas",
+  checkpermissao("consultar"),
+  ConsultaController.listarConsultas
+);
+
+
 module.exports = router;

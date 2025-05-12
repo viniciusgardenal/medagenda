@@ -8,7 +8,10 @@ const realizarAtendimento = async (req, res) => {
 
     // Validar entrada
     if (!diagnostico && !prescricao && !observacoes) {
-      return res.status(400).json({ error: "Pelo menos um campo (diagnóstico, prescrição ou observações) deve ser fornecido." });
+      return res.status(400).json({
+        error:
+          "Pelo menos um campo (diagnóstico, prescrição ou observações) deve ser fornecido.",
+      });
     }
 
     // Verificar se a consulta existe
@@ -19,12 +22,16 @@ const realizarAtendimento = async (req, res) => {
 
     // Verificar se a consulta está agendada
     if (consulta.status !== "agendada") {
-      return res.status(400).json({ error: "A consulta não está no status 'agendada'." });
+      return res
+        .status(400)
+        .json({ error: "A consulta não está no status 'agendada'." });
     }
 
     // Verificar permissão do usuário (exemplo: apenas o médico responsável)
     if (req.user && req.user.id !== consulta.medicoId) {
-      return res.status(403).json({ error: "Apenas o médico responsável pode registrar o atendimento." });
+      return res.status(403).json({
+        error: "Apenas o médico responsável pode registrar o atendimento.",
+      });
     }
 
     // Criar o registro de atendimento
@@ -44,7 +51,9 @@ const realizarAtendimento = async (req, res) => {
     res.status(201).json(novoAtendimento);
   } catch (error) {
     console.error("Erro ao realizar atendimento:", error);
-    res.status(500).json({ error: "Erro interno ao realizar atendimento. Tente novamente." });
+    res.status(500).json({
+      error: "Erro interno ao realizar atendimento. Tente novamente.",
+    });
   }
 };
 
@@ -70,7 +79,9 @@ const getAtendimentoPorId = async (req, res) => {
     res.status(200).json(atendimento);
   } catch (error) {
     console.error("Erro ao buscar atendimento:", error);
-    res.status(500).json({ error: "Erro interno ao buscar atendimento. Tente novamente." });
+    res
+      .status(500)
+      .json({ error: "Erro interno ao buscar atendimento. Tente novamente." });
   }
 };
 
@@ -81,7 +92,10 @@ const atualizarAtendimento = async (req, res) => {
 
     // Validar entrada
     if (!diagnostico && !prescricao && !observacoes) {
-      return res.status(400).json({ error: "Pelo menos um campo (diagnóstico, prescrição ou observações) deve ser fornecido." });
+      return res.status(400).json({
+        error:
+          "Pelo menos um campo (diagnóstico, prescrição ou observações) deve ser fornecido.",
+      });
     }
 
     // Buscar o atendimento pelo ID
@@ -93,7 +107,9 @@ const atualizarAtendimento = async (req, res) => {
     // Verificar permissão do usuário (exemplo: apenas o médico responsável)
     const consulta = await Consulta.findByPk(atendimento.consultaId);
     if (req.user && req.user.id !== consulta.medicoId) {
-      return res.status(403).json({ error: "Apenas o médico responsável pode atualizar o atendimento." });
+      return res.status(403).json({
+        error: "Apenas o médico responsável pode atualizar o atendimento.",
+      });
     }
 
     // Atualizar apenas os campos fornecidos
@@ -106,7 +122,9 @@ const atualizarAtendimento = async (req, res) => {
     res.status(200).json(atendimento);
   } catch (error) {
     console.error("Erro ao atualizar atendimento:", error);
-    res.status(500).json({ error: "Erro interno ao atualizar atendimento. Tente novamente." });
+    res.status(500).json({
+      error: "Erro interno ao atualizar atendimento. Tente novamente.",
+    });
   }
 };
 
@@ -123,7 +141,9 @@ const excluirAtendimento = async (req, res) => {
     // Verificar permissão do usuário (exemplo: apenas o médico responsável)
     const consulta = await Consulta.findByPk(atendimento.consultaId);
     if (req.user && req.user.id !== consulta.medicoId) {
-      return res.status(403).json({ error: "Apenas o médico responsável pode excluir o atendimento." });
+      return res.status(403).json({
+        error: "Apenas o médico responsável pode excluir o atendimento.",
+      });
     }
 
     // Excluir o atendimento
@@ -132,24 +152,15 @@ const excluirAtendimento = async (req, res) => {
     res.status(204).send(); // No Content
   } catch (error) {
     console.error("Erro ao excluir atendimento:", error);
-    res.status(500).json({ error: "Erro interno ao excluir atendimento. Tente novamente." });
+    res
+      .status(500)
+      .json({ error: "Erro interno ao excluir atendimento. Tente novamente." });
   }
 };
 
 const getAtendimentosPorData = async (req, res) => {
   try {
-    const { data } = req.query;
-    if (!data) {
-      return res.status(400).json({ error: "Data é obrigatória." });
-    }
-
     const atendimentos = await Atendimento.findAll({
-      where: {
-        dataAtendimento: {
-          [Op.gte]: `${data}T00:00:00Z`,
-          [Op.lte]: `${data}T23:59:59Z`,
-        },
-      },
       include: [
         {
           model: Consulta,

@@ -145,7 +145,32 @@ const listarConsultasDoDia = async (req, res) => {
   }
 };
 
+const listarConsultas = async (req, res) => {
+  try {
+    // Busca todas as consultas com relacionamentos
+    const consultas = await Consulta.findAll({
+      include: [
+        { model: Paciente, as: "paciente" }, // Dados do paciente
+        { model: Profissional, as: "medico" }, // Dados do médico (ajustado de "profissionais" para "medico")
+        { model: tipoConsulta, as: "tipoConsulta" }, // Dados do médico (ajustado de "profissionais" para "medico")
+        { model: CheckIn, as: "checkin" }, // Dados do check-in (pode ser null)
+      ],
+    });
+
+    // Retorna as consultas no formato esperado pela API
+    res.status(200).json(consultas);
+  } catch (error) {
+    console.error("Erro ao listar consultas:", error);
+    res.status(400).json({
+      status: "error",
+      message: "Erro ao listar consultas",
+      error: error.message,
+    });
+  }
+}
+
 module.exports = {
   criarConsulta,
   listarConsultasDoDia,
+  listarConsultas
 };

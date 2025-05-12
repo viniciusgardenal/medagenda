@@ -18,7 +18,11 @@ const Roles = require("./roles");
 const Permissao = require("./permissao");
 const SolicitacaoExames = require("./solicitacaoExames");
 const RegistroResultadoExames = require("./registroResultadoExames");
-const RegistroObitos = require("./registroObitos")(sequelize, Sequelize.DataTypes);
+const RegistroObitos = require("./registroObitos")(
+  sequelize,
+  Sequelize.DataTypes
+);
+const Atendimento = require("./atendimentos");
 
 // Objeto contendo todos os modelos
 const models = {
@@ -38,6 +42,7 @@ const models = {
   SolicitacaoExames,
   RegistroResultadoExames,
   RegistroObitos,
+  Atendimento,
 };
 
 // Definição das associações
@@ -228,6 +233,12 @@ models.RegistroObitos.belongsTo(models.Profissional, {
 models.Profissional.hasMany(models.RegistroObitos, {
   foreignKey: "matriculaProfissional",
   as: "registrosObitos",
+});
+
+// Atendimento
+models.Atendimento.belongsTo(models.Consulta, {
+  foreignKey: "consultaId",
+  as: "consulta",
 });
 
 // Exportação dos modelos e sequelize

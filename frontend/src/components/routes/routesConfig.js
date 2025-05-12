@@ -16,6 +16,7 @@ import CheckInPacientes from "../checkinPacientes/CheckInPacientes";
 import GerenciarHorariosProfissionais from "../gerenciarHorariosProfissionais/gerenciarHorariosProfissionais"; // Novo import
 import AgendamentoConsulta from "../agendamentosConsultas/AgendamentoConsulta";
 import GerenciarRegistroObitos from "../registroObitos/GerenciarRegistroObitos.jsx";
+import RegistroAtendimento from "../realizarAtendimentos/registroAtendimento.jsx";
 
 const routes = [
   { path: "/", element: <LoginScreen />, protected: false },
@@ -123,6 +124,13 @@ const routes = [
     protected: true,
     permissao: "consultar",
     rolesPermitidos: ["Diretor"],
+  },
+  {
+    path: "/atendimentos",
+    element: <RegistroAtendimento />,
+    protected: true,
+    permissao: "consultar",
+    rolesPermitidos: ["Diretor", "Médico"],
   },
   {
     path: "/unauthorized",

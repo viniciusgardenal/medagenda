@@ -255,6 +255,10 @@ export const getHorarioId = async (id) => {
 export const agendarConsulta = async (dadosConsulta) => {
   return await api.post(`${apiUrl}/consultas`, dadosConsulta);
 };
+export const getConsultas = async () => {
+  return await api.get(`${apiUrl}/consultas`);
+};
+
 
 // Buscar consultas por data e matrícula do médico
 export const getConsultasPorDataEMedico = async (data, matricula) => {
@@ -327,4 +331,25 @@ export const getRegistroObitoId = async (id) => {
     console.error("Erro em getRegistroObitoId:", error.response?.data || error.message);
     throw error;
   }
+};
+
+//Registrar Atendimento
+export const registrarAtendimento = async (consultaId, dadosAtendimento) => {
+  return await api.post(`${apiUrl}/atendimentos/${consultaId}`, dadosAtendimento);
+};
+
+export const getAtendimentoPorId = async (id) => {
+  return await api.get(`${apiUrl}/atendimentos/${id}`);
+};
+
+export const getAtendimentos = async () => {
+  return await api.get(`${apiUrl}/atendimentos`);
+};
+
+export const atualizarAtendimento = async (id, dadosAtendimento) => {
+  return await api.put(`${apiUrl}/atendimentos/${id}`, dadosAtendimento);
+};
+
+export const excluirAtendimento = async (id) => {
+  return await api.delete(`${apiUrl}/atendimentos/${id}`);
 };

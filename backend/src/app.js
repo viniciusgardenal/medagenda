@@ -39,6 +39,7 @@ const checkIn = require("./routes/checkInRoutes");
 const consultasRoutes = require("./routes/consultasRoutes");
 const horariosProfissionais = require("./routes/horariosProfissionaisRoutes");
 const registroObitos = require("./routes/registroObitosRoutes");
+const realizarAtendimento = require("./routes/atendimentosRoutes");
 
 // 2. Usar as rotas
 app.use("/auth", authRoutes);
@@ -61,6 +62,7 @@ app.use("/", autenticar, checkIn);
 app.use("/", autenticar, consultasRoutes);
 app.use("/", autenticar, horariosProfissionais);
 app.use("/", autenticar, registroObitos);
+app.use("/", autenticar, realizarAtendimento);
 
 // Configurar relação many-to-many
 Roles.belongsToMany(Permissao, {

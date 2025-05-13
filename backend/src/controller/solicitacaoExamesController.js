@@ -1,5 +1,7 @@
 const solicitacaoExames = require("../model/solicitacaoExames");
 const tiposExames = require("../model/tiposExames");
+const Profissional = require("../model/profissional"); // Adjust path as needed
+const Paciente = require("../model/paciente"); // Adjust path as needed
 
 const criarSolicitacaoExames = async (req, res) => {
   try {
@@ -39,32 +41,86 @@ const criarSolicitacaoExames = async (req, res) => {
       include: [
         {
           model: tiposExames,
+          as: 'tipoExame',
           attributes: ['nomeTipoExame'],
         },
         {
           model: Profissional,
-          attributes: ['nome'],
+          as: 'profissional',
+          attributes: ['nome', 'crm'],
         },
         {
           model: Paciente,
-          attributes: ['nome'],
+          as: 'paciente',
+          attributes: ['nome', 'sobrenome'],
         }
       ],
     });
 
     res.status(201).json(exameCriado);
   } catch (error) {
+    console.error("Erro ao criar solicitação:", error);
     res.status(400).json({ error: error.message });
+  }
+};
+
+const lerSolicitacaoExames = async (req, res) => {
+  try {
+    const exames = await solicitacaoExames.findAll({
+      include: [
+        {
+          model: tiposExames,
+          as: 'tipoExame',
+          attributes: ['nomeTipoExame'],
+        },
+        {
+          model: Profissional,
+          as: 'profissional',
+          attributes: ['nome', 'crm'],
+        },
+        {
+          model: Paciente,
+          as: 'paciente',
+          attributes: ['nome', 'sobrenome'],
+        }
+      ],
+    });
+    res.status(200).json(exames);
+  } catch (error) {
+    console.error("Erro ao listar solicitações:", error);
+    res.status(500).json({ error: error.message });
   }
 };
 
 const lerSolicitacaoExamesId = async (req, res) => {
   try {
     const id = req.params.id;
-    const exame = await solicitacaoExames.findByPk(id);
-    if (exame) res.status(200).json(exame);
-    else res.status(404).json({ message: "Exame não encontrado!" });
+    const exame = await solicitacaoExames.findByPk(id, {
+      include: [
+        {
+          model: tiposExames,
+          as: 'tipoExame',
+          attributes: ['nomeTipoExame'],
+        },
+        {
+          model: Profissional,
+          as: 'profissional',
+          attributes: ['nome', 'crm'],
+        },
+        {
+          model: Paciente,
+          as: 'paciente',
+          attributes: ['nome', 'sobrenome'],
+        }
+      ],
+    });
+    if (exame) {
+      res.status(200).json(exame);
+    } else {
+      res.status(404).json({ message: "Exame não encontrado!" });
+    }
   } catch (error) {
+    console.error("Erro ao buscar solicitação ID:", id, error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -84,8 +140,28 @@ const atualizarSolicitacaoExames = async (req, res) => {
     }
 
     await exame.update(dadosAtualizados);
-    res.status(200).json({ message: "Exame atualizado com sucesso!", exame });
+    const exameAtualizado = await solicitacaoExames.findByPk(id, {
+      include: [
+        {
+          model: tiposExames,
+          as: 'tipoExame',
+          attributes: ['nomeTipoExame'],
+        },
+        {
+          model: Profissional,
+          as: 'profissional',
+          attributes: ['nome', 'crm'],
+        },
+        {
+          model: Paciente,
+          as: 'paciente',
+          attributes: ['nome', 'sobrenome'],
+        }
+      ],
+    });
+    res.status(200).json({ message: "Exame atualizado com sucesso!", exame: exameAtualizado });
   } catch (error) {
+    console.error("Erro ao atualizar solicitação ID:", id, error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -93,12 +169,17 @@ const atualizarSolicitacaoExames = async (req, res) => {
 const excluirSolicitacaoExames = async (req, res) => {
   try {
     const id = req.params.id;
+    console.log("Tentando excluir solicitação ID:", id);
     const exame = await solicitacaoExames.findByPk(id);
-    if (!exame)
+    if (!exame) {
+      console.warn("Solicitação não encontrada para ID:", id);
       return res.status(404).json({ message: "Exame não encontrado!" });
+    }
     await exame.destroy();
+    console.log("Solicitação excluída com sucesso, ID:", id);
     res.status(200).json({ message: "Exame excluído com sucesso!" });
   } catch (error) {
+    console.error("Erro ao excluir solicitação ID:", id, error);
     res.status(500).json({ error: error.message });
   }
 };

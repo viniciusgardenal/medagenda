@@ -140,27 +140,69 @@ export const getMedicamentosId = async (id) => {
 };
 
 //Solicitacao Exames
+// Solicitacao Exames
 export const criarSolicitacaoExames = async (dadosSolicitacaoExames) => {
-  return await api.post(`${apiUrl}/solicitacaoExames`, dadosSolicitacaoExames);
+  try {
+    console.log("Criando solicitação com dados:", dadosSolicitacaoExames);
+    const response = await api.post(`${apiUrl}/solicitacaoExames`, dadosSolicitacaoExames);
+    console.log("Resposta de criação:", response.data);
+    return response;
+  } catch (error) {
+    console.error("Erro ao criar solicitação:", error.response?.data || error.message);
+    throw error.response?.data || { error: "Erro ao criar solicitação." };
+  }
 };
 
 export const updateSolicitacaoExames = async (id, dadosSolicitacaoExames) => {
-  return await api.put(
-    `${apiUrl}/solicitacaoExames/${id}`,
-    dadosSolicitacaoExames
-  );
+  try {
+    console.log(`Atualizando solicitação ID ${id} com dados:`, dadosSolicitacaoExames);
+    const response = await api.put(`${apiUrl}/solicitacaoExames/${id}`, dadosSolicitacaoExames);
+    console.log("Resposta de atualização:", response.data);
+    return response;
+  } catch (error) {
+    console.error("Erro ao atualizar solicitação:", error.response?.data || error.message);
+    throw error.response?.data || { error: "Erro ao atualizar solicitação." };
+  }
 };
 
 export const excluirSolicitacaoExames = async (id) => {
-  return await api.delete(`${apiUrl}/solicitacaoExames/${id}`);
+  try {
+    console.log(`Enviando DELETE para solicitação ID: ${id}`);
+    const response = await api.delete(`${apiUrl}/solicitacaoExames/${id}`);
+    console.log("Resposta de exclusão:", response.data);
+    return response;
+  } catch (error) {
+    console.error("Erro ao excluir solicitação ID:", id, error.response?.data || error.message);
+    const errorMessage =
+      error.response?.status === 404
+        ? { error: "Solicitação não encontrada." }
+        : error.response?.data || { error: "Erro ao excluir solicitação." };
+    throw errorMessage;
+  }
 };
 
 export const getSolicitacaoExames = async () => {
-  return await api.get(`${apiUrl}/solicitacaoExames`);
+  try {
+    console.log("Buscando todas as solicitações");
+    const response = await api.get(`${apiUrl}/solicitacaoExames`);
+    console.log("Resposta de busca:", response.data);
+    return response;
+  } catch (error) {
+    console.error("Erro ao buscar solicitações:", error.response?.data || error.message);
+    throw error.response?.data || { error: "Erro ao buscar solicitações." };
+  }
 };
 
 export const getSolicitacaoExamesId = async (id) => {
-  return await api.get(`${apiUrl}/solicitacaoExames/${id}`);
+  try {
+    console.log(`Buscando solicitação ID: ${id}`);
+    const response = await api.get(`${apiUrl}/solicitacaoExames/${id}`);
+    console.log("Resposta de busca por ID:", response.data);
+    return response;
+  } catch (error) {
+    console.error("Erro ao buscar solicitação ID:", id, error.response?.data || error.message);
+    throw error.response?.data || { error: "Erro ao buscar solicitação." };
+  }
 };
 
 //Receita

@@ -338,85 +338,82 @@ const GerenciarRegistroObitos = () => {
   };
 
   return (
-    <section className="max-w-7xl mx-auto mt-8 px-6 py-8 bg-gray-100 rounded-xl shadow-xl">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-3xl font-semibold text-indigo-700 flex items-center gap-3">
-          <FaSkullCrossbones className="h-7 w-7 text-indigo-600" />
-          Gerenciar Registro de Óbitos
-        </h2>
-        <button
-          onClick={() => setIsAddModalOpen(true)}
-          className="inline-flex items-center px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-md shadow-md transition-colors text-base"
-        >
-          <FaPlus className="h-5 w-5 mr-2" />
-          Novo Registro
-        </button>
-      </div>
-
-      {error && (
-        <div className="bg-rose-50 text-rose-600 p-4 rounded-md mb-6 text-sm font-medium">
-          {error}
+    <div className="min-h-screen bg-gray-200 p-6">
+      <section className="max-w-6xl mx-auto bg-white rounded-2xl shadow-md p-6 space-y-6">
+        <div className="border-b pb-4 flex justify-between items-center">
+          <h2 className="text-3xl font-bold text-blue-600 flex items-center gap-3">
+            Gerenciar Registro de Óbitos
+          </h2>
+          <button
+            onClick={() => setIsAddModalOpen(true)}
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+          >
+            <FaPlus className="h-5 w-5" />
+            Novo Registro
+          </button>
         </div>
-      )}
 
-      <div className="bg-white p-6 rounded-lg shadow-md mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="space-y-2">
-            <label className="block text-sm font-semibold text-gray-800">
+        {error && (
+          <div className="bg-red-50 text-red-600 p-4 rounded-md text-sm font-medium">
+            {error}
+          </div>
+        )}
+
+        <div className="flex flex-col md:flex-row gap-4 mb-6">
+          <div className="flex-1">
+            <label className="block text-sm font-semibold text-gray-700 mb-1">
               Nome do Paciente
             </label>
             <input
               type="text"
               value={filtroPaciente}
               onChange={(e) => setFiltroPaciente(e.target.value)}
-              className="w-full px-4 py-2.5 border border-gray-200 rounded-md text-sm text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+              className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
               placeholder="Filtrar por paciente"
             />
           </div>
-          <div className="space-y-2">
-            <label className="block text-sm font-semibold text-gray-800">
+          <div className="flex-1">
+            <label className="block text-sm font-semibold text-gray-700 mb-1">
               Nome do Profissional
             </label>
             <input
               type="text"
               value={filtroProfissional}
               onChange={(e) => setFiltroProfissional(e.target.value)}
-              className="w-full px-4 py-2.5 border border-gray-200 rounded-md text-sm text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+              className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
               placeholder="Filtrar por profissional"
             />
           </div>
-          <div className="space-y-2">
-            <label className="block text-sm font-semibold text-gray-800">
+          <div className="flex-1">
+            <label className="block text-sm font-semibold text-gray-700 mb-1">
               Causa do Óbito
             </label>
             <input
               type="text"
               value={filtroCausa}
               onChange={(e) => setFiltroCausa(e.target.value)}
-              className="w-full px-4 py-2.5 border border-gray-200 rounded-md text-sm text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+              className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
               placeholder="Filtrar por causa"
             />
           </div>
         </div>
-      </div>
 
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        {isLoading ? (
-          <p className="text-center text-gray-600 py-4 text-base font-medium">
-            Carregando registros...
-          </p>
-        ) : pacientes.length === 0 || profissionais.length === 0 ? (
-          <p className="text-center text-gray-600 py-4 text-base font-medium">
-            Dados incompletos. Verifique a conexão com a API.
-          </p>
-        ) : obitosOrdenados.length === 0 ? (
-          <p className="text-center text-gray-600 py-4 text-base font-medium">
-            Nenhum registro de óbito encontrado.
-          </p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-100">
-              <thead className="bg-indigo-600 text-white">
+        <div className="overflow-x-auto rounded-lg shadow-md">
+          {isLoading ? (
+            <p className="text-center text-gray-600 py-4 text-base font-medium">
+              Carregando registros...
+            </p>
+          ) : pacientes.length === 0 || profissionais.length === 0 ? (
+            <p className="text-center text-gray-600 py-4 text-base font-medium">
+              Dados incompletos. Verifique a conexão com a API.
+            </p>
+          ) : obitosOrdenados.length === 0 ? (
+            <p className="text-center text-gray-600 py-4 text-base font-medium">
+              Nenhum registro de óbito encontrado.
+            </p>
+          ) : (
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-blue-600 text-white">
                 <tr>
                   {["ID", "Paciente", "Profissional", "Data do Óbito", "Causa"].map(
                     (header, index) => (
@@ -456,7 +453,7 @@ const GerenciarRegistroObitos = () => {
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-gray-200">
                 {currentObitos.length === 0 ? (
                   <tr>
                     <td
@@ -487,21 +484,21 @@ const GerenciarRegistroObitos = () => {
                       <td className="px-6 py-4 text-sm flex gap-3">
                         <button
                           onClick={() => openViewModal(obito)}
-                          className="text-teal-500 hover:text-teal-600 transition-colors"
+                          className="text-blue-600 hover:text-blue-700 transition-colors"
                           title="Ver Detalhes"
                         >
                           <FaEye className="h-5 w-5" />
                         </button>
                         <button
                           onClick={() => openEditModal(obito)}
-                          className="text-teal-500 hover:text-teal-600 transition-colors"
+                          className="text-blue-600 hover:text-blue-700 transition-colors"
                           title="Editar Registro"
                         >
                           <FaEdit className="h-5 w-5" />
                         </button>
                         <button
                           onClick={() => openConfirmDelete(obito)}
-                          className="text-rose-500 hover:text-rose-600 transition-colors"
+                          className="text-red-600 hover:text-red-700 transition-colors"
                           title="Excluir Registro"
                         >
                           <FaTrash className="h-5 w-5" />
@@ -512,58 +509,58 @@ const GerenciarRegistroObitos = () => {
                 )}
               </tbody>
             </table>
+          )}
+        </div>
+
+        {obitosOrdenados.length > 0 && (
+          <div className="mt-6">
+            <Pagination
+              totalItems={obitosOrdenados.length}
+              itemsPerPage={itemsPerPage}
+              currentPage={currentPage}
+              onPageChange={handlePageChange}
+              maxPageButtons={5}
+            />
           </div>
         )}
-      </div>
 
-      {obitosOrdenados.length > 0 && (
-        <div className="mt-6">
-          <Pagination
-            totalItems={obitosOrdenados.length}
-            itemsPerPage={itemsPerPage}
-            currentPage={currentPage}
-            onPageChange={handlePageChange}
-            maxPageButtons={5}
-          />
-        </div>
-      )}
-
-      <ModalAddObito
-        isOpen={isAddModalOpen}
-        onClose={closeModals}
-        onSubmit={handleAddObito}
-        pacientes={pacientes}
-        profissionais={profissionais}
-        isSaving={isSaving}
-      />
-      <ModalEditObito
-        isOpen={isEditModalOpen}
-        onClose={closeModals}
-        onSubmit={handleEditObito}
-        obito={selectedObito}
-        pacientes={pacientes}
-        profissionais={profissionais}
-        isSaving={isSaving}
-      />
-      <ModalViewObito
-        isOpen={isViewModalOpen}
-        onClose={closeModals}
-        obito={selectedObito}
-      />
-      <ConfirmationModal
-        isOpen={isConfirmModalOpen}
-        onConfirm={handleDeleteObito}
-        onCancel={closeModals}
-        message={
-          selectedObito
-            ? `Deseja excluir o registro de óbito do paciente ${
-                getPacienteNome(selectedObito.cpfPaciente)
-              } em ${formatDate(selectedObito.dataObito)}?`
-            : ""
-        }
-        isSaving={isSaving}
-      />
-    </section>
+        <ModalAddObito
+          isOpen={isAddModalOpen}
+          onClose={closeModals}
+          onSubmit={handleAddObito}
+          pacientes={pacientes}
+          profissionais={profissionais}
+          isSaving={isSaving}
+        />
+        <ModalEditObito
+          isOpen={isEditModalOpen}
+          onClose={closeModals}
+          onSubmit={handleEditObito}
+          obito={selectedObito}
+          pacientes={pacientes}
+          profissionais={profissionais}
+          isSaving={isSaving}
+        />
+        <ModalViewObito
+          isOpen={isViewModalOpen}
+          onClose={closeModals}
+          obito={selectedObito}
+        />
+        <ConfirmationModal
+          isOpen={isConfirmModalOpen}
+          onConfirm={handleDeleteObito}
+          onCancel={closeModals}
+          message={
+            selectedObito
+              ? `Deseja excluir o registro de óbito do paciente ${
+                  getPacienteNome(selectedObito.cpfPaciente)
+                } em ${formatDate(selectedObito.dataObito)}?`
+              : ""
+          }
+          isSaving={isSaving}
+        />
+      </section>
+    </div>
   );
 };
 

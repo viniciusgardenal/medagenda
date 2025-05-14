@@ -14,6 +14,11 @@ router.get(
   checkpermissao("consultar"),
   ConsultaController.listarConsultasDoDia
 );
+router.get(
+  "/consultas/:medicoId/:dataConsulta",
+  checkpermissao("consultar"),
+  ConsultaController.getHorariosDisponiveis
+);
 
 router.get(
   "/consultas",

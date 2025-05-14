@@ -169,8 +169,6 @@ const ConsultaTable = ({
   itemsPerPage,
 }) => {
   const sortConsultas = (consultas) => {
-    // console.log("consultas", consultas);
-
     return [...consultas].sort((a, b) => {
       let valueA, valueB;
       const fieldMap = {
@@ -315,7 +313,7 @@ const AgendamentoConsulta = () => {
   const [itemsPerPage] = useState(8);
   const [sortField, setSortField] = useState("nome");
   const [sortDirection, setSortDirection] = useState("asc");
-  const [status, setStatus] = useState("agendada"); // Novo estado para controlar o status
+  const [status, setStatus] = useState("agendada");
 
   const formatarDataHoraBR = (data, hora) => {
     if (!data || !hora) return "";
@@ -445,6 +443,7 @@ const AgendamentoConsulta = () => {
     setModalAddOpen(false);
     setModalViewOpen(false);
     setConsultaSelecionada(null);
+    setError(null); // Limpa o erro ao fechar o modal
   };
 
   const handleSort = (field) => {
@@ -472,11 +471,11 @@ const AgendamentoConsulta = () => {
           status={status}
         />
 
-        {error && (
+        {/* {error && (
           <div className="p-4 text-sm text-red-700 bg-red-100 rounded-lg border border-red-300">
             {error}
           </div>
-        )}
+        )} */}
 
         <FilterSection filtros={filtros} setFiltros={setFiltros} />
 
@@ -504,6 +503,8 @@ const AgendamentoConsulta = () => {
             pacientes={pacientes}
             medicos={medicos}
             tiposConsulta={tiposConsulta}
+            error={error}
+            setError={setError}
           />
         )}
 

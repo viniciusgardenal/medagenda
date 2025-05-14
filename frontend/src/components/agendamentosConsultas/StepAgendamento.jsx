@@ -1,15 +1,33 @@
-import React from "react";
 import SelectField from "./SelectField";
+import React, { useState, useEffect } from "react";
+import { getHorariosDisponiveis } from "../../config/apiServices";
+import InputField from "./InputField";
 
 const StepAgendamento = ({
   dadosConsulta,
   setDadosConsulta,
   tiposConsulta,
 }) => {
-  const tipoConsultaOptions = tiposConsulta.map((tipo) => ({
-    value: tipo.idTipoConsulta,
-    label: tipo.nomeTipoConsulta,
-  }));
+  const [horariosDisponiveis, setHorariosDisponiveis] = useState([]);
+
+  useEffect(() => {
+    const fetchHorarios = async () => {
+      if (dadosConsulta.medicoId && dadosConsulta.dataConsulta) {
+        try {
+          const response = await getHorariosDisponiveis(
+            dadosConsulta.medicoId,
+            dadosConsulta.dataConsulta
+          );
+          setHorariosDisponiveis(response.data.data); // Assuming your API returns { data: [...] }
+        } catch (error) {
+          console.error("Erro ao carregar horários:", error);
+        }
+      } else {
+        setHorariosDisponiveis([]); // Clear horarios if medicoId or dataConsulta is empty
+      }
+    };
+    fetchHorarios();
+  }, [dadosConsulta.medicoId, dadosConsulta.dataConsulta]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -26,48 +44,54 @@ const StepAgendamento = ({
         name="idTipoConsulta"
         value={dadosConsulta.idTipoConsulta}
         onChange={handleChange}
-        options={tipoConsultaOptions}
+        options={tiposConsulta.map((tipo) => ({
+          value: tipo.idTipoConsulta,
+          label: tipo.nomeTipoConsulta,
+        }))}
         placeholder="Selecione um tipo"
         required
       />
-      <input
+      <InputField
         label="Data da Consulta"
         name="dataConsulta"
         value={dadosConsulta.dataConsulta}
         onChange={handleChange}
         type="date"
         required
-        className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
       />
-      <input
+      <SelectField
         label="Hora da Consulta"
         name="horaConsulta"
         value={dadosConsulta.horaConsulta}
         onChange={handleChange}
-        type="time"
+        options={[
+          ...horariosDisponiveis.map((hora) => ({
+            value: hora,
+            label: hora,
+          })),
+        ]}
+        placeholder="Selecione um horário"
         required
-        className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
       />
-      <textarea
+      <InputField
         label="Motivo"
         name="motivo"
         value={dadosConsulta.motivo}
         onChange={(e) =>
           setDadosConsulta({ ...dadosConsulta, motivo: e.target.value })
         }
+        type="textarea"
         required
-        className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
       />
-      <input
+      <InputField
         label="Responsável pelo Agendamento"
         name="responsavelAgendamento"
         value={dadosConsulta.responsavelAgendamento}
         onChange={handleChange}
         required
         disabled
-        className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
       />
-      <input
+      <InputField
         label="Prioridade (0 a 5)"
         name="prioridade"
         value={1}
@@ -75,7 +99,6 @@ const StepAgendamento = ({
         type="number"
         required
         hidden={true}
-        className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
       />
     </div>
   );

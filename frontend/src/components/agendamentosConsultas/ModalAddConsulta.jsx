@@ -15,8 +15,9 @@ const ModalAddConsulta = ({
   pacientes,
   medicos,
   tiposConsulta,
+  error,
+  setError,
 }) => {
-  // Hooks must be called before any return
   const [step, setStep] = useState(1);
   const [isCadastroPacienteOpen, setIsCadastroPacienteOpen] = useState(false);
   const [novoPaciente, setNovoPaciente] = useState({
@@ -40,7 +41,6 @@ const ModalAddConsulta = ({
     });
   }, [step, dadosConsulta]);
 
-  // Constants
   const BUTTON_CLASSES = {
     primary:
       "px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700",
@@ -72,7 +72,6 @@ const ModalAddConsulta = ({
     { title: "Resumo", component: StepResumo, requiredFields: [] },
   ];
 
-  // Early return after all hooks
   if (!isOpen) return null;
 
   const handleCadastrarPaciente = async () => {
@@ -99,7 +98,6 @@ const ModalAddConsulta = ({
   };
 
   const nextStep = () => {
-    // Reset search inputs for the current step before moving to the next
     if (step === 1 && pacienteRef.current) {
       pacienteRef.current.reset();
     } else if (step === 2 && medicoRef.current) {
@@ -113,13 +111,17 @@ const ModalAddConsulta = ({
   };
 
   const goToStep = (stepNumber) => {
-    // Reset search inputs when navigating to a specific step
     if (stepNumber === 1 && pacienteRef.current) {
       pacienteRef.current.reset();
     } else if (stepNumber === 2 && medicoRef.current) {
       medicoRef.current.reset();
     }
     setStep(stepNumber);
+  };
+
+  const handleClose = () => {
+    setError(null); // Limpa o erro ao fechar o modal
+    onClose();
   };
 
   const renderStep = () => {
@@ -134,6 +136,8 @@ const ModalAddConsulta = ({
         goToStep={goToStep}
         onCadastrarPaciente={() => setIsCadastroPacienteOpen(true)}
         ref={step === 1 ? pacienteRef : step === 2 ? medicoRef : null}
+        error={error} // Passa o erro para StepResumo
+        setError={setError} // Passa a função setError para StepResumo
       />
     );
   };
@@ -153,7 +157,7 @@ const ModalAddConsulta = ({
             </button>
           )}
           <div className="flex gap-3">
-            <button onClick={onClose} className={BUTTON_CLASSES.secondary}>
+            <button onClick={handleClose} className={BUTTON_CLASSES.secondary}>
               Cancelar
             </button>
             {step < steps.length ? (

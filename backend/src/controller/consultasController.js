@@ -3,13 +3,11 @@ const Paciente = require("../model/paciente");
 const Profissional = require("../model/profissionais");
 const CheckIn = require("../model/checkin");
 const tipoConsulta = require("../model/tipoConsulta");
+const { Op } = require("sequelize");
 
 const criarConsulta = async (req, res) => {
   try {
-    // Log para depuração
-    console.log("Dados recebidos para criar consulta:", req.body);
-
-    // Extrair e validar campos obrigatórios
+    // Extrair campos obrigatórios
     const {
       cpfPaciente,
       medicoId,
@@ -22,6 +20,7 @@ const criarConsulta = async (req, res) => {
       status = "agendada",
     } = req.body;
 
+    // Validar campos obrigatórios
     if (
       !cpfPaciente ||
       !medicoId ||
@@ -54,6 +53,22 @@ const criarConsulta = async (req, res) => {
       return res
         .status(400)
         .json({ error: "Tipo de consulta não encontrado." });
+    }
+
+    // **Verificar se já existe uma consulta agendada para o mesmo médico, data e hora**
+    const consultaExistente = await Consulta.findOne({
+      where: {
+        medicoId: medicoId,
+        dataConsulta: dataConsulta,
+        horaConsulta: horaConsulta,
+      },
+    });
+
+    if (consultaExistente) {
+      return res.status(409).json({
+        // 409 Conflict
+        error: "Já existe uma consulta agendada para este médico, data e hora.",
+      });
     }
 
     // Criar a consulta
@@ -89,9 +104,6 @@ const criarConsulta = async (req, res) => {
         },
       ],
     });
-
-    // Log para depuração
-    console.log("Consulta completa retornada:", consultaCompleta.toJSON());
 
     res.status(201).json(consultaCompleta);
   } catch (error) {
@@ -167,10 +179,58 @@ const listarConsultas = async (req, res) => {
       error: error.message,
     });
   }
-}
+};
+
+const getHorariosDisponiveis = async (req, res) => {
+  const { medicoId, dataConsulta } = req.params;
+
+  try {
+    const consultas = await Consulta.findAll({
+      where: {
+        medicoId: medicoId,
+        dataConsulta: dataConsulta,
+        status: { [Op.ne]: "cancelada" },
+      },
+      attributes: ["horaConsulta"],
+    });
+
+    const horariosOcupados = consultas.map((c) => c.horaConsulta);
+    const horariosPossiveis = [
+      "08:00",
+      "08:30",
+      "09:00",
+      "09:30",
+      "10:00",
+      "10:30",
+      "11:00",
+      "14:00",
+      "14:30",
+      "15:00",
+      "15:30",
+      "16:00",
+      "16:30",
+      "17:00",
+      "17:30",
+    ];
+
+    const horariosDisponiveis = horariosPossiveis.filter(
+      (horarioPossivel) => !horariosOcupados.includes(horarioPossivel)
+    );
+
+    res.status(200).json({ data: horariosDisponiveis });
+  } catch (error) {
+    console.error("Erro ao buscar horários disponíveis:", error);
+    res.status(500).json({
+      status: "error",
+      message: "Erro ao buscar horários disponíveis",
+      error: error.message,
+    });
+  }
+};
 
 module.exports = {
   criarConsulta,
   listarConsultasDoDia,
-  listarConsultas
+  listarConsultas,
+  getHorariosDisponiveis,
 };

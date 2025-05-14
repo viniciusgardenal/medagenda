@@ -144,23 +144,38 @@ export const getMedicamentosId = async (id) => {
 export const criarSolicitacaoExames = async (dadosSolicitacaoExames) => {
   try {
     console.log("Criando solicitação com dados:", dadosSolicitacaoExames);
-    const response = await api.post(`${apiUrl}/solicitacaoExames`, dadosSolicitacaoExames);
+    const response = await api.post(
+      `${apiUrl}/solicitacaoExames`,
+      dadosSolicitacaoExames
+    );
     console.log("Resposta de criação:", response.data);
     return response;
   } catch (error) {
-    console.error("Erro ao criar solicitação:", error.response?.data || error.message);
+    console.error(
+      "Erro ao criar solicitação:",
+      error.response?.data || error.message
+    );
     throw error.response?.data || { error: "Erro ao criar solicitação." };
   }
 };
 
 export const updateSolicitacaoExames = async (id, dadosSolicitacaoExames) => {
   try {
-    console.log(`Atualizando solicitação ID ${id} com dados:`, dadosSolicitacaoExames);
-    const response = await api.put(`${apiUrl}/solicitacaoExames/${id}`, dadosSolicitacaoExames);
+    console.log(
+      `Atualizando solicitação ID ${id} com dados:`,
+      dadosSolicitacaoExames
+    );
+    const response = await api.put(
+      `${apiUrl}/solicitacaoExames/${id}`,
+      dadosSolicitacaoExames
+    );
     console.log("Resposta de atualização:", response.data);
     return response;
   } catch (error) {
-    console.error("Erro ao atualizar solicitação:", error.response?.data || error.message);
+    console.error(
+      "Erro ao atualizar solicitação:",
+      error.response?.data || error.message
+    );
     throw error.response?.data || { error: "Erro ao atualizar solicitação." };
   }
 };
@@ -172,7 +187,11 @@ export const excluirSolicitacaoExames = async (id) => {
     console.log("Resposta de exclusão:", response.data);
     return response;
   } catch (error) {
-    console.error("Erro ao excluir solicitação ID:", id, error.response?.data || error.message);
+    console.error(
+      "Erro ao excluir solicitação ID:",
+      id,
+      error.response?.data || error.message
+    );
     const errorMessage =
       error.response?.status === 404
         ? { error: "Solicitação não encontrada." }
@@ -188,7 +207,10 @@ export const getSolicitacaoExames = async () => {
     console.log("Resposta de busca:", response.data);
     return response;
   } catch (error) {
-    console.error("Erro ao buscar solicitações:", error.response?.data || error.message);
+    console.error(
+      "Erro ao buscar solicitações:",
+      error.response?.data || error.message
+    );
     throw error.response?.data || { error: "Erro ao buscar solicitações." };
   }
 };
@@ -200,7 +222,11 @@ export const getSolicitacaoExamesId = async (id) => {
     console.log("Resposta de busca por ID:", response.data);
     return response;
   } catch (error) {
-    console.error("Erro ao buscar solicitação ID:", id, error.response?.data || error.message);
+    console.error(
+      "Erro ao buscar solicitação ID:",
+      id,
+      error.response?.data || error.message
+    );
     throw error.response?.data || { error: "Erro ao buscar solicitação." };
   }
 };
@@ -301,12 +327,16 @@ export const getConsultas = async () => {
   return await api.get(`${apiUrl}/consultas`);
 };
 
-
 // Buscar consultas por data e matrícula do médico
 export const getConsultasPorDataEMedico = async (data, matricula) => {
   return await api.get(`${apiUrl}/consultas`, {
     params: { dataConsulta: data, medicoId: matricula },
   });
+};
+
+export const getHorariosDisponiveis = async (medicoId, dataConsulta) => {
+  // console.log(medicoId, dataConsulta);
+  return await api.get(`${apiUrl}/consultas/${medicoId}/${dataConsulta}`);
 };
 
 //Registro de Óbitos
@@ -316,18 +346,27 @@ export const criarRegistroObito = async (dadosObito) => {
     console.log("Resposta de criarRegistroObito:", response.data);
     return response.data;
   } catch (error) {
-    console.error("Erro em criarRegistroObito:", error.response?.data || error.message);
+    console.error(
+      "Erro em criarRegistroObito:",
+      error.response?.data || error.message
+    );
     throw error;
   }
 };
 
 export const updateRegistroObito = async (id, dadosObito) => {
   try {
-    const response = await api.put(`${apiUrl}/registro-obitos/${id}`, dadosObito);
+    const response = await api.put(
+      `${apiUrl}/registro-obitos/${id}`,
+      dadosObito
+    );
     console.log("Resposta de updateRegistroObito:", response.data);
     return response.data;
   } catch (error) {
-    console.error("Erro em updateRegistroObito:", error.response?.data || error.message);
+    console.error(
+      "Erro em updateRegistroObito:",
+      error.response?.data || error.message
+    );
     throw error;
   }
 };
@@ -338,7 +377,10 @@ export const excluirRegistroObito = async (id) => {
     console.log("Resposta de excluirRegistroObito:", response.data);
     return response.data;
   } catch (error) {
-    console.error("Erro em excluirRegistroObito:", error.response?.data || error.message);
+    console.error(
+      "Erro em excluirRegistroObito:",
+      error.response?.data || error.message
+    );
     throw error;
   }
 };
@@ -351,11 +393,14 @@ export const getRegistroObitos = async () => {
     const data = Array.isArray(response.data.data)
       ? response.data.data
       : Array.isArray(response.data)
-        ? response.data
-        : [];
+      ? response.data
+      : [];
     return { data };
   } catch (error) {
-    console.error("Erro em getRegistroObitos:", error.response?.data || error.message);
+    console.error(
+      "Erro em getRegistroObitos:",
+      error.response?.data || error.message
+    );
     throw error;
   }
 };
@@ -370,14 +415,20 @@ export const getRegistroObitoId = async (id) => {
       console.log("Registro de óbito não encontrado para ID:", id);
       return null;
     }
-    console.error("Erro em getRegistroObitoId:", error.response?.data || error.message);
+    console.error(
+      "Erro em getRegistroObitoId:",
+      error.response?.data || error.message
+    );
     throw error;
   }
 };
 
 //Registrar Atendimento
 export const registrarAtendimento = async (consultaId, dadosAtendimento) => {
-  return await api.post(`${apiUrl}/atendimentos/${consultaId}`, dadosAtendimento);
+  return await api.post(
+    `${apiUrl}/atendimentos/${consultaId}`,
+    dadosAtendimento
+  );
 };
 
 export const getAtendimentoPorId = async (id) => {

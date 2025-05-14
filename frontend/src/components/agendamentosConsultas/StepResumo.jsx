@@ -6,6 +6,8 @@ const StepResumo = ({
   medicos,
   tiposConsulta,
   goToStep,
+  error,
+  setError,
 }) => {
   const paciente = pacientes.find((p) => p.cpf === dadosConsulta.cpfPaciente);
   const medico = medicos.find((m) => m.matricula === dadosConsulta.medicoId);
@@ -79,7 +81,10 @@ const StepResumo = ({
               <p className="text-sm text-gray-600">{field.value}</p>
             </div>
             <button
-              onClick={() => goToStep(field.step)}
+              onClick={() => {
+                setError(null); // Limpa o erro ao editar
+                goToStep(field.step);
+              }}
               className="text-blue-600 hover:text-blue-800 text-sm font-semibold"
             >
               Editar
@@ -87,6 +92,11 @@ const StepResumo = ({
           </div>
         ))}
       </div>
+      {error && (
+        <div className="p-3 text-sm text-red-700 bg-red-100 rounded-lg border border-red-300">
+          {error}
+        </div>
+      )}
     </div>
   );
 };

@@ -1,5 +1,10 @@
 const Consulta = require("../model/consulta");
 const Atendimento = require("../model/atendimentos");
+const CheckIn = require("../model/checkin");
+const Paciente = require("../model/paciente");
+const Profissional = require("../model/profissionais");
+const TipoConsulta = require("../model/tipoConsulta");
+const { Op } = require("sequelize");
 
 const realizarAtendimento = async (req, res) => {
   try {
@@ -27,12 +32,12 @@ const realizarAtendimento = async (req, res) => {
         .json({ error: "A consulta não está no status 'agendada'." });
     }
 
-    // Verificar permissão do usuário (exemplo: apenas o médico responsável)
-    if (req.user && req.user.id !== consulta.medicoId) {
-      return res.status(403).json({
-        error: "Apenas o médico responsável pode registrar o atendimento.",
-      });
-    }
+    // // Verificar permissão do usuário (exemplo: apenas o médico responsável)
+    // if (req.user && req.user.id !== consulta.medicoId) {
+    //   return res.status(403).json({
+    //     error: "Apenas o médico responsável pode registrar o atendimento.",
+    //   });
+    // }
 
     // Criar o registro de atendimento
     const novoAtendimento = await Atendimento.create({
@@ -160,20 +165,29 @@ const excluirAtendimento = async (req, res) => {
 
 const getAtendimentosPorData = async (req, res) => {
   try {
-    const atendimentos = await Atendimento.findAll({
+    const consultas = await Consulta.findAll({
+      where: {
+        status: { [Op.in]: ["agendada", "realizada"] }, // Opcional: filtrar status da consulta
+      },
       include: [
         {
-          model: Consulta,
-          as: "consulta",
-          include: ["paciente", "medico", "tipoConsulta"],
+          model: CheckIn,
+          as: "checkin",
+          where: { status: "registrado" }, // Filtra check-ins com status "registrado"
+          required: true, // Garante que só retorna consultas com check-in
         },
+        { model: Paciente, as: "paciente" },
+        { model: Profissional, as: "medico" },
+        { model: TipoConsulta, as: "tipoConsulta" },
       ],
     });
 
-    res.status(200).json(atendimentos);
+    // console.log(consultas);
+
+    res.status(200).json(consultas);
   } catch (error) {
-    console.error("Erro ao buscar atendimentos:", error);
-    res.status(500).json({ error: "Erro interno ao buscar atendimentos." });
+    console.error("Erro ao buscar consultas com check-in registrado:", error);
+    res.status(500).json({ error: "Erro interno ao buscar consultas." });
   }
 };
 

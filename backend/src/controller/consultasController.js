@@ -125,11 +125,7 @@ const criarConsulta = async (req, res) => {
 
 const listarConsultasDoDia = async (req, res) => {
   try {
-    // console.log(req.params.data);
-
-    // Pega a data do query parameter ou usa o dia atual como padrão
     const data = req.params.data || new Date().toISOString().split("T")[0]; // Ex.: "2025-04-08"
-    console.log(data);
 
     // Busca consultas do dia com relacionamentos
     const consultas = await Consulta.findAll({

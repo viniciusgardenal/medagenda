@@ -14,7 +14,7 @@ const login = async (req, res) => {
     return res.status(400).json({ message: "E-mail e senha são obrigatórios" });
   }
 
-  console.log("o erro esta aqui ?");
+  // console.log("o erro esta aqui ?");
 
   try {
     const user = await Profissional.findOne({

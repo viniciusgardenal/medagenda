@@ -249,12 +249,15 @@ const CheckInPacientes = () => {
       try {
         const consultasResponse = await getConsultasPorData(filtros.filtroData);
         const consultasDoDia = consultasResponse.data.filter((consulta) => {
+          console.log(consulta);
+
           const agora = new Date();
           const dataConsulta = new Date(
             `${consulta.dataConsulta}T${consulta.horaConsulta}`
           );
           return consulta.status === "agendada" && dataConsulta > agora;
         });
+
         setConsultas(consultasDoDia);
         setCurrentPage(1);
       } catch (error) {

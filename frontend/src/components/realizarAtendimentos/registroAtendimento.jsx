@@ -10,6 +10,13 @@ import ModalAddAtendimento from "./modalAddAtendimento";
 import ModalViewAtendimento from "./modalViewAtendimento";
 import ModalEditAtendimento from "./modalEditAtendimento";
 import Pagination from "../util/Pagination";
+import {
+  FaPlus,
+  FaEye,
+  FaEdit,
+  FaTrash,
+  FaSkullCrossbones,
+} from "react-icons/fa";
 
 const formatarDataHoraBR = (dataHora) => {
   if (!dataHora || !dataHora.includes("T")) return "";
@@ -74,30 +81,33 @@ const TableRow = ({ item, onRegister, onView, onEdit, onDelete }) => {
             className="text-green-500 hover:text-green-700"
             title="Registrar Atendimento"
           >
-            ➕
+            <FaPlus className="h-5 w-5" />
           </button>
         ) : (
           <>
             <button
-              onClick={() => onView(item)}
+              onClick={() => {
+                console.log("Clicou em Visualizar:", item);
+                onView(item);
+              }}
               className="text-blue-500 hover:text-blue-700"
               title="Visualizar Atendimento"
             >
-              👁️
+              <FaEye className="h-5 w-5" />
             </button>
             <button
               onClick={() => onEdit(item)}
               className="text-yellow-500 hover:text-yellow-700"
               title="Editar Atendimento"
             >
-              ✏️
+              <FaEdit className="h-5 w-5" />
             </button>
             <button
               onClick={() => onDelete(item)}
               className="text-red-500 hover:text-red-700"
               title="Excluir Atendimento"
             >
-              ❌
+              <FaTrash className="h-5 w-5" />
             </button>
           </>
         )}

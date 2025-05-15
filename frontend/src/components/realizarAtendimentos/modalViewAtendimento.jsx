@@ -45,8 +45,8 @@ const ModalViewAtendimento = ({
             </label>
             <p className="text-sm text-gray-600">
               {formatarDataHoraBR(
-                atendimento.dataAtendimento.split("T")[0],
-                atendimento.dataAtendimento.split("T")[1]
+                atendimento.dataAtendimento,
+                atendimento.dataAtendimento
               )}
             </p>
           </div>

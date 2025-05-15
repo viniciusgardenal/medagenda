@@ -238,8 +238,8 @@ const SolicitacaoExames = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-200 p-6">
-      <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-md p-6 space-y-6">
+    <div className="min-h-screen bg-gray-200 p-6 z-0">
+      <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-md p-6">
         <div className="border-b pb-4 flex justify-between items-center">
           <h2 className="text-3xl font-bold text-blue-600 flex items-center gap-3">
             Solicitações de Exames

@@ -63,7 +63,7 @@ const ModalDetalhesSolicitacaoExames = ({ isOpen, onClose, solicitacaoExames }) 
   });
 
   return (
-    <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-lg relative modal-detalhes">
         <button
           className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors duration-150 modal-close-button"

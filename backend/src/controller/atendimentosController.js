@@ -144,12 +144,12 @@ const excluirAtendimento = async (req, res) => {
     }
 
     // Verificar permissão do usuário (exemplo: apenas o médico responsável)
-    const consulta = await Consulta.findByPk(atendimento.consultaId);
-    if (req.user && req.user.id !== consulta.medicoId) {
-      return res.status(403).json({
-        error: "Apenas o médico responsável pode excluir o atendimento.",
-      });
-    }
+    // const consulta = await Consulta.findByPk(atendimento.consultaId);
+    // if (req.user && req.user.id !== consulta.medicoId) {
+    //   return res.status(403).json({
+    //     error: "Apenas o médico responsável pode excluir o atendimento.",
+    //   });
+    // }
 
     // Excluir o atendimento
     await atendimento.destroy();
@@ -179,6 +179,11 @@ const getAtendimentosPorData = async (req, res) => {
         { model: Paciente, as: "paciente" },
         { model: Profissional, as: "medico" },
         { model: TipoConsulta, as: "tipoConsulta" },
+        {
+          model: Atendimento,
+          as: "atendimento",
+          required: false,
+        },
       ],
     });
 

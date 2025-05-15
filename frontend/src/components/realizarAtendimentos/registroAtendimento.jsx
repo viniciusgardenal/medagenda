@@ -57,7 +57,7 @@ const TableRow = ({ item, onRegister, onView, onEdit, onDelete }) => {
     ? formatarDataHoraBR(`${item.dataConsulta}T${item.horaConsulta}`)
     : formatarDataHoraBR(item.dataAtendimento);
 
-  // console.log("item", item);
+  console.log("item", item);
 
   return (
     <tr className="hover:bg-blue-50 transition-colors">
@@ -311,14 +311,21 @@ const RegistroAtendimento = () => {
       setError(err.response?.data?.error || "Erro ao editar atendimento.");
     }
   };
+  const handleDeleteAtendimento = async (atendimento) => {
+    console.log("Excluindo atendimento:", atendimento);
 
-  const handleDeleteAtendimento = async (item) => {
-    if (!confirm("Tem certeza que deseja excluir?")) return;
-    try {
-      await excluirAtendimento(item.id);
-      setItems(items.filter((i) => i.id !== item.id));
-    } catch (err) {
-      setError(err.response?.data?.error || "Erro ao excluir atendimento.");
+    if (window.confirm("Tem certeza que deseja excluir este atendimento?")) {
+      setError(null);
+      try {
+        await excluirAtendimento(atendimento.id);
+        setItems(items.filter((item) => item.id !== atendimento.id));
+      } catch (error) {
+        console.error("Erro ao excluir atendimento:", error);
+        const errorMessage =
+          error.response?.data?.error ||
+          "Erro ao excluir atendimento. Verifique a conexão com o servidor.";
+        setError(errorMessage);
+      }
     }
   };
 

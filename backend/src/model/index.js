@@ -240,6 +240,9 @@ models.Atendimento.belongsTo(models.Consulta, {
   foreignKey: "consultaId",
   as: "consulta",
 });
-
+models.Consulta.hasOne(models.Atendimento, {
+  foreignKey: "consultaId",
+  as: "atendimento",
+});
 // Exportação dos modelos e sequelize
 module.exports = { sequelize, models };

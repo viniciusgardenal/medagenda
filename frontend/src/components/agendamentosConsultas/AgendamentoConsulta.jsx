@@ -6,12 +6,13 @@ import {
   getTipoConsulta,
   agendarConsulta,
   getConsultasPorData,
+  cancelarConsulta,
 } from "../../config/apiServices";
 import ModalAddConsulta from "./ModalAddConsulta";
 import ModalViewConsulta from "./ModalViewConsulta";
+import ModalCancelConsulta from "./ModalCancelConsulta";
 import Pagination from "../util/Pagination";
 
-// Componente para cada linha da tabela
 const TableRow = ({ consulta, onView, onCancel, formatarDataHoraBR }) => {
   const isAgendada = consulta.status === "agendada";
   return (
@@ -83,7 +84,6 @@ const TableRow = ({ consulta, onView, onCancel, formatarDataHoraBR }) => {
   );
 };
 
-// Componente para os filtros de busca e data
 const FilterSection = ({ filtros, setFiltros }) => (
   <div className="flex gap-4">
     <div className="flex-1">
@@ -112,7 +112,6 @@ const FilterSection = ({ filtros, setFiltros }) => (
   </div>
 );
 
-// Componente para o cabeçalho com botões de ação
 const HeaderSection = ({ openAddModal, isLoading, toggleStatus, status }) => (
   <div className="border-b pb-4 flex justify-between items-center">
     <h2 className="text-3xl font-bold text-blue-600">
@@ -154,7 +153,6 @@ const HeaderSection = ({ openAddModal, isLoading, toggleStatus, status }) => (
   </div>
 );
 
-// Componente para a tabela e paginação
 const ConsultaTable = ({
   consultas,
   isLoading,
@@ -292,6 +290,7 @@ const AgendamentoConsulta = () => {
   const [tiposConsulta, setTiposConsulta] = useState([]);
   const [modalAddOpen, setModalAddOpen] = useState(false);
   const [modalViewOpen, setModalViewOpen] = useState(false);
+  const [modalCancelOpen, setModalCancelOpen] = useState(false);
   const [consultaSelecionada, setConsultaSelecionada] = useState(null);
   const [dadosConsulta, setDadosConsulta] = useState({
     cpfPaciente: "",
@@ -338,13 +337,13 @@ const AgendamentoConsulta = () => {
           medicosResponse,
           tiposConsultaResponse,
         ] = await Promise.all([
-          getConsultasPorData(filtros.filtroData),
+          getConsultasPorData(filtros.filtroData, status),
           getPacientes(),
           getProfissionais(),
           getTipoConsulta(),
         ]);
 
-        setConsultas(consultasResponse.data.filter((c) => c.status === status));
+        setConsultas(consultasResponse.data);
         setPacientes(pacientesResponse.data);
         setMedicos(medicosResponse.data);
         setTiposConsulta(tiposConsultaResponse.data);
@@ -426,24 +425,40 @@ const AgendamentoConsulta = () => {
     setModalViewOpen(true);
   };
 
-  const handleCancelConsulta = async (consulta) => {
+  const openCancelModal = (consulta) => {
+    setConsultaSelecionada(consulta);
+    setModalCancelOpen(true);
+  };
+
+  const handleCancelConsulta = async (motivoCancelamento) => {
     setError(null);
     try {
-      const updatedConsulta = { ...consulta, status: "cancelada" };
-      setConsultas(
-        consultas.map((c) => (c.id === consulta.id ? updatedConsulta : c))
+      const response = await cancelarConsulta(
+        consultaSelecionada.id,
+        motivoCancelamento
       );
+      const updatedConsulta = response.data;
+      setConsultas(
+        consultas.map((c) =>
+          c.id === consultaSelecionada.id ? updatedConsulta : c
+        )
+      );
+      closeModal();
     } catch (error) {
       console.error("Erro ao cancelar consulta:", error);
-      setError("Erro ao cancelar consulta. Tente novamente.");
+      setError(
+        error.response?.data?.error ||
+          "Erro ao cancelar consulta. Tente novamente."
+      );
     }
   };
 
   const closeModal = () => {
     setModalAddOpen(false);
     setModalViewOpen(false);
+    setModalCancelOpen(false);
     setConsultaSelecionada(null);
-    setError(null); // Limpa o erro ao fechar o modal
+    setError(null);
   };
 
   const handleSort = (field) => {
@@ -471,11 +486,11 @@ const AgendamentoConsulta = () => {
           status={status}
         />
 
-        {/* {error && (
+        {error && (
           <div className="p-4 text-sm text-red-700 bg-red-100 rounded-lg border border-red-300">
             {error}
           </div>
-        )} */}
+        )}
 
         <FilterSection filtros={filtros} setFiltros={setFiltros} />
 
@@ -484,7 +499,7 @@ const AgendamentoConsulta = () => {
           isLoading={isLoading}
           formatarDataHoraBR={formatarDataHoraBR}
           openViewModal={openViewModal}
-          handleCancelConsulta={handleCancelConsulta}
+          handleCancelConsulta={openCancelModal}
           sortField={sortField}
           sortDirection={sortDirection}
           handleSort={handleSort}
@@ -513,6 +528,16 @@ const AgendamentoConsulta = () => {
             isOpen={modalViewOpen}
             onClose={closeModal}
             consulta={consultaSelecionada}
+            formatarDataHoraBR={formatarDataHoraBR}
+          />
+        )}
+
+        {modalCancelOpen && consultaSelecionada && (
+          <ModalCancelConsulta
+            isOpen={modalCancelOpen}
+            onClose={closeModal}
+            consulta={consultaSelecionada}
+            onConfirm={handleCancelConsulta}
             formatarDataHoraBR={formatarDataHoraBR}
           />
         )}

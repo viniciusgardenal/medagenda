@@ -1,6 +1,12 @@
 import api from "./axiosConfig";
 const apiUrl = "http://localhost:5000";
 
+export const cancelarConsulta = async (id, motivoCancelamento) => {
+  return await api.put(`${apiUrl}/consultas/${id}/cancelar`, {
+    motivoCancelamento,
+  });
+};
+
 export const criarProfissional = async (dadosProfissional) => {
   return await api.post(`${apiUrl}/profissionais`, dadosProfissional);
 };
@@ -24,7 +30,6 @@ export const getProfissionaisId = async (id) => {
   return await api.get(`${apiUrl}/profissionais/${id}`);
 };
 
-//Pacientes
 export const criarPacientes = async (dadosPacientes) => {
   return await api.post(`${apiUrl}/pacientes`, dadosPacientes);
 };
@@ -44,17 +49,15 @@ export const getPacientes = async () => {
 export const getPacientesId = async (cpf) => {
   try {
     const response = await api.get(`/pacientes/${cpf}`);
-    return response.data; // Retorna os dados do paciente
+    return response.data;
   } catch (error) {
     if (error.response && error.response.status === 404) {
-      //console.log("Paciente não encontrado");
-      return null; // Retorna null para pacientes inexistentes
+      return null;
     }
-    throw error; // Lança erros inesperados
+    throw error;
   }
 };
 
-//TiposExames
 export const criarTipoExame = async (dadosTipoExame) => {
   return await api.post(`${apiUrl}/tiposExames`, dadosTipoExame);
 };
@@ -75,7 +78,6 @@ export const getTiposExamesId = async (id) => {
   return await api.get(`${apiUrl}/tiposExames/${id}`);
 };
 
-//Plano de Saude
 export const criarPlanoDeSaude = async (dadosPlanoDeSaude) => {
   return await api.post(`${apiUrl}/planoDeSaude`, dadosPlanoDeSaude);
 };
@@ -96,7 +98,6 @@ export const getPlanoDeSaudeId = async (id) => {
   return await api.get(`${apiUrl}/planoDeSaude/${id}`);
 };
 
-//Tipo Consulta
 export const criarTipoConsulta = async (dadosTipoConsulta) => {
   console.log(dadosTipoConsulta);
   return await api.post(`${apiUrl}/tipoConsulta`, dadosTipoConsulta);
@@ -118,7 +119,6 @@ export const getTipoConsultaId = async (id) => {
   return await api.get(`${apiUrl}/tipoConsulta/${id}`);
 };
 
-//medicamentos
 export const criarMedicamentos = async (dadosMedicamentos) => {
   return await api.post(`${apiUrl}/medicamentos`, dadosMedicamentos);
 };
@@ -139,8 +139,6 @@ export const getMedicamentosId = async (id) => {
   return await api.get(`${apiUrl}/medicamentos/${id}`);
 };
 
-//Solicitacao Exames
-// Solicitacao Exames
 export const criarSolicitacaoExames = async (dadosSolicitacaoExames) => {
   try {
     console.log("Criando solicitação com dados:", dadosSolicitacaoExames);
@@ -231,15 +229,13 @@ export const getSolicitacaoExamesId = async (id) => {
   }
 };
 
-//Receita
 export const criarReceita = async (dadosReceita) => {
   return await api.post(`/receitas`, dadosReceita);
 };
 
-// Gerar Atestados
 export const criarAtestado = async (dadosAtestado) => {
   return await api.post(`${apiUrl}/atestados`, dadosAtestado, {
-    responseType: "blob", // Para receber o PDF como blob
+    responseType: "blob",
   });
 };
 
@@ -253,11 +249,10 @@ export const lerAtestadoId = async (id) => {
 
 export const downloadAtestado = async (id) => {
   return await api.get(`${apiUrl}/atestados/${id}/download`, {
-    responseType: "blob", // Para receber o arquivo de texto como blob
+    responseType: "blob",
   });
 };
 
-// Registro Resultado Exame
 export const criarRegistroResultadoExame = async (dadosRegistro) => {
   return await api.post(`${apiUrl}/registroResultadoExames`, dadosRegistro);
 };
@@ -281,7 +276,6 @@ export const deletarRegistroResultadoExame = async (id) => {
   return await api.delete(`${apiUrl}/registroResultadoExames/${id}`);
 };
 
-//check in
 export const realizarCheckIn = async (dadosCheckIn) => {
   return await api.post(`${apiUrl}/checkIn`, dadosCheckIn);
 };
@@ -294,11 +288,12 @@ export const getCheckInPorConsulta = async (id) => {
   return await api.get(`${apiUrl}/checkIn/consulta/${id}`);
 };
 
-export const getConsultasPorData = async (data) => {
-  return await api.get(`${apiUrl}/consultas/${data}`);
+export const getConsultasPorData = async (data, status) => {
+  return await api.get(`${apiUrl}/consultas/${data}`, {
+    params: { status },
+  });
 };
 
-//Gerenciar Horarios Profissionais
 export const criarHorario = async (dadosHorario) => {
   return await api.post(`${apiUrl}/horarios-profissionais`, dadosHorario);
 };
@@ -319,15 +314,14 @@ export const getHorarioId = async (id) => {
   return await api.get(`${apiUrl}/horarios-profissionais/${id}`);
 };
 
-//Agendar Consultas
 export const agendarConsulta = async (dadosConsulta) => {
   return await api.post(`${apiUrl}/consultas`, dadosConsulta);
 };
+
 export const getConsultas = async () => {
   return await api.get(`${apiUrl}/consultas`);
 };
 
-// Buscar consultas por data e matrícula do médico
 export const getConsultasPorDataEMedico = async (data, matricula) => {
   return await api.get(`${apiUrl}/consultas`, {
     params: { dataConsulta: data, medicoId: matricula },
@@ -335,11 +329,9 @@ export const getConsultasPorDataEMedico = async (data, matricula) => {
 };
 
 export const getHorariosDisponiveis = async (medicoId, dataConsulta) => {
-  // console.log(medicoId, dataConsulta);
   return await api.get(`${apiUrl}/consultas/${medicoId}/${dataConsulta}`);
 };
 
-//Registro de Óbitos
 export const criarRegistroObito = async (dadosObito) => {
   try {
     const response = await api.post(`${apiUrl}/registro-obitos`, dadosObito);
@@ -389,7 +381,6 @@ export const getRegistroObitos = async () => {
   try {
     const response = await api.get(`${apiUrl}/registro-obitos`);
     console.log("Resposta bruta de getRegistroObitos:", response.data);
-    // Normalizar a resposta para garantir que data seja um array
     const data = Array.isArray(response.data.data)
       ? response.data.data
       : Array.isArray(response.data)
@@ -423,7 +414,6 @@ export const getRegistroObitoId = async (id) => {
   }
 };
 
-//Registrar Atendimento
 export const registrarAtendimento = async (consultaId, dadosAtendimento) => {
   return await api.post(
     `${apiUrl}/atendimentos/${consultaId}`,

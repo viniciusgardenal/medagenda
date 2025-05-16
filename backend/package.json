@@ -10,7 +10,8 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
-    "cross-env": "^7.0.3"
+    "cross-env": "^7.0.3",
+    "sequelize-cli": "^6.6.3"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

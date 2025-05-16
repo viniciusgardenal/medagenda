@@ -3,7 +3,6 @@ const router = express.Router();
 const ConsultaController = require("../controller/consultasController");
 const checkpermissao = require("../middlewares/checarPermissao");
 
-// **Rota para criar um novo registro de resultado de exame**
 router.post(
   "/consultas",
   checkpermissao("consultar"),
@@ -19,12 +18,15 @@ router.get(
   checkpermissao("consultar"),
   ConsultaController.getHorariosDisponiveis
 );
-
 router.get(
   "/consultas",
   checkpermissao("consultar"),
   ConsultaController.listarConsultas
 );
-
+router.put(
+  "/consultas/:id/cancelar",
+  checkpermissao("consultar"),
+  ConsultaController.cancelarConsulta
+);
 
 module.exports = router;

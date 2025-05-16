@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { X } from "lucide-react";
 
 const ModalAddCheckIn = ({
@@ -9,11 +9,17 @@ const ModalAddCheckIn = ({
   setDadosCheckIn,
   onSave,
 }) => {
+  const [isDisabled, setIsDisabled] = useState(false); // Estado para o checkbox
+
   if (!isOpen || !consulta) return null;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setDadosCheckIn((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleCheckboxChange = (e) => {
+    setIsDisabled(e.target.checked); // Atualiza o estado com base no checkbox
   };
 
   const handleSubmit = (e) => {
@@ -39,6 +45,23 @@ const ModalAddCheckIn = ({
         </h3>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Checkbox para desabilitar campos */}
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              id="disableFields"
+              checked={isDisabled}
+              onChange={handleCheckboxChange}
+              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+            />
+            <label
+              htmlFor="disableFields"
+              className="ml-2 text-sm font-medium text-gray-700"
+            >
+              Desabilitar campos
+            </label>
+          </div>
+
           {/* Paciente */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -63,7 +86,10 @@ const ModalAddCheckIn = ({
                 onChange={handleChange}
                 placeholder="Ex: 120/80 mmHg"
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                disabled={isDisabled} // Desabilita com base no checkbox
+                className={`w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 ${
+                  isDisabled ? "bg-gray-100 cursor-not-allowed" : ""
+                }`}
               />
             </div>
 
@@ -80,7 +106,10 @@ const ModalAddCheckIn = ({
                 placeholder="Ex: 36.5"
                 step="0.1"
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                disabled={isDisabled} // Desabilita com base no checkbox
+                className={`w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 ${
+                  isDisabled ? "bg-gray-100 cursor-not-allowed" : ""
+                }`}
               />
             </div>
 
@@ -97,7 +126,10 @@ const ModalAddCheckIn = ({
                 placeholder="Ex: 70.0"
                 step="0.1"
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                disabled={isDisabled} // Desabilita com base no checkbox
+                className={`w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 ${
+                  isDisabled ? "bg-gray-100 cursor-not-allowed" : ""
+                }`}
               />
             </div>
 
@@ -114,7 +146,10 @@ const ModalAddCheckIn = ({
                 placeholder="Ex: 1.75"
                 step="0.01"
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                disabled={isDisabled} // Desabilita com base no checkbox
+                className={`w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 ${
+                  isDisabled ? "bg-gray-100 cursor-not-allowed" : ""
+                }`}
               />
             </div>
           </div>
@@ -129,7 +164,10 @@ const ModalAddCheckIn = ({
               value={dadosCheckIn.observacoes}
               onChange={handleChange}
               placeholder="Digite observações adicionais, se necessário..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 min-h-[80px]"
+              disabled={isDisabled} // Desabilita com base no checkbox
+              className={`w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 min-h-[80px] ${
+                isDisabled ? "bg-gray-100 cursor-not-allowed" : ""
+              }`}
             />
           </div>
 
@@ -143,7 +181,10 @@ const ModalAddCheckIn = ({
               value={dadosCheckIn.prioridade}
               onChange={handleChange}
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+              disabled={isDisabled} // Desabilita com base no checkbox
+              className={`w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 ${
+                isDisabled ? "bg-gray-100 cursor-not-allowed" : ""
+              }`}
             >
               <option value={0}>Normal</option>
               <option value={1}>Média</option>

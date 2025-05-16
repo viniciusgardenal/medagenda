@@ -165,8 +165,10 @@ const excluirAtendimento = async (req, res) => {
 
 const getAtendimentosPorData = async (req, res) => {
   try {
+    const medicoId = req.user.id; // ID do médico logado
     const consultas = await Consulta.findAll({
       where: {
+        medicoId,
         status: { [Op.in]: ["agendada", "realizada"] }, // Opcional: filtrar status da consulta
       },
       include: [

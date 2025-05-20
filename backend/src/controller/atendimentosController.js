@@ -189,7 +189,7 @@ const getAtendimentosPorData = async (req, res) => {
       ],
     });
 
-    // console.log(consultas);
+    console.log(consultas);
 
     res.status(200).json(consultas);
   } catch (error) {

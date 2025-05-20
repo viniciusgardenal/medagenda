@@ -1,10 +1,12 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuthContext } from "../../context/authContext";
+import ConfirmationModal from "../util/confirmationModal";
 import {
   getAtendimentos,
   registrarAtendimento,
   atualizarAtendimento,
   excluirAtendimento,
+  alterarConsultaEhAtendimentoCancelado,
 } from "../../config/apiServices";
 import ModalAddAtendimento from "./modalAddAtendimento";
 import ModalViewAtendimento from "./modalViewAtendimento";
@@ -57,7 +59,7 @@ const TableRow = ({ item, onRegister, onView, onEdit, onDelete }) => {
     ? formatarDataHoraBR(`${item.dataConsulta}T${item.horaConsulta}`)
     : formatarDataHoraBR(item.dataAtendimento);
 
-  console.log("item", item);
+  // console.log("item", item);
 
   return (
     <tr className="hover:bg-blue-50 transition-colors">
@@ -227,7 +229,8 @@ const AtendimentoTable = ({
 };
 
 const RegistroAtendimento = () => {
-  const { user } = useAuthContext();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [idToDelete, setIdToDelete] = useState(null);
   const [items, setItems] = useState([]);
   const [modalAddOpen, setModalAddOpen] = useState(false);
   const [modalViewOpen, setModalViewOpen] = useState(false);
@@ -251,8 +254,9 @@ const RegistroAtendimento = () => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
+        console.log("Chamando getAtendimentos...");
         const response = await getAtendimentos();
-        // console.log("response", response.data);
+        console.log("response", response);
         setItems(response.data);
       } catch (err) {
         console.error("Erro ao carregar dados:", err);
@@ -312,20 +316,36 @@ const RegistroAtendimento = () => {
     }
   };
   const handleDeleteAtendimento = async (atendimento) => {
-    console.log("Excluindo atendimento:", atendimento);
+    setIdToDelete(atendimento.id);
+    setIsModalOpen(true);
+  };
 
-    if (window.confirm("Tem certeza que deseja excluir este atendimento?")) {
-      setError(null);
-      try {
-        await excluirAtendimento(atendimento.id);
-        setItems(items.filter((item) => item.id !== atendimento.id));
-      } catch (error) {
-        console.error("Erro ao excluir atendimento:", error);
-        const errorMessage =
-          error.response?.data?.error ||
-          "Erro ao excluir atendimento. Verifique a conexão com o servidor.";
-        setError(errorMessage);
+  const confirmDelete = async () => {
+    setError(null);
+    try {
+      const atendimento = items.find((item) => item.id === idToDelete);
+
+      console.log(atendimento);
+
+      if (atendimento?.consulta_id) {
+        // 1. Marcar consulta como cancelada
+        await alterarConsultaEhAtendimentoCancelado(atendimento.consulta_id);
       }
+
+      // 2. Excluir o atendimento
+      await excluirAtendimento(idToDelete);
+
+      // 3. Atualizar os itens
+      setItems(items.filter((item) => item.id !== idToDelete));
+    } catch (error) {
+      console.error("Erro ao cancelar consulta ou excluir atendimento:", error);
+      const errorMessage =
+        error.response?.data?.error ||
+        "Erro ao excluir atendimento. Verifique a conexão com o servidor.";
+      setError(errorMessage);
+    } finally {
+      setIsModalOpen(false);
+      setIdToDelete(null);
     }
   };
 
@@ -414,6 +434,16 @@ const RegistroAtendimento = () => {
             formatarDataHoraBR={formatarDataHoraBR}
           />
         )}
+        <ConfirmationModal
+          isOpen={isModalOpen}
+          onConfirm={confirmDelete}
+          onCancel={() => {
+            console.log("Cancelando exclusão, ID:", idToDelete);
+            setIsModalOpen(false);
+            setIdToDelete(null);
+          }}
+          message="Deseja excluir este atendimento?"
+        />
       </div>
     </div>
   );

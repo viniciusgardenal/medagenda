@@ -436,3 +436,8 @@ export const atualizarAtendimento = async (id, dadosAtendimento) => {
 export const excluirAtendimento = async (id) => {
   return await api.delete(`${apiUrl}/atendimentos/${id}`);
 };
+
+export const alterarConsultaEhAtendimentoCancelado = (idConsulta) =>
+  api.put(`/consultas/${idConsulta}`, {
+    ehAtendimentoCancelado: 1,
+  });

@@ -128,7 +128,6 @@ const routes = [
   {
     path: "/atendimentos",
     element: <RegistroAtendimento />,
-    protected: true,
     permissao: "consultar",
     rolesPermitidos: ["Diretor", "Médico"],
   },

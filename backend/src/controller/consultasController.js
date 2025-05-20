@@ -250,10 +250,31 @@ const cancelarConsulta = async (req, res) => {
   }
 };
 
+const alterarConsultaEhAtendimentoCancelado = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { ehAtendimentoCancelado } = req.body;
+
+    const consulta = await Consulta.findByPk(id);
+    if (!consulta) {
+      return res.status(404).json({ error: "Consulta não encontrada." });
+    }
+
+    consulta.ehAtendimentoCancelado = ehAtendimentoCancelado;
+    await consulta.save();
+
+    res.status(200).json(consulta);
+  } catch (error) {
+    console.error("Erro ao alterar ehAtendimentoCancelado:", error);
+    res.status(500).json({ error: "Erro interno ao alterar ehAtendimentoCancelado." });
+  }
+};
+
 module.exports = {
   criarConsulta,
   listarConsultasDoDia,
   listarConsultas,
   getHorariosDisponiveis,
   cancelarConsulta,
+  alterarConsultaEhAtendimentoCancelado
 };

@@ -2,9 +2,18 @@ import api from "./axiosConfig";
 const apiUrl = "http://localhost:5000";
 
 export const cancelarConsulta = async (id, motivoCancelamento) => {
-  return await api.put(`${apiUrl}/consultas/${id}/cancelar`, {
-    motivoCancelamento,
-  });
+  try {
+    const response = await api.put(`${apiUrl}/consultas/${id}/cancelar`, {
+      motivoCancelamento,
+    });
+    return response;
+  } catch (error) {
+    console.error(
+      "Erro ao cancelar consulta:",
+      error.response?.data || error.message
+    );
+    throw error.response?.data || { error: "Erro ao cancelar consulta" };
+  }
 };
 
 export const criarProfissional = async (dadosProfissional) => {
@@ -288,9 +297,9 @@ export const getCheckInPorConsulta = async (id) => {
   return await api.get(`${apiUrl}/checkIn/consulta/${id}`);
 };
 
-export const getConsultasPorData = async (data, status) => {
+export const getConsultasPorData = async (data, status, searchTerm = "") => {
   return await api.get(`${apiUrl}/consultas/${data}`, {
-    params: { status },
+    params: { status, searchTerm },
   });
 };
 

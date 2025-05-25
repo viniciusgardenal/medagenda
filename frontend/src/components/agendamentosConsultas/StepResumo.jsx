@@ -1,30 +1,30 @@
-import React from "react";
+import { useFormContext } from "react-hook-form";
 
-const StepResumo = ({
-  dadosConsulta,
-  pacientes,
-  medicos,
-  tiposConsulta,
-  goToStep,
-  error,
-  setError,
-}) => {
-  const paciente = pacientes.find((p) => p.cpf === dadosConsulta.cpfPaciente);
-  const medico = medicos.find((m) => m.matricula === dadosConsulta.medicoId);
+const StepResumo = ({ pacientes, medicos, tiposConsulta, goToStep }) => {
+  // 1. Acessa o contexto do formulário
+  const { getValues } = useFormContext();
+
+  // 2. Pega todos os valores atuais do formulário de uma só vez
+  const formValues = getValues();
+
+  // 3. A lógica para encontrar os dados relacionados permanece, mas agora usando formValues
+  const paciente = pacientes.find((p) => p.cpf === formValues.cpfPaciente);
+  const medico = medicos.find((m) => m.matricula == formValues.medicoId);
   const tipoConsulta = tiposConsulta.find(
-    (t) => t.idTipoConsulta == dadosConsulta.idTipoConsulta
+    (t) => t.idTipoConsulta == formValues.idTipoConsulta
   );
 
+  // Função para formatar a data e hora continua a mesma
   const formatarDataHoraBR = (data, hora) => {
     if (!data || !hora) return "";
-    try {
-      const [ano, mes, dia] = data.split("-");
-      const dataBR = `${dia}/${mes}/${ano}`;
-      const horaBR = hora.split(":").slice(0, 2).join(":");
-      return `${dataBR} - ${horaBR}`;
-    } catch (error) {
-      return `${data} - ${hora}`;
-    }
+    // O valor da data vindo do react-hook-form é um objeto Date, não uma string
+    const dataObj = new Date(data);
+    const dia = String(dataObj.getDate()).padStart(2, "0");
+    const mes = String(dataObj.getMonth() + 1).padStart(2, "0"); // Mês é base 0
+    const ano = dataObj.getFullYear();
+    const dataBR = `${dia}/${mes}/${ano}`;
+    const horaBR = hora.split(":").slice(0, 2).join(":");
+    return `${dataBR} - ${horaBR}`;
   };
 
   const fields = [
@@ -37,7 +37,7 @@ const StepResumo = ({
     },
     {
       label: "Médico",
-      value: medico ? `${medico.nome} ${medico.crm}` : "Não selecionado",
+      value: medico ? `${medico.nome} | ${medico.crm}` : "Não selecionado",
       step: 2,
     },
     {
@@ -48,20 +48,18 @@ const StepResumo = ({
     {
       label: "Data e Hora",
       value:
-        formatarDataHoraBR(
-          dadosConsulta.dataConsulta,
-          dadosConsulta.horaConsulta
-        ) || "Não informado",
+        formatarDataHoraBR(formValues.dataConsulta, formValues.horaConsulta) ||
+        "Não informado",
       step: 3,
     },
     {
       label: "Motivo",
-      value: dadosConsulta.motivo || "Não informado",
+      value: formValues.motivo || "Não informado",
       step: 3,
     },
     {
       label: "Responsável pelo Agendamento",
-      value: dadosConsulta.responsavelAgendamento || "Não informado",
+      value: formValues.responsavelAgendamento || "Não informado",
       step: 3,
     },
   ];
@@ -73,18 +71,18 @@ const StepResumo = ({
       </h4>
       <div className="border rounded-md p-4 bg-gray-50">
         {fields.map((field, index) => (
-          <div key={index} className="flex justify-between items-center mb-2">
+          <div
+            key={index}
+            className="flex justify-between items-center py-2 border-b last:border-b-0"
+          >
             <div>
-              <label className="block text-sm font-semibold text-gray-700">
+              <p className="block text-sm font-semibold text-gray-800">
                 {field.label}
-              </label>
+              </p>
               <p className="text-sm text-gray-600">{field.value}</p>
             </div>
             <button
-              onClick={() => {
-                setError(null); // Limpa o erro ao editar
-                goToStep(field.step);
-              }}
+              onClick={() => goToStep(field.step)}
               className="text-blue-600 hover:text-blue-800 text-sm font-semibold"
             >
               Editar
@@ -92,11 +90,6 @@ const StepResumo = ({
           </div>
         ))}
       </div>
-      {error && (
-        <div className="p-3 text-sm text-red-700 bg-red-100 rounded-lg border border-red-300">
-          {error}
-        </div>
-      )}
     </div>
   );
 };

@@ -1,4 +1,3 @@
-// models/consulta.js
 const { Model, DataTypes } = require("sequelize");
 const sequelize = require("../config/db");
 
@@ -90,10 +89,17 @@ Consulta.init(
       comment: "Nome do responsável pelo agendamento",
     },
     status: {
-      type: DataTypes.ENUM("agendada", "realizada", "cancelada", "adiada"),
+      type: DataTypes.ENUM(
+        "agendada", // Consulta criada, aguardando chegada do paciente
+        "checkin_realizado", // Paciente fez check-in na secretaria
+        "em_atendimento", // Médico iniciou o atendimento
+        "realizada", // Atendimento concluído
+        "cancelada", // Consulta cancelada
+        "adiada" // Consulta remarcada para outra data
+      ),
       defaultValue: "agendada",
       allowNull: false,
-      comment: "Status da consulta (agendada, realizada, cancelada, adiada)",
+      comment: "Status do ciclo de vida da consulta",
     },
   },
   {

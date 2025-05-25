@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 
 const StepPaciente = ({
-  dadosConsulta,
-  setDadosConsulta,
+  setValue,
   pacientes,
   onCadastrarPaciente,
   resetSearch,
@@ -11,6 +10,8 @@ const StepPaciente = ({
   const [selectedPaciente, setSelectedPaciente] = useState(null);
 
   const handleSearch = () => {
+    // console.log("oiiiiiiii:", setDadosConsulta);
+
     const termoBusca = searchTerm.toLowerCase();
     const paciente = pacientes.find(
       (p) =>
@@ -18,11 +19,15 @@ const StepPaciente = ({
         `${p.nome} ${p.sobrenome}`.toLowerCase().includes(termoBusca)
     );
     if (paciente) {
+      // console.log("Paciente encontrado:", paciente);
+
       setSelectedPaciente(paciente);
-      setDadosConsulta({ ...dadosConsulta, cpfPaciente: paciente.cpf });
+      // Use setValue para atualizar o campo do formulário
+      setValue("cpfPaciente", paciente.cpf, { shouldValidate: true });
     } else {
       setSelectedPaciente(null);
-      setDadosConsulta({ ...dadosConsulta, cpfPaciente: "" });
+      // Use setValue para limpar o campo do formulário
+      setValue("cpfPaciente", "", { shouldValidate: true });
       alert("Paciente não encontrado.");
     }
   };

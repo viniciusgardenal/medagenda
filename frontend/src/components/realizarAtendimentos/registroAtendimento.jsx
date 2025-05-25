@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { useAuthContext } from "../../context/authContext";
 import ConfirmationModal from "../util/confirmationModal";
 import {
   getAtendimentos,

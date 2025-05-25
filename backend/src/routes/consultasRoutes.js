@@ -29,10 +29,4 @@ router.put(
   ConsultaController.cancelarConsulta
 );
 
-router.put(
-  "/consutas/:id",
-  checkpermissao("consultar"),
-  ConsultaController.alterarConsultaEhAtendimentoCancelado
-);
-
 module.exports = router;

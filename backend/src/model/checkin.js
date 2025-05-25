@@ -53,11 +53,6 @@ CheckIn.init(
       type: DataTypes.TEXT,
       allowNull: true,
     },
-    status: {
-      type: DataTypes.ENUM("registrado", "finalizado"),
-      defaultValue: "registrado",
-      allowNull: false,
-    },
     prioridade: {
       type: DataTypes.INTEGER,
       defaultValue: 0,

@@ -1,16 +1,13 @@
 import React, { useState } from "react";
 
-const StepMedico = ({
-  dadosConsulta,
-  setDadosConsulta,
-  medicos,
-  resetSearch,
-}) => {
+const StepMedico = ({ setValue, medicos, resetSearch }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedMedico, setSelectedMedico] = useState(null);
 
   const handleSearch = () => {
     const termoBusca = searchTerm.toLowerCase();
+    // console.log("Medicos:", medicos);
+
     const medico = medicos.find(
       (m) =>
         m.crm.toLowerCase().includes(termoBusca) ||
@@ -18,10 +15,10 @@ const StepMedico = ({
     );
     if (medico) {
       setSelectedMedico(medico);
-      setDadosConsulta({ ...dadosConsulta, medicoId: medico.matricula });
+      setValue("medicoId", medico.matricula, { shouldValidate: true });
     } else {
       setSelectedMedico(null);
-      setDadosConsulta({ ...dadosConsulta, medicoId: "" });
+      setValue("medicoId", "", { shouldValidate: true });
       alert("Médico não encontrado.");
     }
   };

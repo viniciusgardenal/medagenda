@@ -1,103 +1,86 @@
+import { useFormContext } from "react-hook-form";
 import SelectField from "./SelectField";
-import React, { useState, useEffect } from "react";
-import { getHorariosDisponiveis } from "../../config/apiServices";
 import InputField from "./InputField";
 
 const StepAgendamento = ({
-  dadosConsulta,
-  setDadosConsulta,
   tiposConsulta,
+  horariosDisponiveis,
+  isLoadingHorarios,
 }) => {
-  const [horariosDisponiveis, setHorariosDisponiveis] = useState([]);
-
-  useEffect(() => {
-    const fetchHorarios = async () => {
-      if (dadosConsulta.medicoId && dadosConsulta.dataConsulta) {
-        try {
-          const response = await getHorariosDisponiveis(
-            dadosConsulta.medicoId,
-            dadosConsulta.dataConsulta
-          );
-          setHorariosDisponiveis(response.data.data); // Assuming your API returns { data: [...] }
-        } catch (error) {
-          console.error("Erro ao carregar horários:", error);
-        }
-      } else {
-        setHorariosDisponiveis([]); // Clear horarios if medicoId or dataConsulta is empty
-      }
-    };
-    fetchHorarios();
-  }, [dadosConsulta.medicoId, dadosConsulta.dataConsulta]);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setDadosConsulta({ ...dadosConsulta, [name]: value });
-  };
+  // Acessa o contexto do formulário para registrar os campos e ver os erros
+  const {
+    register,
+    formState: { errors },
+  } = useFormContext();
 
   return (
     <div className="space-y-4">
       <h4 className="text-lg font-semibold text-gray-700">
         Agendamento da Consulta
       </h4>
+
+      {/* Os campos agora são registrados corretamente no react-hook-form */}
       <SelectField
         label="Tipo de Consulta"
         name="idTipoConsulta"
-        value={dadosConsulta.idTipoConsulta}
-        onChange={handleChange}
         options={tiposConsulta.map((tipo) => ({
           value: tipo.idTipoConsulta,
           label: tipo.nomeTipoConsulta,
         }))}
         placeholder="Selecione um tipo"
-        required
+        register={register}
+        error={errors.idTipoConsulta}
       />
+
       <InputField
         label="Data da Consulta"
         name="dataConsulta"
-        value={dadosConsulta.dataConsulta}
-        onChange={handleChange}
         type="date"
-        required
+        register={register}
+        error={errors.dataConsulta}
       />
+
       <SelectField
         label="Hora da Consulta"
         name="horaConsulta"
-        value={dadosConsulta.horaConsulta}
-        onChange={handleChange}
-        options={[
-          ...horariosDisponiveis.map((hora) => ({
-            value: hora,
-            label: hora,
-          })),
-        ]}
-        placeholder="Selecione um horário"
-        required
+        options={horariosDisponiveis.map((hora) => ({
+          value: hora,
+          label: hora,
+        }))}
+        placeholder={
+          isLoadingHorarios
+            ? "Carregando..."
+            : horariosDisponiveis.length > 0
+            ? "Selecione um horário"
+            : "Selecione uma data primeiro"
+        }
+        register={register}
+        error={errors.horaConsulta}
+        disabled={horariosDisponiveis.length === 0 || isLoadingHorarios}
       />
+
       <InputField
         label="Motivo"
         name="motivo"
-        value={dadosConsulta.motivo}
-        onChange={(e) =>
-          setDadosConsulta({ ...dadosConsulta, motivo: e.target.value })
-        }
         type="textarea"
-        required
+        register={register}
+        error={errors.motivo}
       />
+
       <InputField
         label="Responsável pelo Agendamento"
         name="responsavelAgendamento"
-        value={dadosConsulta.responsavelAgendamento}
-        onChange={handleChange}
-        required
-        disabled
+        register={register}
+        error={errors.responsavelAgendamento}
+        disabled // O valor padrão é definido no useForm do pai
       />
+
       <InputField
         label="Prioridade (0 a 5)"
         name="prioridade"
-        value={1}
-        onChange={handleChange}
         type="number"
-        required
+        register={register}
+        error={errors.prioridade}
         hidden={true}
       />
     </div>

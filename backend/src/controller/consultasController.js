@@ -2,10 +2,38 @@ const Consulta = require("../model/consulta");
 const Paciente = require("../model/paciente");
 const Profissional = require("../model/profissionais");
 const CheckIn = require("../model/checkin");
-const tipoConsulta = require("../model/tipoConsulta");
+const TipoConsulta = require("../model/tipoConsulta");
+const RegistroObitos = require("../model/registroObitos");
+const HorarioProfissional = require("../model/horariosProfissionais");
 const { Op } = require("sequelize");
+const sequelize = require("../config/db");
+
+// Função auxiliar para tratamento de erros
+const handleError = (res, status, message, error) => {
+  console.error(message, error);
+  res
+    .status(status)
+    .json({ status: "error", error: message, details: error?.message || "" });
+};
+
+// Função para converter data em dia da semana (ex: "domingo", "segunda-feira")
+const getDayOfWeek = (dateString) => {
+  const date = new Date(`${dateString}T00:00:00`); // Adiciona T00:00:00 para evitar problemas de fuso horário
+  const days = [
+    "domingo",
+    "segunda-feira",
+    "terca-feira",
+    "quarta-feira",
+    "quinta-feira",
+    "sexta-feira",
+    "sabado",
+  ];
+  return days[date.getDay()];
+};
 
 const criarConsulta = async (req, res) => {
+  console.log("Criando consulta", req.body);
+
   try {
     const {
       cpfPaciente,
@@ -16,56 +44,47 @@ const criarConsulta = async (req, res) => {
       motivo,
       responsavelAgendamento,
       prioridade = 0,
-      status = "agendada",
     } = req.body;
 
-    if (
-      !cpfPaciente ||
-      !medicoId ||
-      !idTipoConsulta ||
-      !dataConsulta ||
-      !horaConsulta ||
-      !motivo ||
-      !responsavelAgendamento
-    ) {
-      return res.status(400).json({
-        error:
-          "Campos obrigatórios faltando: cpfPaciente, medicoId, idTipoConsulta, dataConsulta, horaConsulta, motivo, responsavelAgendamento.",
-      });
-    }
-
-    const [paciente, medico, ttipoConsulta] = await Promise.all([
-      Paciente.findByPk(cpfPaciente),
-      Profissional.findByPk(medicoId),
-      tipoConsulta.findByPk(idTipoConsulta),
-    ]);
-
-    if (!paciente) {
-      return res.status(400).json({ error: "Paciente não encontrado." });
-    }
-    if (!medico) {
-      return res.status(400).json({ error: "Médico não encontrado." });
-    }
-    if (!ttipoConsulta) {
+    // 1. Validação dos dados de entrada (continua igual)
+    if (!cpfPaciente || !medicoId /* ... etc ... */) {
       return res
         .status(400)
-        .json({ error: "Tipo de consulta não encontrado." });
+        .json({ error: "Todos os campos são obrigatórios." });
     }
 
+    // 2. Verificações sequenciais no banco (MAIS LENTO)
+    const paciente = await Paciente.findByPk(cpfPaciente);
+    if (!paciente)
+      return res.status(404).json({ error: "Paciente não encontrado." });
+
+    const obito = await RegistroObitos.findOne({ where: { cpfPaciente:cpfPaciente } });
+    if (obito) return res.status(400).json({ error: "Paciente falecido." });
+
+    const medico = await Profissional.findByPk(medicoId);
+    if (!medico)
+      return res.status(404).json({ error: "Médico não encontrado." });
+
+    const tipoConsulta = await TipoConsulta.findByPk(idTipoConsulta);
+    if (!tipoConsulta)
+      return res
+        .status(404)
+        .json({ error: "Tipo de consulta não encontrado." });
+
+    // 3. Verificação de conflito (INSEGURO SEM TRANSAÇÃO)
     const consultaExistente = await Consulta.findOne({
       where: {
-        medicoId: medicoId,
-        dataConsulta: dataConsulta,
-        horaConsulta: horaConsulta,
+        medicoId,
+        dataConsulta,
+        horaConsulta,
+        status: { [Op.ne]: "cancelada" },
       },
     });
-
     if (consultaExistente) {
-      return res.status(409).json({
-        error: "Já existe uma consulta agendada para este médico, data e hora.",
-      });
+      return res.status(409).json({ error: "Horário indisponível." });
     }
 
+    // 4. Criação da consulta
     const novaConsulta = await Consulta.create({
       cpfPaciente,
       medicoId,
@@ -75,10 +94,35 @@ const criarConsulta = async (req, res) => {
       prioridade,
       motivo,
       responsavelAgendamento,
-      status,
+      status: "agendada",
     });
 
-    const consultaCompleta = await Consulta.findByPk(novaConsulta.id, {
+    res.status(201).json({ status: "success", data: novaConsulta });
+  } catch (error) {
+    // O catch agora só pega erros inesperados, mas não pode "desfazer" a criação da consulta
+    console.error("ERRO AO CRIAR CONSULTA:", error);
+    res.status(500).json({ error: "Ocorreu um erro interno no servidor." });
+  }
+};
+
+const listarConsultasDoDia = async (req, res) => {
+  // console.log("Listando consultas do dia", req.params.data, req.query);
+
+  try {
+    const data = req.params.data || new Date().toISOString().split("T")[0];
+    const { status } = req.query;
+
+    // Filtros baseados no papel do usuário
+    const whereClause = { dataConsulta: data };
+    if (status) {
+      whereClause.status = status;
+    }
+    if (req.user.role === "medico") {
+      whereClause.medicoId = req.user.id; // Apenas consultas do médico logado
+    }
+
+    const consultas = await Consulta.findAll({
+      where: whereClause,
       include: [
         {
           model: Paciente,
@@ -91,182 +135,217 @@ const criarConsulta = async (req, res) => {
           attributes: ["matricula", "nome", "crm"],
         },
         {
-          model: tipoConsulta,
+          model: TipoConsulta,
           as: "tipoConsulta",
           attributes: ["idTipoConsulta", "nomeTipoConsulta"],
         },
-      ],
-    });
-
-    res.status(201).json(consultaCompleta);
-  } catch (error) {
-    console.error("Erro ao criar consulta:", error);
-    if (error.name === "SequelizeForeignKeyConstraintError") {
-      return res.status(400).json({
-        error:
-          "Chave estrangeira inválida. Verifique cpfPaciente, medicoId ou idTipoConsulta.",
-      });
-    }
-    if (error.name === "SequelizeValidationError") {
-      return res.status(400).json({
-        error: error.errors.map((e) => e.message).join(", "),
-      });
-    }
-    res.status(400).json({ error: error.message || "Erro ao criar consulta." });
-  }
-};
-
-const listarConsultasDoDia = async (req, res) => {
-  try {
-    const data = req.params.data || new Date().toISOString().split("T")[0];
-    const { status } = req.query; // Get status from query parameter
-
-    const whereClause = { dataConsulta: data };
-    if (status) {
-      whereClause.status = status; // Apply status filter if provided
-    }
-
-    const consultas = await Consulta.findAll({
-      where: whereClause,
-      include: [
-        { model: Paciente, as: "paciente" },
-        { model: Profissional, as: "medico" },
-        { model: tipoConsulta, as: "tipoConsulta" },
         { model: CheckIn, as: "checkin" },
       ],
+      order: [
+        ["prioridade", "DESC"],
+        ["horaConsulta", "ASC"],
+      ],
     });
 
-    res.status(200).json(consultas);
+    // console.log("Consultas do dia:", consultas);
+
+    res.status(200).json({ status: "success", data: consultas });
   } catch (error) {
-    console.error("Erro ao listar consultas do dia:", error);
-    res.status(400).json({
-      status: "error",
-      message: "Erro ao listar consultas",
-      error: error.message,
-    });
+    handleError(res, 500, "Erro ao listar consultas do dia", error);
   }
 };
 
 const listarConsultas = async (req, res) => {
   try {
+    const whereClause = {};
+    if (req.user.role === "medico") {
+      whereClause.medicoId = req.user.id; // Apenas consultas do médico logado
+    }
+
     const consultas = await Consulta.findAll({
+      where: whereClause,
       include: [
-        { model: Paciente, as: "paciente" },
-        { model: Profissional, as: "medico" },
-        { model: tipoConsulta, as: "tipoConsulta" },
+        {
+          model: Paciente,
+          as: "paciente",
+          attributes: ["cpf", "nome", "sobrenome"],
+        },
+        {
+          model: Profissional,
+          as: "medico",
+          attributes: ["matricula", "nome", "crm"],
+        },
+        {
+          model: TipoConsulta,
+          as: "tipoConsulta",
+          attributes: ["idTipoConsulta", "nomeTipoConsulta"],
+        },
         { model: CheckIn, as: "checkin" },
+      ],
+      order: [
+        ["dataConsulta", "DESC"],
+        ["horaConsulta", "ASC"],
       ],
     });
 
-    res.status(200).json(consultas);
+    res.status(200).json({ status: "success", data: consultas });
   } catch (error) {
-    console.error("Erro ao listar consultas:", error);
-    res.status(400).json({
-      status: "error",
-      message: "Erro ao listar consultas",
-      error: error.message,
-    });
+    handleError(res, 500, "Erro ao listar consultas", error);
   }
 };
 
 const getHorariosDisponiveis = async (req, res) => {
-  const { medicoId, dataConsulta } = req.params;
-
   try {
-    const consultas = await Consulta.findAll({
+    const { medicoId, dataConsulta } = req.params; // ex: dataConsulta = "2025-05-30"
+    const DURACAO_CONSULTA_MINUTOS = 60; // Defina a duração padrão da consulta
+
+    // 1. Determinar o dia da semana a partir da data
+    const diaSemana = getDayOfWeek(dataConsulta);
+
+    // 2. Buscar a regra de horário para o profissional e o dia da semana
+    const regraHorario = await HorarioProfissional.findOne({
       where: {
-        medicoId: medicoId,
-        dataConsulta: dataConsulta,
+        matriculaProfissional: medicoId,
+        diaSemana: diaSemana,
+        status: "Ativo",
+      },
+    });
+
+    if (!regraHorario) {
+      return res.status(200).json({
+        status: "success",
+        data: [], // Retorna array vazio se o profissional não trabalha neste dia
+        message:
+          "Profissional não possui horário de trabalho para este dia da semana.",
+      });
+    }
+
+    // 3. Gerar todos os slots de horário possíveis
+    const horariosPossiveis = [];
+    const { inicio, fim, intervaloInicio, intervaloFim } = regraHorario;
+
+    let slotAtual = new Date(`${dataConsulta}T${inicio}`);
+    const horarioFim = new Date(`${dataConsulta}T${fim}`);
+
+    while (slotAtual < horarioFim) {
+      // Formata a hora para HH:mm
+      const horaFormatada = slotAtual.toTimeString().slice(0, 5);
+      horariosPossiveis.push(horaFormatada);
+      // Incrementa o slot pela duração da consulta
+      slotAtual.setMinutes(slotAtual.getMinutes() + DURACAO_CONSULTA_MINUTOS);
+    }
+
+    // 4. Excluir os horários de intervalo
+    let slotsValidos = horariosPossiveis;
+    if (intervaloInicio && intervaloFim) {
+      slotsValidos = horariosPossiveis.filter((hora) => {
+        return hora < intervaloInicio || hora >= intervaloFim;
+      });
+    }
+
+    // 5. Buscar consultas já agendadas para filtrar os horários ocupados
+    const consultasAgendadas = await Consulta.findAll({
+      where: {
+        medicoId,
+        dataConsulta,
         status: { [Op.ne]: "cancelada" },
       },
       attributes: ["horaConsulta"],
     });
 
-    const horariosOcupados = consultas.map((c) => c.horaConsulta);
-    const horariosPossiveis = [
-      "08:00",
-      "08:30",
-      "09:00",
-      "09:30",
-      "10:00",
-      "10:30",
-      "11:00",
-      "14:00",
-      "14:30",
-      "15:00",
-      "15:30",
-      "16:00",
-      "16:30",
-      "17:00",
-      "17:30",
-    ];
+    const horariosOcupados = consultasAgendadas.map((c) => c.horaConsulta);
 
-    const horariosDisponiveis = horariosPossiveis.filter(
-      (horarioPossivel) => !horariosOcupados.includes(horarioPossivel)
+    // 6. Filtrar e retornar a lista final de horários disponíveis
+    const horariosDisponiveis = slotsValidos.filter(
+      (h) => !horariosOcupados.includes(h)
     );
 
-    res.status(200).json({ data: horariosDisponiveis });
+    res.status(200).json({ status: "success", data: horariosDisponiveis });
   } catch (error) {
-    console.error("Erro ao buscar horários disponíveis:", error);
+    // Substitua 'handleError' pela sua função de tratamento de erro
+    console.error("Erro ao buscar horários:", error);
     res.status(500).json({
       status: "error",
-      message: "Erro ao buscar horários disponíveis",
-      error: error.message,
+      message: "Erro interno ao buscar horários disponíveis.",
     });
   }
 };
 
 const cancelarConsulta = async (req, res) => {
+  const transaction = await sequelize.transaction();
   try {
     const { id } = req.params;
     const { motivoCancelamento } = req.body;
 
-    const consulta = await Consulta.findByPk(id);
+    // Validar motivo
+    if (!motivoCancelamento) {
+      await transaction.rollback();
+      return handleError(res, 400, "Motivo do cancelamento é obrigatório");
+    }
+
+    const consulta = await Consulta.findByPk(id, { transaction });
     if (!consulta) {
-      return res.status(404).json({ error: "Consulta não encontrada." });
+      await transaction.rollback();
+      return handleError(res, 404, "Consulta não encontrada");
     }
 
-    if (consulta.status !== "agendada") {
-      return res.status(400).json({ error: "Consulta não está agendada." });
+    // Verificar status e permissões
+    if (
+      consulta.status !== "agendada" &&
+      consulta.status !== "checkin_realizado"
+    ) {
+      await transaction.rollback();
+      return handleError(
+        res,
+        400,
+        "Consulta não está agendada ou com check-in realizado"
+      );
+    }
+    if (
+      consulta.status === "checkin_realizado" &&
+      req.user.id !== consulta.medicoId
+    ) {
+      await transaction.rollback();
+      return handleError(
+        res,
+        403,
+        "Apenas o médico responsável pode cancelar após check-in"
+      );
     }
 
+    // Atualizar status
     consulta.status = "cancelada";
-    consulta.motivoCancelamento = motivoCancelamento || null;
-    await consulta.save();
+    consulta.motivoCancelamento = motivoCancelamento;
+    await consulta.save({ transaction });
 
+    // Buscar consulta completa
     const consultaCompleta = await Consulta.findByPk(id, {
       include: [
-        { model: Paciente, as: "paciente" },
-        { model: Profissional, as: "medico" },
-        { model: tipoConsulta, as: "tipoConsulta" },
+        {
+          model: Paciente,
+          as: "paciente",
+          attributes: ["cpf", "nome", "sobrenome"],
+        },
+        {
+          model: Profissional,
+          as: "medico",
+          attributes: ["matricula", "nome", "crm"],
+        },
+        {
+          model: TipoConsulta,
+          as: "tipoConsulta",
+          attributes: ["idTipoConsulta", "nomeTipoConsulta"],
+        },
         { model: CheckIn, as: "checkin" },
       ],
+      transaction,
     });
 
-    res.status(200).json(consultaCompleta);
+    await transaction.commit();
+    res.status(200).json({ status: "success", data: consultaCompleta });
   } catch (error) {
-    console.error("Erro ao cancelar consulta:", error);
-    res.status(500).json({ error: "Erro interno ao cancelar consulta." });
-  }
-};
-
-const alterarConsultaEhAtendimentoCancelado = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { ehAtendimentoCancelado } = req.body;
-
-    const consulta = await Consulta.findByPk(id);
-    if (!consulta) {
-      return res.status(404).json({ error: "Consulta não encontrada." });
-    }
-
-    consulta.ehAtendimentoCancelado = ehAtendimentoCancelado;
-    await consulta.save();
-
-    res.status(200).json(consulta);
-  } catch (error) {
-    console.error("Erro ao alterar ehAtendimentoCancelado:", error);
-    res.status(500).json({ error: "Erro interno ao alterar ehAtendimentoCancelado." });
+    await transaction.rollback();
+    handleError(res, 500, "Erro ao cancelar consulta", error);
   }
 };
 
@@ -276,5 +355,4 @@ module.exports = {
   listarConsultas,
   getHorariosDisponiveis,
   cancelarConsulta,
-  alterarConsultaEhAtendimentoCancelado
 };

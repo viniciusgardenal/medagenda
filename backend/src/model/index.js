@@ -18,10 +18,7 @@ const Roles = require("./roles");
 const Permissao = require("./permissao");
 const SolicitacaoExames = require("./solicitacaoExames");
 const RegistroResultadoExames = require("./registroResultadoExames");
-const RegistroObitos = require("./registroObitos")(
-  sequelize,
-  Sequelize.DataTypes
-);
+const RegistroObitos = require("./registroObitos");
 const Atendimento = require("./atendimentos");
 
 // Objeto contendo todos os modelos

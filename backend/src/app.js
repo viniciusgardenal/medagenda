@@ -4,6 +4,8 @@ const path = require("path");
 const cors = require("cors");
 const sequelize = require("./config/db");
 
+const { initLembreteJob } = require("./jobs/lembreteConsultaJob"); // Ajuste o caminho
+
 // Carregar as variáveis de ambiente com base no ambiente
 const env = process.env.NODE_ENV || "development";
 const envFilePath = path.join(__dirname, `../.env.${env}`);
@@ -96,4 +98,5 @@ sequelize
 // Iniciar o servidor
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
+  initLembreteJob();
 });

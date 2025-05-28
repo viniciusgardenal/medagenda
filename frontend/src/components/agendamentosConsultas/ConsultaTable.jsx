@@ -15,14 +15,19 @@ const ConsultaTable = ({
   itemsPerPage,
 }) => {
   const sortConsultas = (consultas) => {
-    console.log("consultas", consultas);
+    // console.log("consultas", consultas); // Este log foi muito útil!
 
     return [...consultas].sort((a, b) => {
       let valueA, valueB;
       const fieldMap = {
         nome: (item) => item.paciente.nome.toLowerCase(),
+        // --- CORREÇÃO APLICADA ABAIXO ---
         medico: (item) =>
-          `${item.medico.nome} ${item.medico.sobrenome}`.toLowerCase(),
+          `${item.medico.nome} ${item.medico.crm}`.toLowerCase(),
+        // item.medico.nome.toLowerCase(),
+        // Se quiser incluir o CRM na ordenação, poderia ser:
+        // medico:
+        // --- FIM DA CORREÇÃO ---
         tipo: (item) => item.tipoConsulta.nomeTipoConsulta.toLowerCase(),
         horario: (item) => item.horaConsulta,
         motivo: (item) => item.motivo.toLowerCase(),

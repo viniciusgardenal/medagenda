@@ -1,3 +1,4 @@
+// StepAgendamento.jsx (VERSÃO CORRETA)
 import { useFormContext } from "react-hook-form";
 import SelectField from "./SelectField";
 import InputField from "./InputField";
@@ -5,9 +6,8 @@ import InputField from "./InputField";
 const StepAgendamento = ({
   tiposConsulta,
   horariosDisponiveis,
-  isLoadingHorarios,
+  isLoadingHorarios, // Você pode precisar adicionar isLoadingHorarios se não estiver lá
 }) => {
-  // Acessa o contexto do formulário para registrar os campos e ver os erros
   const {
     register,
     formState: { errors },
@@ -18,8 +18,6 @@ const StepAgendamento = ({
       <h4 className="text-lg font-semibold text-gray-700">
         Agendamento da Consulta
       </h4>
-
-      {/* Os campos agora são registrados corretamente no react-hook-form */}
       <SelectField
         label="Tipo de Consulta"
         name="idTipoConsulta"
@@ -31,7 +29,7 @@ const StepAgendamento = ({
         register={register}
         error={errors.idTipoConsulta}
       />
-
+      {/* ... outros InputField e SelectField usando 'register' e 'errors' ... */}
       <InputField
         label="Data da Consulta"
         name="dataConsulta"
@@ -39,7 +37,6 @@ const StepAgendamento = ({
         register={register}
         error={errors.dataConsulta}
       />
-
       <SelectField
         label="Hora da Consulta"
         name="horaConsulta"
@@ -48,7 +45,7 @@ const StepAgendamento = ({
           label: hora,
         }))}
         placeholder={
-          isLoadingHorarios
+          isLoadingHorarios // Adicionado para consistência
             ? "Carregando..."
             : horariosDisponiveis.length > 0
             ? "Selecione um horário"
@@ -56,9 +53,8 @@ const StepAgendamento = ({
         }
         register={register}
         error={errors.horaConsulta}
-        disabled={horariosDisponiveis.length === 0 || isLoadingHorarios}
+        disabled={horariosDisponiveis.length === 0 || isLoadingHorarios} // Adicionado para consistência
       />
-
       <InputField
         label="Motivo"
         name="motivo"
@@ -66,15 +62,13 @@ const StepAgendamento = ({
         register={register}
         error={errors.motivo}
       />
-
       <InputField
         label="Responsável pelo Agendamento"
         name="responsavelAgendamento"
         register={register}
         error={errors.responsavelAgendamento}
-        disabled // O valor padrão é definido no useForm do pai
+        disabled
       />
-
       <InputField
         label="Prioridade (0 a 5)"
         name="prioridade"

@@ -20,13 +20,13 @@ const handleError = (res, status, message, error) => {
 const getDayOfWeek = (dateString) => {
   const date = new Date(`${dateString}T00:00:00`); // Adiciona T00:00:00 para evitar problemas de fuso horário
   const days = [
-    "domingo",
-    "segunda-feira",
-    "terca-feira",
-    "quarta-feira",
-    "quinta-feira",
-    "sexta-feira",
-    "sabado",
+    "Domingo",
+    "Segunda",
+    "Terça",
+    "Quarta",
+    "Quinta",
+    "Sexta",
+    "Sábado",
   ];
   return days[date.getDay()];
 };
@@ -58,7 +58,9 @@ const criarConsulta = async (req, res) => {
     if (!paciente)
       return res.status(404).json({ error: "Paciente não encontrado." });
 
-    const obito = await RegistroObitos.findOne({ where: { cpfPaciente:cpfPaciente } });
+    const obito = await RegistroObitos.findOne({
+      where: { cpfPaciente: cpfPaciente },
+    });
     if (obito) return res.status(400).json({ error: "Paciente falecido." });
 
     const medico = await Profissional.findByPk(medicoId);
@@ -106,28 +108,27 @@ const criarConsulta = async (req, res) => {
 };
 
 const listarConsultasDoDia = async (req, res) => {
-  // console.log("Listando consultas do dia", req.params.data, req.query);
-
   try {
     const data = req.params.data || new Date().toISOString().split("T")[0];
     const { status } = req.query;
 
-    // Filtros baseados no papel do usuário
     const whereClause = { dataConsulta: data };
     if (status) {
       whereClause.status = status;
     }
     if (req.user.role === "medico") {
-      whereClause.medicoId = req.user.id; // Apenas consultas do médico logado
+      whereClause.medicoId = req.user.id;
     }
 
     const consultas = await Consulta.findAll({
       where: whereClause,
+      // --- INÍCIO DA CORREÇÃO ---
+      // O 'include' diz ao Sequelize para fazer um JOIN e trazer os dados das tabelas associadas.
       include: [
         {
           model: Paciente,
-          as: "paciente",
-          attributes: ["cpf", "nome", "sobrenome"],
+          as: "paciente", // 'as' deve corresponder ao apelido na sua associação
+          attributes: ["cpf", "nome", "sobrenome"], // Especifique quais colunas trazer
         },
         {
           model: Profissional,
@@ -137,17 +138,18 @@ const listarConsultasDoDia = async (req, res) => {
         {
           model: TipoConsulta,
           as: "tipoConsulta",
-          attributes: ["idTipoConsulta", "nomeTipoConsulta"],
         },
-        { model: CheckIn, as: "checkin" },
+        {
+          model: CheckIn,
+          as: "checkin",
+        },
       ],
+      // --- FIM DA CORREÇÃO ---
       order: [
         ["prioridade", "DESC"],
         ["horaConsulta", "ASC"],
       ],
     });
-
-    // console.log("Consultas do dia:", consultas);
 
     res.status(200).json({ status: "success", data: consultas });
   } catch (error) {
@@ -159,11 +161,12 @@ const listarConsultas = async (req, res) => {
   try {
     const whereClause = {};
     if (req.user.role === "medico") {
-      whereClause.medicoId = req.user.id; // Apenas consultas do médico logado
+      whereClause.medicoId = req.user.id;
     }
 
     const consultas = await Consulta.findAll({
       where: whereClause,
+      // --- ADICIONE O MESMO BLOCO 'INCLUDE' AQUI ---
       include: [
         {
           model: Paciente,
@@ -178,9 +181,11 @@ const listarConsultas = async (req, res) => {
         {
           model: TipoConsulta,
           as: "tipoConsulta",
-          attributes: ["idTipoConsulta", "nomeTipoConsulta"],
         },
-        { model: CheckIn, as: "checkin" },
+        {
+          model: CheckIn,
+          as: "checkin",
+        },
       ],
       order: [
         ["dataConsulta", "DESC"],
@@ -200,7 +205,10 @@ const getHorariosDisponiveis = async (req, res) => {
     const DURACAO_CONSULTA_MINUTOS = 60; // Defina a duração padrão da consulta
 
     // 1. Determinar o dia da semana a partir da data
+    // console.log("dataConsulta:", dataConsulta);
+
     const diaSemana = getDayOfWeek(dataConsulta);
+    // console.log("diaSemana:", diaSemana);
 
     // 2. Buscar a regra de horário para o profissional e o dia da semana
     const regraHorario = await HorarioProfissional.findOne({
@@ -211,6 +219,7 @@ const getHorariosDisponiveis = async (req, res) => {
       },
     });
 
+    console.log("regraHorario:", regraHorario);
     if (!regraHorario) {
       return res.status(200).json({
         status: "success",

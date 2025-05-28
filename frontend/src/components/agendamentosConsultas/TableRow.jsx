@@ -1,5 +1,5 @@
 const TableRow = ({ consulta, onView, onCancel, formatarDataHoraBR }) => {
-  console.log(consulta);
+  console.log("DADOS DA CONSULTA EM TableRow:", consulta); // <--- ADICIONE ESTA LINHA
 
   const isCancelable = ["agendada", "checkin_realizado"].includes(
     consulta.status
@@ -13,21 +13,28 @@ const TableRow = ({ consulta, onView, onCancel, formatarDataHoraBR }) => {
     adiada: "Adiada",
   };
 
+  // Valores padrão para evitar erros
+  const nomePaciente = consulta.paciente?.nome || "N/A";
+  const sobrenomePaciente = consulta.paciente?.sobrenome || "";
+  const nomeMedico = consulta.medico?.nome || "N/A";
+  const crmMedico = consulta.medico?.crm || "N/A";
+  const nomeTipoConsulta = consulta.tipoConsulta?.nomeTipoConsulta || "N/A";
+
   return (
     <tr className="hover:bg-blue-50 transition-colors">
       <td className="px-4 py-3 text-sm text-gray-700">
-        {consulta.paciente.nome} {consulta.paciente.sobrenome}
+        {nomePaciente} {sobrenomePaciente}
       </td>
       <td className="px-4 py-3 text-sm text-gray-700">
-        {consulta.medico.nome} ({consulta.medico.crm})
+        {nomeMedico} ({crmMedico})
       </td>
-      <td className="px-4 py-3 text-sm text-gray-700">
-        {consulta.tipoConsulta.nomeTipoConsulta}
-      </td>
+      <td className="px-4 py-3 text-sm text-gray-700">{nomeTipoConsulta}</td>
       <td className="px-4 py-3 text-sm text-gray-700">
         {formatarDataHoraBR(consulta.dataConsulta, consulta.horaConsulta)}
       </td>
-      <td className="px-4 py-3 text-sm text-gray-700">{consulta.motivo}</td>
+      <td className="px-4 py-3 text-sm text-gray-700">
+        {consulta.motivo || "N/A"}
+      </td>
       <td className="px-4 py-3 text-sm text-gray-700">
         {statusLabels[consulta.status] || consulta.status}
       </td>

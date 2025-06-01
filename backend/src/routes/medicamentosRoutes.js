@@ -29,4 +29,10 @@ router.delete(
   medicamentoController.excluirMedicamentos
 );
 
+router.get(
+  "/medicamentos/report/excel",
+  checkpermissao("consultar"),
+  medicamentoController.generateMedicamentosReport
+);
+
 module.exports = router;

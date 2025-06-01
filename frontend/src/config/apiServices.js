@@ -148,6 +148,21 @@ export const getMedicamentosId = async (id) => {
   return await api.get(`${apiUrl}/medicamentos/${id}`);
 };
 
+export const generateMedicamentosReport = async (params = {}) => {
+  try {
+    const response = await api.get(`${apiUrl}/medicamentos/report/excel`, {
+      params,
+      responseType: "blob", // Important for handling binary data (Excel file)
+    });
+    return response;
+  } catch (error) {
+    console.error(
+      "Erro ao gerar relatório de medicamentos:",
+      error.response?.data || error.message
+    );
+    throw error.response?.data || { error: "Erro ao gerar relatório de medicamentos." };
+  }
+};
 export const criarSolicitacaoExames = async (dadosSolicitacaoExames) => {
   try {
     console.log("Criando solicitação com dados:", dadosSolicitacaoExames);

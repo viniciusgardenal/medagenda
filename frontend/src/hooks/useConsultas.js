@@ -87,9 +87,17 @@ export const useConsultas = (initialFilters, initialStatus) => {
   };
 
   const handleCancelConsulta = async (id, motivoCancelamento) => {
+    console.log(
+      "handleCancelConsulta chamado com ID:",
+      id,
+      "Motivo:",
+      motivoCancelamento
+    );
     setError(null);
     try {
-      const response = await cancelarConsulta(id, motivoCancelamento);
+      // Enviar string vazia se motivoCancelamento for null
+      const motivo = motivoCancelamento ?? " ";
+      const response = await cancelarConsulta(id, motivo);
       setConsultas((prev) =>
         prev.map((c) => (c.id === id ? response.data.data : c))
       );

@@ -20,7 +20,13 @@ const ModalCancelConsulta = ({
       setError("Por favor, forneça um motivo para o cancelamento.");
       return;
     }
-    onConfirm(isJustificationDisabled ? null : motivoCancelamento);
+    console.log(
+      "Cancelando consulta ID:",
+      consulta.id,
+      "Motivo:",
+      isJustificationDisabled ? null : motivoCancelamento
+    );
+    onConfirm(consulta.id, isJustificationDisabled ? null : motivoCancelamento);
   };
 
   return (

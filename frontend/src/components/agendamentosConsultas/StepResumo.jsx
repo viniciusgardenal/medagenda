@@ -17,11 +17,12 @@ const StepResumo = ({ pacientes, medicos, tiposConsulta, goToStep }) => {
   // Função para formatar a data e hora continua a mesma
   const formatarDataHoraBR = (data, hora) => {
     if (!data || !hora) return "";
-    // O valor da data vindo do react-hook-form é um objeto Date, não uma string
+    // Criar o objeto Date a partir da string, assumindo que é uma data local
     const dataObj = new Date(data);
-    const dia = String(dataObj.getDate()).padStart(2, "0");
-    const mes = String(dataObj.getMonth() + 1).padStart(2, "0"); // Mês é base 0
-    const ano = dataObj.getFullYear();
+    // Ajustar para o fuso horário local (evitar deslocamento UTC)
+    const dia = String(dataObj.getUTCDate()).padStart(2, "0");
+    const mes = String(dataObj.getUTCMonth() + 1).padStart(2, "0"); // Mês é base 0
+    const ano = dataObj.getUTCFullYear();
     const dataBR = `${dia}/${mes}/${ano}`;
     const horaBR = hora.split(":").slice(0, 2).join(":");
     return `${dataBR} - ${horaBR}`;

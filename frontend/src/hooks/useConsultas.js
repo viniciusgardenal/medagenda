@@ -58,14 +58,25 @@ export const useConsultas = (initialFilters, initialStatus) => {
   const handleSalvarConsulta = async (consultaData) => {
     setError(null);
     console.log("Dados da consulta:", consultaData);
-
     try {
       const response = await agendarConsulta({
         ...consultaData,
         status: "agendada",
       });
+      console.log("Resposta da API agendarConsulta:", response.data.data);
+      const novaConsulta = response.data.data;
+      const consultaEnriquecida = {
+        ...novaConsulta,
+        paciente: pacientes.find((p) => p.cpf === novaConsulta.cpfPaciente),
+        medico: medicos.find((m) => m.matricula === novaConsulta.medicoId),
+        tipoConsulta: tiposConsulta.find(
+          (t) => t.idTipoConsulta === novaConsulta.idTipoConsulta
+        ),
+      };
+      console.log("Consulta enriquecida:", consultaEnriquecida);
       if (status === "agendada") {
-        setConsultas((prev) => [...prev, response.data.data]);
+        setConsultas((prev) => [...prev, consultaEnriquecida]);
+        // Opcional: await fetchData();
       }
       return true;
     } catch (error) {

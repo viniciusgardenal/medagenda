@@ -1,5 +1,5 @@
 const TableRow = ({ consulta, onView, onCancel, formatarDataHoraBR }) => {
-  console.log("DADOS DA CONSULTA EM TableRow:", consulta); // <--- ADICIONE ESTA LINHA
+  // console.log("DADOS DA CONSULTA EM TableRow:", consulta); // <--- ADICIONE ESTA LINHA
 
   const isCancelable = ["agendada", "checkin_realizado"].includes(
     consulta.status

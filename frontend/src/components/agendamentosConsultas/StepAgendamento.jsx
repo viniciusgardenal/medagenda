@@ -6,12 +6,15 @@ import InputField from "./InputField";
 const StepAgendamento = ({
   tiposConsulta,
   horariosDisponiveis,
-  isLoadingHorarios, // Você pode precisar adicionar isLoadingHorarios se não estiver lá
+  isLoadingHorarios,
 }) => {
   const {
     register,
     formState: { errors },
+    getValues,
   } = useFormContext();
+
+  // console.log("Valores do formulário em StepAgendamento:", getValues());
 
   return (
     <div className="space-y-4">
@@ -29,7 +32,6 @@ const StepAgendamento = ({
         register={register}
         error={errors.idTipoConsulta}
       />
-      {/* ... outros InputField e SelectField usando 'register' e 'errors' ... */}
       <InputField
         label="Data da Consulta"
         name="dataConsulta"
@@ -45,7 +47,7 @@ const StepAgendamento = ({
           label: hora,
         }))}
         placeholder={
-          isLoadingHorarios // Adicionado para consistência
+          isLoadingHorarios
             ? "Carregando..."
             : horariosDisponiveis.length > 0
             ? "Selecione um horário"
@@ -53,7 +55,7 @@ const StepAgendamento = ({
         }
         register={register}
         error={errors.horaConsulta}
-        disabled={horariosDisponiveis.length === 0 || isLoadingHorarios} // Adicionado para consistência
+        disabled={horariosDisponiveis.length === 0 || isLoadingHorarios}
       />
       <InputField
         label="Motivo"

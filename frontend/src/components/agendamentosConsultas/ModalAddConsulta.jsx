@@ -23,9 +23,20 @@ const schema = yup
       .integer(),
     idTipoConsulta: yup
       .number()
+      .transform((value, originalValue) => {
+        // Se o valor original for uma string e puder ser convertido para número, converta.
+        // Caso contrário, retorne o valor como está (ou NaN, que falhará na validação de .number())
+        if (typeof originalValue === "string" && originalValue.trim() !== "") {
+          const num = Number(originalValue);
+          return isNaN(num) ? originalValue : num; // Retorna o número ou o original se não for um número válido
+        }
+        return value; // Retorna o valor já processado (pode ser undefined, null, etc.)
+      })
       .required("Tipo de consulta é obrigatório")
       .positive()
-      .integer(),
+      .integer()
+      .typeError("Selecione um tipo de Consulta.") // Mensagem mais específica
+      .required("Tipo de consulta é obrigatório"),
     dataConsulta: yup
       .date()
       .transform((value, originalValue) => {
@@ -100,7 +111,7 @@ const ModalAddConsulta = ({
       if (medicoId && dataConsulta) {
         setIsLoadingHorarios(true);
         try {
-          console.log("Fetching horários...");
+          // console.log("Fetching horários...");
           const response = await getHorariosDisponiveis(medicoId, dataConsulta);
           setHorariosDisponiveis(response.data.data || []);
           setValue("horaConsulta", ""); // Reset hora ao mudar médico ou data
@@ -165,6 +176,12 @@ const ModalAddConsulta = ({
     // console.log("Campos que tentei validar:", fieldsToValidate);
     // console.log("Valores atuais no formulário:", methods.getValues());
     // console.log("Erros de validação encontrados:", methods.formState.errors);
+    // console.log(
+    //   "Step atual:",
+    //   step,
+    //   "Step após validação:",
+    //   isValid ? step + 1 : step
+    // );
     // --- FIM DO DEBUG ---
 
     if (isValid) {
@@ -181,28 +198,26 @@ const ModalAddConsulta = ({
   };
 
   const onSubmit = async (data) => {
-    // 1. Crie uma cópia dos dados para não modificar o estado original do formulário
+    // console.log("onSubmit chamado no step:", step);
+    if (step !== steps.length) {
+      console.log("Submissão ignorada: não está no último passo (Resumo)");
+      return;
+    }
     const dadosParaEnviar = { ...data };
-
-    // 2. Verifique se dataConsulta é um objeto Date e formate-o para 'YYYY-MM-DD'
     if (dadosParaEnviar.dataConsulta instanceof Date) {
-      // Adiciona 1 ao dia para corrigir o problema de fuso horário que pode fazer a data "voltar" um dia
       const dataAjustada = new Date(dadosParaEnviar.dataConsulta);
-      dataAjustada.setDate(dataAjustada.getDate() + 1);
       dadosParaEnviar.dataConsulta = dataAjustada.toISOString().split("T")[0];
     }
-
-    // 3. Chame a função onSave com os dados já formatados
+    // console.log("onSubmit CHAMADO - DADOS PARA SALVAR:", dadosParaEnviar);
     const success = await onSave(dadosParaEnviar);
-
-    // --- FIM DA CORREÇÃO ---
-
     if (success) {
+      console.log("SALVO COM SUCESSO - Resetando e fechando modal");
       reset();
       onClose();
+    } else {
+      console.log("FALHA AO SALVAR");
     }
   };
-
   const handleClose = () => {
     setError(null);
     reset();
@@ -261,7 +276,11 @@ const ModalAddConsulta = ({
                 {step < steps.length ? (
                   <button
                     type="button"
-                    onClick={nextStep}
+                    onClick={(e) => {
+                      e.preventDefault(); // Previne comportamento padrão
+                      e.stopPropagation(); // Previne propagação de eventos
+                      nextStep();
+                    }}
                     className="px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
                     disabled={isLoadingHorarios}
                   >

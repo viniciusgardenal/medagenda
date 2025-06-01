@@ -15,7 +15,7 @@ const ConsultaTable = ({
   itemsPerPage,
 }) => {
   const sortConsultas = (consultas) => {
-    // console.log("consultas", consultas); // Este log foi muito útil!
+    // console.log(" Consulta Table consultas", consultas); // Este log foi muito útil!
 
     return [...consultas].sort((a, b) => {
       let valueA, valueB;

@@ -493,3 +493,30 @@ export const alterarConsultaEhAtendimentoCancelado = (idConsulta) =>
   api.put(`/consultas/${idConsulta}`, {
     ehAtendimentoCancelado: 1,
   });
+
+export const gerarRelatorioAtendimentos = async () => {
+  try {
+    const url = `${apiUrl}/atendimentos/relatorio/excel`; // Confirma a URL
+    console.log("Requesting URL:", url);
+    const response = await api.get(url, {
+      responseType: "blob",
+    });
+    if (
+      response.headers["content-type"] !==
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    ) {
+      const errorText = await response.data.text();
+      console.error("Unexpected response from server:", errorText);
+      throw new Error(`Unexpected response: ${errorText}`);
+    }
+    return response;
+  } catch (error) {
+    console.error("Erro ao gerar relatório de atendimentos:", error);
+    if (error.response?.data instanceof Blob) {
+      const errorText = await error.response.data.text();
+      console.error("Error details from Blob:", errorText);
+      throw new Error(`Error generating report: ${errorText}`);
+    }
+    throw error.response?.data || { error: "Erro ao gerar relatório de atendimentos." };
+  }
+};

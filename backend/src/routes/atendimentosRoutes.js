@@ -29,4 +29,11 @@ router.delete(
   checkpermissao("consultar"),
   AtendimentosController.excluirAtendimento
 );
+
+router.get(
+  "/atendimentos/relatorio/excel",
+  checkpermissao("consultar"),
+  AtendimentosController.gerarRelatorioAtendimentos
+);
+
 module.exports = router;

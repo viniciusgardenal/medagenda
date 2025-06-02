@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { getConsultasPorData, realizarCheckIn, gerarRelatorioCheckIns } from "../../config/apiServices"; // Adicionada a importação de gerarRelatorioCheckIns
+import {
+  getConsultasPorData,
+  realizarCheckIn,
+  gerarRelatorioCheckIns,
+} from "../../config/apiServices"; // Adicionada a importação de gerarRelatorioCheckIns
 import ModalAddCheckIn from "./ModalAddCheckIn";
 import ModalEditCheckIn from "./ModalEditCheckIn";
 import ModalViewCheckIn from "./ModalViewCheckIn";
@@ -251,8 +255,8 @@ const CheckInPacientes = () => {
         console.log("Resposta de getConsultasPorData:", consultasResponse.data);
 
         // Acessa o array dentro de consultasResponse.data.data
-        const consultasArray = Array.isArray(consultasResponse.data.data)
-          ? consultasResponse.data.data
+        const consultasArray = Array.isArray(consultasResponse.data)
+          ? consultasResponse.data
           : [];
 
         // Aplica o filtro
@@ -265,9 +269,14 @@ const CheckInPacientes = () => {
           return consulta.status === "agendada" && dataConsulta > agora;
         });
 
-        if (!Array.isArray(consultasResponse.data.data)) {
-          console.warn("consultasResponse.data.data não é um array:", consultasResponse.data.data);
-          setError("Formato de dados inválido retornado pela API. Esperado: array.");
+        if (!Array.isArray(consultasResponse.data)) {
+          console.warn(
+            "consultasResponse.data.data não é um array:",
+            consultasResponse.data
+          );
+          setError(
+            "Formato de dados inválido retornado pela API. Esperado: array."
+          );
         }
 
         setConsultas(consultasDoDia);
@@ -419,24 +428,26 @@ const CheckInPacientes = () => {
     setCurrentPage(1);
   };
 
-const handleDownloadRelatorio = async () => {
-  try {
-    const response = await gerarRelatorioCheckIns();
-    const url = window.URL.createObjectURL(new Blob([response.data]));
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute("download", "relatorio_checkins.xlsx");
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    window.URL.revokeObjectURL(url);
-  } catch (error) {
-    console.error("Erro ao baixar relatório:", error);
-    // Use the error message from the backend if available
-    const errorMessage = error.message || "Erro ao gerar o relatório de check-ins. Verifique a conexão com o servidor.";
-    setError(errorMessage);
-  }
-};
+  const handleDownloadRelatorio = async () => {
+    try {
+      const response = await gerarRelatorioCheckIns();
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "relatorio_checkins.xlsx");
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Erro ao baixar relatório:", error);
+      // Use the error message from the backend if available
+      const errorMessage =
+        error.message ||
+        "Erro ao gerar o relatório de check-ins. Verifique a conexão com o servidor.";
+      setError(errorMessage);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-200 backdrop-blur-sm p-6">

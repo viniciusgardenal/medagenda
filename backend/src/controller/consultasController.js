@@ -151,7 +151,7 @@ const listarConsultasDoDia = async (req, res) => {
       ],
     });
 
-    res.status(200).json({ status: "success", data: consultas });
+    res.status(200).json(consultas);
   } catch (error) {
     handleError(res, 500, "Erro ao listar consultas do dia", error);
   }

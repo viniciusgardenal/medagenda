@@ -29,6 +29,12 @@ router.get(
   checkInController.gerarRelatorioCheckIns
 );
 
+router.put(
+  "/checkIn/:id", // <-- Rota com ID do check-in
+  checkpermissao("consultar"), // Considere qual permissão é necessária para editar
+  checkInController.atualizarCheckIn
+);
+
 // // Rota para finalizar atendimento
 // router.put('/:checkInId/finalizar', checkInController.finalizarAtendimento);
 

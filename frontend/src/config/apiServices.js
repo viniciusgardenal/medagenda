@@ -312,6 +312,16 @@ export const getCheckInPorConsulta = async (id) => {
   return await api.get(`${apiUrl}/checkIn/consulta/${id}`);
 };
 
+export const atualizarCheckIn = async (checkInId, dadosAtualizados) => {
+  try {
+    const response = await api.put(`/checkin/${checkInId}`, dadosAtualizados); // Use PUT ou PATCH
+    return response.data;
+  } catch (error) {
+    console.error("Erro ao atualizar check-in:", error);
+    throw error; // Propaga o erro para ser tratado no componente
+  }
+};
+
 export const gerarRelatorioCheckIns = async () => {
   try {
     const url = `${apiUrl}/relatorio/excel`;

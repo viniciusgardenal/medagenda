@@ -220,3 +220,42 @@ exports.gerarRelatorioCheckIns = async (req, res) => {
     });
   }
 };
+
+exports.atualizarCheckIn = async (req, res) => {
+  try {
+    const { id } = req.params; // ID do check-in a ser atualizado
+    const {
+      pressaoArterial,
+      temperatura,
+      peso,
+      altura,
+      observacoes,
+      prioridade,
+      // Você pode querer permitir a atualização de outros campos, mas horaChegada
+      // e consultaId provavelmente não devem ser alterados em uma edição
+    } = req.body;
+
+    const checkIn = await CheckIn.findByPk(id);
+
+    if (!checkIn) {
+      return res.status(404).json({ message: "Check-in não encontrado." });
+    }
+
+    // Atualiza os campos do check-in
+    checkIn.pressaoArterial = pressaoArterial;
+    checkIn.temperatura = temperatura;
+    checkIn.peso = peso;
+    checkIn.altura = altura;
+    checkIn.observacoes = observacoes;
+    checkIn.prioridade = prioridade;
+    // Se você adicionou o campo 'status' no CheckIn, pode atualizá-lo aqui também, se necessário.
+    // checkIn.status = 'atualizado'; // Exemplo
+
+    await checkIn.save(); // Salva as alterações no banco de dados
+
+    res.status(200).json({ message: "Check-in atualizado com sucesso.", checkIn });
+  } catch (error) {
+    console.error("Erro ao atualizar check-in:", error);
+    res.status(500).json({ message: "Erro ao atualizar check-in", error: error.message });
+  }
+};

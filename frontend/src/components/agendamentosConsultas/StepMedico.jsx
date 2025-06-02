@@ -5,13 +5,14 @@ const StepMedico = ({ setValue, medicos, resetSearch }) => {
   const [selectedMedico, setSelectedMedico] = useState(null);
 
   const handleSearch = () => {
-    const termoBusca = searchTerm.toLowerCase();
+    // Ensure searchTerm is a string; default to empty string if null/undefined
+    const termoBusca = (searchTerm || "").toLowerCase();
     // console.log("Medicos:", medicos);
 
     const medico = medicos.find(
       (m) =>
-        m.crm.toLowerCase().includes(termoBusca) ||
-        `${m.nome}`.toLowerCase().includes(termoBusca)
+        (m.crm || "").toLowerCase().includes(termoBusca) ||
+        (m.nome || "").toLowerCase().includes(termoBusca)
     );
     if (medico) {
       setSelectedMedico(medico);

@@ -24,6 +24,11 @@ router.get(
   checkInController.getCheckInConsultas
 );
 
+router.get(
+  "/relatorio/excel",
+  checkInController.gerarRelatorioCheckIns
+);
+
 // // Rota para finalizar atendimento
 // router.put('/:checkInId/finalizar', checkInController.finalizarAtendimento);
 

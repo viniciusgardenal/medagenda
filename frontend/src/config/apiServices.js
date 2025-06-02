@@ -312,6 +312,34 @@ export const getCheckInPorConsulta = async (id) => {
   return await api.get(`${apiUrl}/checkIn/consulta/${id}`);
 };
 
+export const gerarRelatorioCheckIns = async () => {
+  try {
+    const url = `${apiUrl}/relatorio/excel`;
+    console.log("Requesting URL:", url);
+    const response = await api.get(url, {
+      responseType: "blob",
+    });
+    // Verify content-type
+    if (
+      response.headers["content-type"] !==
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    ) {
+      const errorText = await response.data.text();
+      console.error("Unexpected response from server:", errorText);
+      throw new Error(`Unexpected response: ${errorText}`);
+    }
+    return response;
+  } catch (error) {
+    console.error("Erro ao gerar relatório de check-ins:", error);
+    if (error.response?.data instanceof Blob) {
+      const errorText = await error.response.data.text();
+      console.error("Error details from Blob:", errorText);
+      throw new Error(`Error generating report: ${errorText}`);
+    }
+    throw error.response?.data || { error: "Erro ao gerar relatório de check-ins." };
+  }
+};
+
 export const getConsultasPorData = async (data, status, searchTerm = "") => {
   return await api.get(`${apiUrl}/consultas/${data}`, {
     params: { status, searchTerm },

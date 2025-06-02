@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { getConsultasPorData, realizarCheckIn } from "../../config/apiServices";
+import { getConsultasPorData, realizarCheckIn, gerarRelatorioCheckIns } from "../../config/apiServices"; // Adicionada a importação de gerarRelatorioCheckIns
 import ModalAddCheckIn from "./ModalAddCheckIn";
 import ModalEditCheckIn from "./ModalEditCheckIn";
 import ModalViewCheckIn from "./ModalViewCheckIn";
@@ -41,7 +41,7 @@ const SearchFilter = ({
   );
 };
 
-// Componente para cada linha da tabela (mantido inalterado)
+// Componente para cada linha da tabela
 const TableRow = ({
   consulta,
   onAdd,
@@ -248,15 +248,27 @@ const CheckInPacientes = () => {
       setError(null);
       try {
         const consultasResponse = await getConsultasPorData(filtros.filtroData);
-        const consultasDoDia = consultasResponse.data.filter((consulta) => {
-          console.log(consulta);
+        console.log("Resposta de getConsultasPorData:", consultasResponse.data);
 
+        // Acessa o array dentro de consultasResponse.data.data
+        const consultasArray = Array.isArray(consultasResponse.data.data)
+          ? consultasResponse.data.data
+          : [];
+
+        // Aplica o filtro
+        const consultasDoDia = consultasArray.filter((consulta) => {
+          console.log("Consulta:", consulta);
           const agora = new Date();
           const dataConsulta = new Date(
             `${consulta.dataConsulta}T${consulta.horaConsulta}`
           );
           return consulta.status === "agendada" && dataConsulta > agora;
         });
+
+        if (!Array.isArray(consultasResponse.data.data)) {
+          console.warn("consultasResponse.data.data não é um array:", consultasResponse.data.data);
+          setError("Formato de dados inválido retornado pela API. Esperado: array.");
+        }
 
         setConsultas(consultasDoDia);
         setCurrentPage(1);
@@ -407,6 +419,25 @@ const CheckInPacientes = () => {
     setCurrentPage(1);
   };
 
+const handleDownloadRelatorio = async () => {
+  try {
+    const response = await gerarRelatorioCheckIns();
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", "relatorio_checkins.xlsx");
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error("Erro ao baixar relatório:", error);
+    // Use the error message from the backend if available
+    const errorMessage = error.message || "Erro ao gerar o relatório de check-ins. Verifique a conexão com o servidor.";
+    setError(errorMessage);
+  }
+};
+
   return (
     <div className="min-h-screen bg-gray-200 backdrop-blur-sm p-6">
       <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-md p-6 space-y-6">
@@ -415,6 +446,26 @@ const CheckInPacientes = () => {
             Check-In de Pacientes
           </h2>
         </div>
+        <button
+          onClick={handleDownloadRelatorio}
+          className="inline-flex items-center gap-2 rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700 transition"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V8"
+            />
+          </svg>
+          Baixar Relatório de Check-Ins
+        </button>
 
         {error && (
           <div className="p-4 text-sm text-red-700 bg-red-100 rounded-lg border border-red-300">

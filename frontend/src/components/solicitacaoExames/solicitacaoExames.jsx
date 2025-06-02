@@ -38,7 +38,8 @@ const SolicitacaoExames = () => {
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const [showEditSuccessAlert, setShowEditSuccessAlert] = useState(false);
   const [isModalOpenEditar, setIsModalOpenEditar] = useState(false);
-  const [solicitacaoExamesSelecionado, setSolicitacaoExamesSelecionado] = useState(null);
+  const [solicitacaoExamesSelecionado, setSolicitacaoExamesSelecionado] =
+    useState(null);
   const [isModalOpenDetalhes, setIsModalOpenDetalhes] = useState(false);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -67,7 +68,10 @@ const SolicitacaoExames = () => {
       }
     } catch (error) {
       console.error("Erro ao carregar solicitações:", error);
-      setError(error.error || "Não foi possível carregar as solicitações. Verifique a conexão com a API.");
+      setError(
+        error.error ||
+          "Não foi possível carregar as solicitações. Verifique a conexão com a API."
+      );
     }
   };
 
@@ -88,7 +92,9 @@ const SolicitacaoExames = () => {
 
   const solicitacaoExamesFiltrados = solicitacaoExames.filter((tse) => {
     const pacienteNome = normalizarString(tse.paciente?.nome || "");
-    const tipoExame = normalizarString(tse.tipoExame?.nomeTipoExame || tse.nomeTipoExame || "");
+    const tipoExame = normalizarString(
+      tse.tipoExame?.nomeTipoExame || tse.nomeTipoExame || ""
+    );
     const periodo = normalizarString(tse.periodo || "");
     const dataRetorno = normalizarString(tse.dataRetorno || "");
 
@@ -116,7 +122,10 @@ const SolicitacaoExames = () => {
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentSolicitacoes = solicitacaoExamesFiltrados.slice(indexOfFirstItem, indexOfLastItem);
+  const currentSolicitacoes = solicitacaoExamesFiltrados.slice(
+    indexOfFirstItem,
+    indexOfLastItem
+  );
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
@@ -188,7 +197,9 @@ const SolicitacaoExames = () => {
       setError(
         error.error === "Solicitação não encontrada"
           ? "Registro não encontrado. Pode já ter sido excluído."
-          : `Erro ao excluir solicitação: ${error.error || error.message || "Tente novamente."}`
+          : `Erro ao excluir solicitação: ${
+              error.error || error.message || "Tente novamente."
+            }`
       );
     } finally {
       setIsModalOpen(false);
@@ -238,15 +249,30 @@ const SolicitacaoExames = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-200 p-6 z-0">
-      <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-md p-6">
+    <div className="min-h-screen bg-gray-200 backdrop-blur-sm p-6"> {/* Adicionado backdrop-blur-sm para consistência */}
+      <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-md p-6 space-y-6"> {/* Ajustado para rounded-2xl e space-y-6 */}
         <div className="border-b pb-4 flex justify-between items-center">
           <h2 className="text-3xl font-bold text-blue-600 flex items-center gap-3">
+            {/* Adicionado SVG para ícone consistente */}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-8 w-8"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
+              />
+            </svg>
             Solicitações de Exames
           </h2>
           <button
             onClick={() => setIsModalOpenAdd(true)}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+            className="px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 text-sm font-semibold shadow" // Ajustado para rounded-full e adicionado text-sm font-semibold shadow
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -267,7 +293,7 @@ const SolicitacaoExames = () => {
         </div>
 
         {error && (
-          <div className="bg-red-50 text-red-600 p-4 rounded-md text-sm font-medium">
+          <div className="p-4 text-sm text-red-700 bg-red-100 rounded-lg border border-red-300"> {/* Ajustado para p-4, bg-red-100, border e rounded-lg */}
             {error}
           </div>
         )}
@@ -291,7 +317,8 @@ const SolicitacaoExames = () => {
           />
         )}
 
-        <div className="flex flex-col md:flex-row gap-4 mb-6">
+        {/* Filtros: Ajustado para usar classes de layout e tipografia consistentes */}
+        <div className="flex flex-col md:flex-row gap-4 mb-4"> {/* Reduzido mb-6 para mb-4 */}
           <div className="flex-1">
             <label className="block text-sm font-semibold text-gray-700 mb-1">
               Nome do Paciente
@@ -430,13 +457,14 @@ const SolicitacaoExames = () => {
           </div>
         </div>
 
-        <div className="overflow-x-auto rounded-lg shadow-md">
+        {/* Tabela de Solicitação de Exames */}
+        <div className="overflow-x-auto rounded-lg shadow-md"> {/* Adicionado rounded-lg shadow-md para a tabela */}
           {solicitacaoExames.length === 0 ? (
-            <p className="text-center text-gray-600 py-4 text-base font-medium">
+            <p className="text-center text-gray-600 py-4 text-base font-medium bg-white"> {/* Adicionado bg-white aqui */}
               Nenhuma solicitação de exame encontrada.
             </p>
           ) : currentSolicitacoes.length === 0 ? (
-            <p className="text-center text-gray-600 py-4 text-base font-medium">
+            <p className="text-center text-gray-600 py-4 text-base font-medium bg-white"> {/* Adicionado bg-white aqui */}
               Nenhuma solicitação encontrada com os filtros aplicados.
             </p>
           ) : (

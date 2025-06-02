@@ -378,89 +378,87 @@ const GerenciarHorariosProfissionais = () => {
       </div>
 
       {/* Tabela de Profissionais */}
-      <div className="bg-white p-5 rounded-lg shadow-md mb-4">
+      <div className="overflow-x-auto rounded-lg shadow-md">
         {isLoading ? (
-          <p className="text-center text-gray-500 py-2 text-sm">Carregando...</p>
+          <p className="text-center text-gray-600 py-4 text-base font-medium">Carregando...</p>
         ) : profissionaisOrdenados.length === 0 ? (
-          <p className="text-center text-gray-500 py-2 text-sm">
+          <p className="text-center text-gray-600 py-4 text-base font-medium">
             Nenhum profissional encontrado.
           </p>
         ) : (
-          <div className="overflow-x-auto rounded-lg">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-blue-600 text-white">
-                <tr>
-                  {["Matrícula", "Nome do Profissional", "Cargo"].map(
-                    (header, index) => (
-                      <th
-                        key={header}
-                        onClick={() =>
-                          handleSort(["matricula", "nome", "cargo"][index])
-                        }
-                        className="px-5 py-3 text-left text-sm font-semibold uppercase tracking-wider cursor-pointer"
-                      >
-                        {header}
-                        {sortField ===
-                          ["matricula", "nome", "cargo"][index] && (
-                          <span className="ml-1">
-                            {sortDirection === "asc" ? "↑" : "↓"}
-                          </span>
-                        )}
-                      </th>
-                    )
-                  )}
-                  <th className="px-5 py-3 text-left text-sm font-semibold uppercase tracking-wider">
-                    Ações
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {currentProfissionais.length === 0 ? (
-                  <tr>
-                    <td
-                      colSpan="4"
-                      className="px-5 py-3 text-center text-gray-500 text-sm"
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-blue-600 text-white">
+              <tr>
+                {["Matrícula", "Nome do Profissional", "Cargo"].map(
+                  (header, index) => (
+                    <th
+                      key={header}
+                      onClick={() =>
+                        handleSort(["matricula", "nome", "cargo"][index])
+                      }
+                      className="px-4 py-3.5 text-left text-sm font-semibold uppercase tracking-wide cursor-pointer"
                     >
-                      Nenhum profissional encontrado.
+                      {header}
+                      {sortField ===
+                        ["matricula", "nome", "cargo"][index] && (
+                        <span className="ml-2">
+                          {sortDirection === "asc" ? "↑" : "↓"}
+                        </span>
+                      )}
+                    </th>
+                  )
+                )}
+                <th className="px-4 py-3.5 text-left text-sm font-semibold uppercase tracking-wide">
+                  Ações
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {currentProfissionais.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan="4"
+                    className="px-4 py-4 text-center text-gray-600 text-base font-medium"
+                  >
+                    Nenhum profissional encontrado.
+                  </td>
+                </tr>
+              ) : (
+                currentProfissionais.map((prof) => (
+                  <tr
+                    key={prof.matricula}
+                    className="hover:bg-gray-50 transition-colors"
+                  >
+                    <td className="px-4 py-4 text-sm text-gray-800 font-medium">
+                      {prof.matricula || "N/A"}
+                    </td>
+                    <td className="px-4 py-4 text-sm text-gray-800">{`${
+                      prof.nome
+                    } ${prof.sobrenome || ""}`}</td>
+                    <td className="px-4 py-4 text-sm text-gray-800">
+                      {prof.tipoProfissional || "N/A"}
+                    </td>
+                    <td className="px-4 py-4 text-sm flex gap-2">
+                      <button
+                        onClick={() => openViewModal(prof)}
+                        className="text-blue-600 hover:text-blue-700 transition-colors"
+                        title="Ver Horários"
+                      >
+                        <FaEye className="h-5 w-5" />
+                      </button>
+                      <button
+                        onClick={() => openAddModal(prof)}
+                        className="text-blue-600 hover:text-blue-700 transition-colors"
+                        title="Adicionar Horário"
+                      >
+                        <FaPlus className="h-5 w-5" />
+                      </button>
                     </td>
                   </tr>
-                ) : (
-                  currentProfissionais.map((prof) => (
-                    <tr
-                      key={prof.matricula}
-                      className="hover:bg-gray-100 transition-colors"
-                    >
-                      <td className="px-5 py-3 whitespace-nowrap text-sm text-gray-900">
-                        {prof.matricula || "N/A"}
-                      </td>
-                      <td className="px-5 py-3 whitespace-nowrap text-sm text-gray-900">{`${
-                        prof.nome
-                      } ${prof.sobrenome || ""}`}</td>
-                      <td className="px-5 py-3 whitespace-nowrap text-sm text-gray-900">
-                        {prof.tipoProfissional || "N/A"}
-                      </td>
-                      <td className="px-5 py-3 whitespace-nowrap text-sm flex gap-2">
-                        <button
-                          onClick={() => openViewModal(prof)}
-                          className="text-blue-500 hover:text-blue-700"
-                          title="Ver Horários"
-                        >
-                          <FaEye className="h-5 w-5" />
-                        </button>
-                        <button
-                          onClick={() => openAddModal(prof)}
-                          className="text-green-500 hover:text-green-700"
-                          title="Adicionar Horário"
-                        >
-                          <FaPlus className="h-5 w-5" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+                ))
+              )}
+            </tbody>
+          </table>
         )}
       </div>
 

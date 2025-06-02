@@ -6,6 +6,7 @@ import {
   atualizarAtendimento,
   excluirAtendimento,
   alterarConsultaEhAtendimentoCancelado,
+  gerarRelatorioAtendimentos,
 } from "../../config/apiServices";
 import ModalAddAtendimento from "./modalAddAtendimento";
 import ModalViewAtendimento from "./modalViewAtendimento";
@@ -57,8 +58,6 @@ const TableRow = ({ item, onRegister, onView, onEdit, onDelete }) => {
   const dataHora = isConsulta
     ? formatarDataHoraBR(`${item.dataConsulta}T${item.horaConsulta}`)
     : formatarDataHoraBR(item.dataAtendimento);
-
-  // console.log("item", item);
 
   return (
     <tr className="hover:bg-blue-50 transition-colors">
@@ -314,6 +313,7 @@ const RegistroAtendimento = () => {
       setError(err.response?.data?.error || "Erro ao editar atendimento.");
     }
   };
+
   const handleDeleteAtendimento = async (atendimento) => {
     setIdToDelete(atendimento.id);
     setIsModalOpen(true);
@@ -327,14 +327,10 @@ const RegistroAtendimento = () => {
       console.log(atendimento);
 
       if (atendimento?.consulta_id) {
-        // 1. Marcar consulta como cancelada
         await alterarConsultaEhAtendimentoCancelado(atendimento.consulta_id);
       }
 
-      // 2. Excluir o atendimento
       await excluirAtendimento(idToDelete);
-
-      // 3. Atualizar os itens
       setItems(items.filter((item) => item.id !== idToDelete));
     } catch (error) {
       console.error("Erro ao cancelar consulta ou excluir atendimento:", error);
@@ -365,10 +361,50 @@ const RegistroAtendimento = () => {
     setDadosAtendimento({ diagnostico: "", prescricao: "", observacoes: "" });
   };
 
+  const handleDownloadRelatorio = async () => {
+    try {
+      const response = await gerarRelatorioAtendimentos();
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "relatorio_atendimentos.xlsx");
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Erro ao baixar relatório:", error);
+      const errorMessage = error.message.includes("404")
+        ? "Rota de relatório não encontrada no servidor."
+        : error.message || "Erro ao gerar o relatório de atendimentos.";
+      setError(errorMessage);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-200 backdrop-blur-sm p-6">
       <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-md p-6 space-y-6">
         <HeaderSection />
+        <button
+          onClick={handleDownloadRelatorio}
+          className="inline-flex items-center gap-2 rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700 transition"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4-4m0 0l-4 4m4 4V8"
+            />
+          </svg>
+          Baixar Relatório de Atendimentos
+        </button>
         {error && (
           <div className="p-4 text-sm text-red-700 bg-red-100 rounded-lg border border-red-300">
             {error}

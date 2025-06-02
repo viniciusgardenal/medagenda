@@ -8,6 +8,7 @@ const Atestado = require("../model/gerarAtestados");
 const Receita = require("../model/receitas");
 const SolicitacaoExames = require("../model/solicitacaoExames");
 const { Op } = require("sequelize");
+const ExcelJS = require("exceljs");
 
 const realizarAtendimento = async (req, res) => {
   try {
@@ -234,10 +235,90 @@ const getAtendimentosPorData = async (req, res) => {
   }
 };
 
+const gerarRelatorioAtendimentos = async (req, res) => {
+  try {
+    const atendimentos = await Atendimento.findAll({
+      include: [
+        {
+          model: Consulta,
+          as: "consulta",
+          include: [
+            { model: Paciente, as: "paciente" },
+            { model: Profissional, as: "medico" },
+            { model: TipoConsulta, as: "tipoConsulta" },
+          ],
+        },
+      ],
+      order: [["dataAtendimento", "ASC"]],
+    });
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Relatório de Atendimentos");
+
+    worksheet.columns = [
+      { header: "ID", key: "id", width: 10 },
+      { header: "Paciente", key: "paciente", width: 30 },
+      { header: "Médico", key: "medico", width: 30 },
+      { header: "Tipo de Consulta", key: "tipoConsulta", width: 20 },
+      { header: "Data Atendimento", key: "dataAtendimento", width: 20 },
+      { header: "Diagnóstico", key: "diagnostico", width: 40 },
+      { header: "Prescrição", key: "prescrição", width: 40 },
+      { header: "Observações", key: "observações", width: 40 },
+    ];
+
+    worksheet.getRow(1).font = { bold: true };
+    worksheet.getRow(1).alignment = { vertical: "middle", horizontal: "center" };
+    worksheet.getRow(1).fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FFADD8E6" },
+    };
+
+    atendimentos.forEach((atendimento) => {
+      worksheet.addRow({
+        id: atendimento.id,
+        paciente: atendimento.consulta?.paciente
+          ? `${atendimento.consulta.paciente.nome} ${atendimento.consulta.paciente.sobrenome}`
+          : "N/A",
+        medico: atendimento.consulta?.medico
+          ? `${atendimento.consulta.medico.nome} (${atendimento.consulta.medico.crm})`
+          : "N/A",
+        tipoConsulta: atendimento.consulta?.tipoConsulta?.nomeTipoConsulta || "N/A",
+        dataAtendimento: atendimento.dataAtendimento
+          ? new Date(atendimento.dataAtendimento).toLocaleString("pt-BR")
+          : "N/A",
+        diagnostico: atendimento.diagnostico || "N/A",
+        prescrição: atendimento.prescrição || "N/A",
+        observações: atendimento.observações || "N/A",
+      });
+    });
+
+    const buffer = await workbook.xlsx.writeBuffer();
+
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+    res.setHeader(
+      "Content-Disposition",
+      "attachment; filename=relatorio_atendimentos.xlsx"
+    );
+
+    res.send(buffer);
+  } catch (error) {
+    console.error("Erro ao gerar relatório de atendimentos:", error);
+    res.status(500).json({
+      message: "Erro ao gerar relatório de atendimentos",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   realizarAtendimento,
   getAtendimentoPorId,
   atualizarAtendimento,
   excluirAtendimento,
   getAtendimentosPorData,
+  gerarRelatorioAtendimentos
 };

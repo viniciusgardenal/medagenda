@@ -1,6 +1,9 @@
 const CheckIn = require("../model/checkin");
 const Consulta = require("../model/consulta");
 const { Op } = require("sequelize");
+const ExcelJS = require("exceljs");
+const Paciente = require("../model/paciente");
+const Profissional = require("../model/profissionais");
 
 exports.realizarCheckIn = async (req, res) => {
   try {
@@ -127,6 +130,92 @@ exports.getCheckInConsultas = async (req, res) => {
     console.error(error);
     res.status(500).json({
       message: "Erro ao listar check-in",
+      error: error.message,
+    });
+  }
+};
+
+exports.gerarRelatorioCheckIns = async (req, res) => {
+ try {
+    const checkIns = await CheckIn.findAll({
+      include: [
+        {
+          model: Consulta,
+          as: "consulta",
+          include: [
+            { model: Paciente, as: "paciente" },
+            { model: Profissional, as: "medico" },
+          ],
+        },
+        { model: Profissional, as: "profissional" },
+      ],
+      order: [["horaChegada", "ASC"]],
+    });
+
+    // Criar planilha Excel
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Relatório de Check-Ins");
+
+    // Definir colunas
+    worksheet.columns = [
+      { header: "ID", key: "id", width: 10 },
+      { header: "Paciente", key: "paciente", width: 30 },
+      { header: "Médico", key: "medico", width: 30 },
+      { header: "Data Consulta", key: "dataConsulta", width: 15 },
+      { header: "Hora Consulta", key: "horaConsulta", width: 12 },
+      { header: "Hora Chegada", key: "horaChegada", width: 20 },
+      { header: "Pressão Arterial", key: "pressaoArterial", width: 15 },
+      { header: "Temperatura (°C)", key: "temperatura", width: 12 },
+      { header: "Peso (kg)", key: "peso", width: 10 },
+      { header: "Altura (m)", key: "altura", width: 10 },
+      { header: "Prioridade", key: "prioridade", width: 12 },
+      { header: "Observações", key: "observacoes", width: 40 },
+      { header: "Profissional", key: "profissional", width: 30 },
+    ];
+
+    // Estilizar cabeçalhos
+    worksheet.getRow(1).font = { bold: true };
+    worksheet.getRow(1).alignment = { vertical: "middle", horizontal: "center" };
+    worksheet.getRow(1).fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FFADD8E6" }, // Azul claro
+    };
+
+    // Adicionar dados
+    checkIns.forEach((checkIn) => {
+      const prioridade = checkIn.prioridade === 0 ? "Normal" : checkIn.prioridade === 1 ? "Média" : "Alta";
+      worksheet.addRow({
+        id: checkIn.id,
+        paciente: checkIn.consulta?.paciente ? `${checkIn.consulta.paciente.nome} ${checkIn.consulta.paciente.sobrenome}` : "N/A",
+        medico: checkIn.consulta?.medico ? `${checkIn.consulta.medico.nome} (${checkIn.consulta.medico.crm})` : "N/A",
+        dataConsulta: checkIn.consulta?.dataConsulta || "N/A",
+        horaConsulta: checkIn.consulta?.horaConsulta?.slice(0, 5) || "N/A",
+        horaChegada: checkIn.horaChegada ? new Date(checkIn.horaChegada).toLocaleString("pt-BR") : "N/A",
+        pressaoArterial: checkIn.pressaoArterial || "N/A",
+        temperatura: checkIn.temperatura || "N/A",
+        peso: checkIn.peso || "N/A",
+        altura: checkIn.altura || "N/A",
+        prioridade,
+        observacoes: checkIn.observacoes || "N/A",
+        profissional: checkIn.profissional?.nome || "N/A",
+      });
+    });
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+    res.setHeader(
+      "Content-Disposition",
+      "attachment; filename=relatorio_checkins.xlsx"
+    );
+    res.send(buffer);
+  } catch (error) {
+    console.error("Erro ao gerar relatório de check-ins:", error);
+    res.status(500).json({
+      message: "Erro ao gerar relatório de check-ins",
       error: error.message,
     });
   }

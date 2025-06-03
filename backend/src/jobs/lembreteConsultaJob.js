@@ -4,6 +4,7 @@ const cron = require("node-cron");
 const { Op } = require("sequelize");
 const { models } = require("../model"); // Importa todos os modelos inicializados
 const { enviarEmailDeLembrete } = require("../services/emailServices");
+const sequelize = require("../config/db"); // Ajuste o caminho se o seu arquivo de config/db.js estiver em outro lugar
 
 const { Consulta, Paciente, Profissional, TipoConsulta } = models;
 
@@ -73,7 +74,7 @@ const verificarEEnviarLembretes = async () => {
  * O padrão '0 * * * *' significa "no minuto 0 de cada hora".
  */
 const initLembreteJob = () => {
-  cron.schedule("0 * * * *", verificarEEnviarLembretes, {
+  cron.schedule("0 7 * * *", verificarEEnviarLembretes, {
     scheduled: true,
     timezone: "America/Sao_Paulo",
   });

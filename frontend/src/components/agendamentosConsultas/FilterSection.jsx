@@ -1,4 +1,5 @@
 const FilterSection = ({ filtros, setFiltros }) => (
+  // console.log("Renderizando FilterSection com filtros:", filtros),
   <div className="flex gap-4">
     <div className="flex-1">
       <label className="block text-sm font-semibold text-gray-700 mb-1">

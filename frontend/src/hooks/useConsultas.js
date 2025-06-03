@@ -8,7 +8,7 @@ import {
   cancelarConsulta,
 } from "../config/apiServices";
 
-export const useConsultas = (initialFilters, initialStatus) => {
+export const useConsultas = (initialFilters) => {
   const [consultas, setConsultas] = useState([]);
   const [pacientes, setPacientes] = useState([]);
   const [medicos, setMedicos] = useState([]);
@@ -16,7 +16,6 @@ export const useConsultas = (initialFilters, initialStatus) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [filtros, setFiltros] = useState(initialFilters);
-  const [status, setStatus] = useState(initialStatus);
 
   const fetchData = async () => {
     setIsLoading(true);
@@ -28,16 +27,15 @@ export const useConsultas = (initialFilters, initialStatus) => {
         medicosResponse,
         tiposConsultaResponse,
       ] = await Promise.all([
-        getConsultasPorData(filtros.filtroData, status, filtros.filtroNome),
+        getConsultasPorData(
+          filtros.filtroData,
+          filtros.filtroStatus || "", // se não tiver valor, retorna todas
+          filtros.filtroNome
+        ),
         getPacientes(),
         getProfissionais(),
         getTipoConsulta(),
       ]);
-
-      // console.log("useConsultas:", consultasResponse.data);
-      // console.log("Pacientes:", pacientesResponse.data);
-      // console.log("Médicos:", medicosResponse.data.data);
-      // console.log("Tipos de Consulta:", tiposConsultaResponse.data.data);
 
       setConsultas(consultasResponse.data || []);
       setPacientes(pacientesResponse.data || []);
@@ -53,18 +51,22 @@ export const useConsultas = (initialFilters, initialStatus) => {
 
   useEffect(() => {
     fetchData();
-  }, [filtros.filtroData, filtros.filtroNome, status]);
+  }, [
+    filtros.filtroData,
+    filtros.filtroNome,
+    filtros.filtroStatus, // agora observa o status do filtro
+  ]);
 
   const handleSalvarConsulta = async (consultaData) => {
     setError(null);
-    console.log("Dados da consulta:", consultaData);
     try {
       const response = await agendarConsulta({
         ...consultaData,
-        status: "agendada",
+        status: "agendada", // novo status ao criar
       });
-      console.log("Resposta da API agendarConsulta:", response.data.data);
+
       const novaConsulta = response.data.data;
+
       const consultaEnriquecida = {
         ...novaConsulta,
         paciente: pacientes.find((p) => p.cpf === novaConsulta.cpfPaciente),
@@ -73,11 +75,12 @@ export const useConsultas = (initialFilters, initialStatus) => {
           (t) => t.idTipoConsulta === novaConsulta.idTipoConsulta
         ),
       };
-      console.log("Consulta enriquecida:", consultaEnriquecida);
-      if (status === "agendada") {
+
+      // só adiciona se o filtro estiver em "agendada"
+      if (filtros.filtroStatus === "agendada") {
         setConsultas((prev) => [...prev, consultaEnriquecida]);
-        // Opcional: await fetchData();
       }
+
       return true;
     } catch (error) {
       console.error("Erro ao salvar consulta:", error);
@@ -87,15 +90,8 @@ export const useConsultas = (initialFilters, initialStatus) => {
   };
 
   const handleCancelConsulta = async (id, motivoCancelamento) => {
-    console.log(
-      "handleCancelConsulta chamado com ID:",
-      id,
-      "Motivo:",
-      motivoCancelamento
-    );
     setError(null);
     try {
-      // Enviar string vazia se motivoCancelamento for null
       const motivo = motivoCancelamento ?? " ";
       const response = await cancelarConsulta(id, motivo);
       setConsultas((prev) =>
@@ -116,8 +112,6 @@ export const useConsultas = (initialFilters, initialStatus) => {
     tiposConsulta,
     filtros,
     setFiltros,
-    status,
-    setStatus,
     isLoading,
     error,
     setError,

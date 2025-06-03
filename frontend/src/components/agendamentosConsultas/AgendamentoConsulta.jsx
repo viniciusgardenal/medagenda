@@ -11,6 +11,7 @@ import { formatarDataHoraBR } from "../util/formatters";
 
 const AgendamentoConsulta = () => {
   const { user } = useAuthContext();
+
   const [modalAddOpen, setModalAddOpen] = useState(false);
   const [modalViewOpen, setModalViewOpen] = useState(false);
   const [modalCancelOpen, setModalCancelOpen] = useState(false);
@@ -33,29 +34,22 @@ const AgendamentoConsulta = () => {
     tiposConsulta,
     filtros,
     setFiltros,
-    status,
-    setStatus,
     isLoading,
     error,
     setError,
     handleSalvarConsulta,
     handleCancelConsulta,
-  } = useConsultas(initialFilters, "agendada");
+  } = useConsultas(initialFilters);
 
-  const openAddModal = () => {
-    setModalAddOpen(true);
-  };
-
+  const openAddModal = () => setModalAddOpen(true);
   const openViewModal = (consulta) => {
     setConsultaSelecionada(consulta);
     setModalViewOpen(true);
   };
-
   const openCancelModal = (consulta) => {
     setConsultaSelecionada(consulta);
     setModalCancelOpen(true);
   };
-
   const closeModal = () => {
     setModalAddOpen(false);
     setModalViewOpen(false);
@@ -75,7 +69,9 @@ const AgendamentoConsulta = () => {
   };
 
   const toggleStatus = () => {
-    setStatus(status === "agendada" ? "cancelada" : "agendada");
+    const novoStatus =
+      filtros.filtroStatus === "agendada" ? "cancelada" : "agendada";
+    setFiltros({ ...filtros, filtroStatus: novoStatus });
     setCurrentPage(1);
   };
 
@@ -86,7 +82,7 @@ const AgendamentoConsulta = () => {
           openAddModal={openAddModal}
           isLoading={isLoading}
           toggleStatus={toggleStatus}
-          status={status}
+          status={filtros.filtroStatus}
         />
 
         {error && (

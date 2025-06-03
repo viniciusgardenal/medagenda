@@ -29,4 +29,10 @@ router.put(
   ConsultaController.cancelarConsulta
 );
 
+router.post(
+  "/consultas/:id/enviar-confirmacao",
+  checkpermissao("consultar"),
+  ConsultaController.enviarConfirmacaoConsultaManual
+);
+
 module.exports = router;

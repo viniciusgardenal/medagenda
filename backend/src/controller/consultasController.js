@@ -7,6 +7,8 @@ const RegistroObitos = require("../model/registroObitos");
 const HorarioProfissional = require("../model/horariosProfissionais");
 const { Op } = require("sequelize");
 const sequelize = require("../config/db");
+const { enviarEmailDeLembrete } = require('../services/emailServices'); // (arquivo emailServices.js)
+
 
 // Função auxiliar para tratamento de erros
 const handleError = (res, status, message, error) => {
@@ -366,10 +368,63 @@ const cancelarConsulta = async (req, res) => {
   }
 };
 
+const enviarConfirmacaoConsultaManual = async (req, res) => {
+  const { id } = req.params; // ID da Consulta
+
+  try {
+    const consulta = await Consulta.findByPk(id, {
+      include: [
+        {
+          model: Paciente,
+          as: "paciente",
+          attributes: ["nome", "sobrenome", "email"],
+        }, // Adicionado sobrenome
+        { model: Profissional, as: "medico", attributes: ["nome", "crm"] }, // Adicionado crm
+        {
+          model: TipoConsulta,
+          as: "tipoConsulta",
+          attributes: ["nomeTipoConsulta"],
+        },
+      ],
+    });
+
+    if (!consulta) {
+      return res.status(404).json({ error: "Consulta não encontrada." });
+    }
+
+    if (consulta.status !== "agendada") {
+      return res.status(400).json({
+        error: `Não é possível enviar confirmação para consulta com status: ${consulta.status}.`,
+      });
+    }
+
+    if (!consulta.paciente || !consulta.paciente.email) {
+      return res.status(400).json({
+        error:
+          "Paciente não possui e-mail cadastrado para envio da confirmação.",
+      });
+    }
+
+    // Usa a função já existente em emailServices.js (arquivo emailServices.js)
+    await enviarEmailDeLembrete(consulta);
+
+    res.status(200).json({
+      status: "success",
+      message: "E-mail de confirmação/lembrete enviado com sucesso.",
+    });
+  } catch (error) {
+    console.error("ERRO AO ENVIAR CONFIRMAÇÃO MANUAL:", error);
+    res
+      .status(500)
+      .json({ error: "Ocorreu um erro interno ao enviar o e-mail." });
+  }
+};
+
 module.exports = {
   criarConsulta,
   listarConsultasDoDia,
   listarConsultas,
   getHorariosDisponiveis,
   cancelarConsulta,
+  enviarConfirmacaoConsultaManual,
 };

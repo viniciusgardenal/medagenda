@@ -326,16 +326,17 @@ export const atualizarCheckIn = async (checkInId, dadosAtualizados) => {
   }
 };
 
-export const gerarRelatorioCheckIns = async (params = {}) => { // Adicione params como argumento com valor padrão
+export const gerarRelatorioCheckIns = async (params = {}) => {
+  // Adicione params como argumento com valor padrão
   try {
     const url = `${apiUrl}/relatorio/excel`;
     console.log("Requesting URL:", url, "with params:", params); // Para depuração
-    
+
     const response = await api.get(url, {
       responseType: "blob",
       params: params, // Passe os parâmetros de data para a requisição
     });
-    
+
     // Verify content-type
     if (
       response.headers["content-type"] !==
@@ -349,7 +350,9 @@ export const gerarRelatorioCheckIns = async (params = {}) => { // Adicione param
       } else {
         // Se não for um blob, assume que é texto ou JSON direto
         console.error("Unexpected response from server:", response.data);
-        throw new Error(`Unexpected response: ${JSON.stringify(response.data)}`);
+        throw new Error(
+          `Unexpected response: ${JSON.stringify(response.data)}`
+        );
       }
     }
     return response;
@@ -549,6 +552,24 @@ export const gerarRelatorioAtendimentos = async () => {
       error.response?.data || {
         error: "Erro ao gerar relatório de atendimentos.",
       }
+    );
+  }
+};
+
+export const enviarConfirmacaoConsulta = async (consultaId) => {
+  try {
+    const response = await api.post(
+      `/consultas/${consultaId}/enviar-confirmacao`
+    );
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Erro ao enviar e-mail de confirmação:",
+      error.response?.data || error.message
+    );
+    // Lança o erro para ser tratado no componente
+    throw (
+      error.response?.data || new Error("Erro de rede ao tentar enviar e-mail.")
     );
   }
 };

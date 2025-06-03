@@ -1,9 +1,19 @@
-const TableRow = ({ consulta, onView, onCancel, formatarDataHoraBR }) => {
+import { FaPaperPlane } from "react-icons/fa";
+const TableRow = ({
+  consulta,
+  onView,
+  onCancel,
+  formatarDataHoraBR,
+  onEnviarConfirmacaoEmail, // Nova prop
+  enviandoEmailId,
+}) => {
   // console.log("DADOS DA CONSULTA EM TableRow:", consulta); // <--- ADICIONE ESTA LINHA
 
   const isCancelable = ["agendada", "checkin_realizado"].includes(
     consulta.status
   );
+  const showSendEmailButton = consulta.status === "agendada";
+  const isEnviandoEmail = enviandoEmailId === consulta.id;
   const statusLabels = {
     agendada: "Agendada",
     checkin_realizado: "Check-in Realizado",
@@ -44,6 +54,7 @@ const TableRow = ({ consulta, onView, onCancel, formatarDataHoraBR }) => {
           className="text-blue-500 hover:text-blue-700"
           title="Visualizar Consulta"
         >
+          {/* Seu SVG de olho */}
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-5 w-5"
@@ -71,6 +82,7 @@ const TableRow = ({ consulta, onView, onCancel, formatarDataHoraBR }) => {
             className="text-red-500 hover:text-red-700"
             title="Cancelar Consulta"
           >
+            {/* Seu SVG de cancelar */}
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-5 w-5"
@@ -85,6 +97,42 @@ const TableRow = ({ consulta, onView, onCancel, formatarDataHoraBR }) => {
                 d="M6 18L18 6M6 6l12 12"
               />
             </svg>
+          </button>
+        )}
+        {/* --- NOVO BOTÃO DE ENVIAR EMAIL --- */}
+        {showSendEmailButton && (
+          <button
+            onClick={() => onEnviarConfirmacaoEmail(consulta)}
+            className={`text-gray-500 hover:text-teal-600 disabled:opacity-50 ${
+              isEnviandoEmail ? "cursor-wait" : ""
+            }`}
+            title="Enviar Confirmação por E-mail"
+            disabled={isEnviandoEmail}
+          >
+            {isEnviandoEmail ? (
+              <svg
+                className="animate-spin h-5 w-5 text-teal-600"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
+              </svg>
+            ) : (
+              <FaPaperPlane className="h-4 w-4" /> // Ícone de avião
+            )}
           </button>
         )}
       </td>

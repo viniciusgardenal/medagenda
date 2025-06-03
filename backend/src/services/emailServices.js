@@ -1,5 +1,6 @@
 // emailServices.js
 const nodemailer = require("nodemailer");
+require("dotenv").config(); // Carrega as variáveis do .env
 
 // Sua configuração de transporte existente. Não precisa mudar nada aqui.
 const transporter = nodemailer.createTransport({

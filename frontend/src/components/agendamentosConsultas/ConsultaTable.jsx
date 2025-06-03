@@ -1,5 +1,7 @@
 import Pagination from "../util/Pagination";
 import TableRow from "./TableRow";
+import { useState } from "react";
+import { enviarConfirmacaoConsulta } from "../../config/apiServices"; // Importe a nova função
 
 const ConsultaTable = ({
   consultas,
@@ -47,6 +49,29 @@ const ConsultaTable = ({
     indexOfFirstItem,
     indexOfLastItem
   );
+  const [enviandoEmailId, setEnviandoEmailId] = useState(null); // Para feedback no botão
+
+  const handleEnviarEmailConfirmacao = async (consulta) => {
+    if (enviandoEmailId === consulta.id) return; // Evitar cliques duplos
+
+    setEnviandoEmailId(consulta.id);
+    // Se você tem um estado de erro global, limpe-o
+    // setError(null);
+
+    try {
+      const response = await enviarConfirmacaoConsulta(consulta.id);
+      alert(response.message || "E-mail de confirmação enviado com sucesso!");
+      // Opcional: você pode querer atualizar o estado da consulta na lista
+      // para indicar que o e-mail foi enviado (ex: um campo 'confirmacaoEnviada')
+      // Se for o caso, você precisaria de um re-fetch ou uma atualização otimista.
+    } catch (err) {
+      // setError(err.error || "Não foi possível enviar o e-mail de confirmação.");
+      alert(err.error || "Não foi possível enviar o e-mail de confirmação.");
+      console.error("Falha ao enviar email de confirmação:", err);
+    } finally {
+      setEnviandoEmailId(null);
+    }
+  };
 
   return (
     <>
@@ -140,6 +165,8 @@ const ConsultaTable = ({
                     onView={openViewModal}
                     onCancel={handleCancelConsulta}
                     formatarDataHoraBR={formatarDataHoraBR}
+                    onEnviarConfirmacaoEmail={handleEnviarEmailConfirmacao} // Passa a função
+                    enviandoEmailId={enviandoEmailId} // Passa o estado de carregamento
                   />
                 ))
               )}

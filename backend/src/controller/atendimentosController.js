@@ -13,24 +13,10 @@ const ExcelJS = require("exceljs");
 const realizarAtendimento = async (req, res) => {
   try {
     const { id } = req.params; // ID da consulta
-    const {
-      diagnostico,
-      prescricao,
-      observacoes,
-      atestados,
-      receitas,
-      exames,
-    } = req.body;
+    const { diagnostico, prescricao, observacoes } = req.body;
 
     // Validar entrada
-    if (
-      !diagnostico &&
-      !prescricao &&
-      !observacoes &&
-      !atestados &&
-      !receitas &&
-      !exames
-    ) {
+    if (!diagnostico && !prescricao && !observacoes) {
       return res.status(400).json({
         error:
           "Pelo menos um campo (diagnóstico, prescrição, observações, atestados, receitas ou exames) deve ser fornecido.",
@@ -49,11 +35,11 @@ const realizarAtendimento = async (req, res) => {
     }
 
     // Verificar permissão do médico
-    if (req.user && req.user.id !== consulta.medicoId) {
-      return res.status(403).json({
-        error: "Apenas o médico responsável pode registrar o atendimento.",
-      });
-    }
+    // if (req.user && req.user.id !== consulta.medicoId) {
+    //   return res.status(403).json({
+    //     error: "Apenas o médico responsável pode registrar o atendimento.",
+    //   });
+    // }
 
     // Atualizar status para em_atendimento
     consulta.status = "em_atendimento";
@@ -68,35 +54,35 @@ const realizarAtendimento = async (req, res) => {
       dataAtendimento: new Date(),
     });
 
-    // Criar atestados, receitas e exames, se fornecidos
-    if (atestados) {
-      await Atestado.create({
-        consultaId: id,
-        matriculaProfissional: consulta.medicoId,
-        cpfPaciente: consulta.cpfPaciente,
-        ...atestados, // Ex.: { dias, cid, observacoes }
-      });
-    }
-    if (receitas) {
-      for (const receita of receitas) {
-        await Receita.create({
-          consultaId: id,
-          matriculaProfissional: consulta.medicoId,
-          cpfPaciente: consulta.cpfPaciente,
-          ...receita, // Ex.: { idMedicamento, dose, periodicidade }
-        });
-      }
-    }
-    if (exames) {
-      for (const exame of exames) {
-        await SolicitacaoExames.create({
-          consultaId: id,
-          matriculaProfissional: consulta.medicoId,
-          cpfPaciente: consulta.cpfPaciente,
-          ...exame, // Ex.: { idTipoExame, dataPrevistaRetorno }
-        });
-      }
-    }
+    // // Criar atestados, receitas e exames, se fornecidos
+    // if (atestados) {
+    //   await Atestado.create({
+    //     consultaId: id,
+    //     matriculaProfissional: consulta.medicoId,
+    //     cpfPaciente: consulta.cpfPaciente,
+    //     ...atestados, // Ex.: { dias, cid, observacoes }
+    //   });
+    // }
+    // if (receitas) {
+    //   for (const receita of receitas) {
+    //     await Receita.create({
+    //       consultaId: id,
+    //       matriculaProfissional: consulta.medicoId,
+    //       cpfPaciente: consulta.cpfPaciente,
+    //       ...receita, // Ex.: { idMedicamento, dose, periodicidade }
+    //     });
+    //   }
+    // }
+    // if (exames) {
+    //   for (const exame of exames) {
+    //     await SolicitacaoExames.create({
+    //       consultaId: id,
+    //       matriculaProfissional: consulta.medicoId,
+    //       cpfPaciente: consulta.cpfPaciente,
+    //       ...exame, // Ex.: { idTipoExame, dataPrevistaRetorno }
+    //     });
+    //   }
+    // }
 
     // Atualizar status da consulta para realizada
     consulta.status = "realizada";
@@ -267,7 +253,10 @@ const gerarRelatorioAtendimentos = async (req, res) => {
     ];
 
     worksheet.getRow(1).font = { bold: true };
-    worksheet.getRow(1).alignment = { vertical: "middle", horizontal: "center" };
+    worksheet.getRow(1).alignment = {
+      vertical: "middle",
+      horizontal: "center",
+    };
     worksheet.getRow(1).fill = {
       type: "pattern",
       pattern: "solid",
@@ -283,7 +272,8 @@ const gerarRelatorioAtendimentos = async (req, res) => {
         medico: atendimento.consulta?.medico
           ? `${atendimento.consulta.medico.nome} (${atendimento.consulta.medico.crm})`
           : "N/A",
-        tipoConsulta: atendimento.consulta?.tipoConsulta?.nomeTipoConsulta || "N/A",
+        tipoConsulta:
+          atendimento.consulta?.tipoConsulta?.nomeTipoConsulta || "N/A",
         dataAtendimento: atendimento.dataAtendimento
           ? new Date(atendimento.dataAtendimento).toLocaleString("pt-BR")
           : "N/A",
@@ -320,5 +310,5 @@ module.exports = {
   atualizarAtendimento,
   excluirAtendimento,
   getAtendimentosPorData,
-  gerarRelatorioAtendimentos
+  gerarRelatorioAtendimentos,
 };

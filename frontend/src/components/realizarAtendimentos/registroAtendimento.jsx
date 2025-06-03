@@ -12,13 +12,7 @@ import ModalAddAtendimento from "./modalAddAtendimento";
 import ModalViewAtendimento from "./modalViewAtendimento";
 import ModalEditAtendimento from "./modalEditAtendimento";
 import Pagination from "../util/Pagination";
-import {
-  FaPlus,
-  FaEye,
-  FaEdit,
-  FaTrash,
-  FaSkullCrossbones,
-} from "react-icons/fa";
+import { FaPlus, FaEye, FaEdit, FaTrash } from "react-icons/fa";
 
 const formatarDataHoraBR = (dataHora) => {
   if (!dataHora || !dataHora.includes("T")) return "";
@@ -219,7 +213,10 @@ const AtendimentoTable = ({
               ))
             ) : (
               <tr>
-                <td colSpan="6" className="px-6 py-4 text-center text-sm text-gray-500">
+                <td
+                  colSpan="6"
+                  className="px-6 py-4 text-center text-sm text-gray-500"
+                >
                   Nenhum registro encontrado.
                 </td>
               </tr>
@@ -298,12 +295,15 @@ const RegistroAtendimento = () => {
   });
 
   const handleSalvarAtendimento = async () => {
+    console.log("Dados do atendimento:", dadosAtendimento);
+    console.log("Consulta selecionada:", consultaSelecionada.id);
+
     try {
       const { data } = await registrarAtendimento(
         consultaSelecionada.id,
         dadosAtendimento
       );
-      
+
       const novo = {
         ...data,
         paciente: consultaSelecionada.paciente,

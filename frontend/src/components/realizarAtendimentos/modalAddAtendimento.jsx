@@ -1,13 +1,13 @@
-import React from "react";
+// ModalAddAtendimento.jsx
 
 const ModalAddAtendimento = ({
   isOpen,
   onClose,
-  consulta,
+  consulta, // A consulta para a qual estamos adicionando um atendimento
   dadosAtendimento,
   setDadosAtendimento,
   onSave,
-  formatarDataHoraBR,
+  formatarDataHoraBR, // A função de formatação vinda do pai
 }) => {
   if (!isOpen || !consulta) return null;
 
@@ -16,6 +16,7 @@ const ModalAddAtendimento = ({
     setDadosAtendimento({ ...dadosAtendimento, [name]: value });
   };
 
+  // Classes para os botões (boa prática para consistência)
   const BUTTON_CLASSES = {
     primary:
       "px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700",
@@ -25,11 +26,12 @@ const ModalAddAtendimento = ({
       "px-4 py-2 text-sm font-semibold text-white bg-gray-400 rounded-md cursor-not-allowed",
   };
 
+  // Validação simples para habilitar o botão de salvar
   const isFormValid = () => {
     return (
-      dadosAtendimento.diagnostico.trim() !== "" ||
-      dadosAtendimento.prescricao.trim() !== "" ||
-      dadosAtendimento.observacoes.trim() !== ""
+      dadosAtendimento.diagnostico?.trim() !== "" ||
+      dadosAtendimento.prescricao?.trim() !== "" ||
+      dadosAtendimento.observacoes?.trim() !== ""
     );
   };
 
@@ -45,20 +47,23 @@ const ModalAddAtendimento = ({
               Paciente
             </label>
             <p className="text-sm text-gray-600">
-              {consulta.paciente.nome} {consulta.paciente.sobrenome}
+              {consulta.paciente?.nome} {consulta.paciente?.sobrenome}
             </p>
           </div>
           <div>
             <label className="block text-sm font-semibold text-gray-700">
-              Data e Hora
+              Data e Hora da Consulta
             </label>
             <p className="text-sm text-gray-600">
-              {formatarDataHoraBR(consulta.dataConsulta, consulta.horaConsulta)}
+              {/* AJUSTE AQUI: Chamar formatarDataHoraBR com um argumento */}
+              {formatarDataHoraBR(
+                `${consulta.dataConsulta}T${consulta.horaConsulta}`
+              )}
             </p>
           </div>
           <div>
             <label className="block text-sm font-semibold text-gray-700">
-              Motivo
+              Motivo da Consulta
             </label>
             <p className="text-sm text-gray-600">{consulta.motivo}</p>
           </div>
@@ -72,7 +77,7 @@ const ModalAddAtendimento = ({
             <textarea
               id="diagnostico"
               name="diagnostico"
-              value={dadosAtendimento.diagnostico}
+              value={dadosAtendimento.diagnostico || ""} // Garante que o valor seja controlado
               onChange={handleChange}
               className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
               rows="4"
@@ -89,7 +94,7 @@ const ModalAddAtendimento = ({
             <textarea
               id="prescricao"
               name="prescricao"
-              value={dadosAtendimento.prescricao}
+              value={dadosAtendimento.prescricao || ""} // Garante que o valor seja controlado
               onChange={handleChange}
               className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
               rows="4"
@@ -106,7 +111,7 @@ const ModalAddAtendimento = ({
             <textarea
               id="observacoes"
               name="observacoes"
-              value={dadosAtendimento.observacoes}
+              value={dadosAtendimento.observacoes || ""} // Garante que o valor seja controlado
               onChange={handleChange}
               className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
               rows="4"

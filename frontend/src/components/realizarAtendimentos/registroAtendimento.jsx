@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import ConfirmationModal from "../util/confirmationModal";
 import {
-  getAtendimentos,
+  getConsultas,
   registrarAtendimento,
   atualizarAtendimento,
   excluirAtendimento,
@@ -75,7 +75,7 @@ const TableRow = ({ item, onRegister, onView, onEdit, onDelete }) => {
         {isConsulta ? item.motivo : item.diagnostico || "N/A"}
       </td>
       <td className="px-4 py-3 flex gap-3">
-        {isConsulta && item.status === "agendada" ? (
+        {isConsulta && item.status === "checkin_realizado" ? (
           <button
             onClick={() => onRegister(item)}
             className="text-green-500 hover:text-green-700"
@@ -252,8 +252,10 @@ const RegistroAtendimento = () => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        console.log("Chamando getAtendimentos...");
-        const response = await getAtendimentos();
+        console.log("Chamando GetConsultas...");
+        const response = await getConsultas({
+          status: ["checkin_realizado"],
+        });
         console.log("response", response);
         setItems(response.data);
       } catch (err) {
@@ -285,6 +287,7 @@ const RegistroAtendimento = () => {
         consultaSelecionada.id,
         dadosAtendimento
       );
+      
       const novo = {
         ...data,
         paciente: consultaSelecionada.paciente,

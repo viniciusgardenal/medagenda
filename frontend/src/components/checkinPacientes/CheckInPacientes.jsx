@@ -1,5 +1,10 @@
-import React, { useState, useEffect } from "react";
-import { getConsultasPorData, realizarCheckIn, gerarRelatorioCheckIns, atualizarCheckIn } from "../../config/apiServices";
+import { useState, useEffect } from "react";
+import {
+  getConsultasPorData,
+  realizarCheckIn,
+  gerarRelatorioCheckIns,
+  atualizarCheckIn,
+} from "../../config/apiServices";
 import ModalAddCheckIn from "./ModalAddCheckIn";
 import ModalEditCheckIn from "./ModalEditCheckIn";
 import ModalViewCheckIn from "./ModalViewCheckIn";
@@ -48,7 +53,7 @@ const TableRow = ({
   getPrioridadeLegenda,
   formatarDataHoraBR,
 }) => {
-  const checkInRealizado = consulta.status === "checkin_realizado"; 
+  const checkInRealizado = consulta.status === "checkin_realizado";
   return (
     <tr className="hover:bg-blue-50 transition-colors">
       <td className="px-4 py-3 text-sm text-gray-700">
@@ -58,7 +63,9 @@ const TableRow = ({
         {consulta.medico.nome} {consulta.medico.crm}
       </td>
       <td className="px-4 py-3 text-sm text-gray-700">
-        {formatarDataHoraBR(consulta.dataConsulta + "T" + consulta.horaConsulta)}
+        {formatarDataHoraBR(
+          consulta.dataConsulta + "T" + consulta.horaConsulta
+        )}
       </td>
       <td className="px-4 py-3 text-sm text-gray-700">
         {getPrioridadeLegenda(
@@ -244,46 +251,44 @@ const CheckInPacientes = () => {
     });
   };
 
-useEffect(() => {
-  const fetchData = async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const consultasResponse = await getConsultasPorData(filtros.filtroData);
-      console.log("Resposta de getConsultasPorData:", consultasResponse.data);
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const consultasResponse = await getConsultasPorData(filtros.filtroData);
+        console.log("Resposta de getConsultasPorData:", consultasResponse.data);
 
-      const consultasArray = Array.isArray(consultasResponse.data)
-        ? consultasResponse.data
-        : [];
+        const consultasArray = Array.isArray(consultasResponse.data)
+          ? consultasResponse.data
+          : [];
 
-      // Filtra apenas as consultas do dia selecionado,
-      // sem se preocupar com o status 'agendada' ou se já passou
-      const consultasDoDia = consultasArray.filter((consulta) => {
-        // Assume que 'dataConsulta' já está no formato correto para comparação com 'filtros.filtroData'
-        return consulta.dataConsulta === filtros.filtroData;
-      });
+        const consultasDoDia = consultasArray.filter((consulta) => {
+          "";
+          return consulta.dataConsulta === filtros.filtroData;
+        });
 
-      if (!Array.isArray(consultasResponse.data)) {
-        console.warn(
-          "consultasResponse.data não é um array:",
-          consultasResponse.data
-        );
-        setError(
-          "Formato de dados inválido retornado pela API. Esperado: array."
-        );
+        if (!Array.isArray(consultasResponse.data)) {
+          console.warn(
+            "consultasResponse.data não é um array:",
+            consultasResponse.data
+          );
+          setError(
+            "Formato de dados inválido retornado pela API. Esperado: array."
+          );
+        }
+
+        setConsultas(consultasDoDia);
+        setCurrentPage(1);
+      } catch (error) {
+        console.error("Erro ao carregar dados:", error);
+        setError("Erro ao carregar as consultas. Tente novamente mais tarde.");
+      } finally {
+        setIsLoading(false);
       }
-
-      setConsultas(consultasDoDia);
-      setCurrentPage(1);
-    } catch (error) {
-      console.error("Erro ao carregar dados:", error);
-      setError("Erro ao carregar as consultas. Tente novamente mais tarde.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  fetchData();
-}, [filtros.filtroData]);
+    };
+    fetchData();
+  }, [filtros.filtroData]);
 
   const consultasFiltradas = consultas.filter((consulta) => {
     const { filtroNome } = filtros;
@@ -331,7 +336,6 @@ useEffect(() => {
     setError(null);
     try {
       if (checkInSelecionado) {
-        // Lógica para EDIÇÃO de Check-In existente
         const dadosParaAtualizar = {
           pressaoArterial: dadosCheckIn.pressaoArterial,
           temperatura: dadosCheckIn.temperatura,
@@ -339,15 +343,10 @@ useEffect(() => {
           altura: dadosCheckIn.altura,
           observacoes: dadosCheckIn.observacoes,
           prioridade: dadosCheckIn.prioridade,
-          // Não inclua consultaId, matriculaProfissional, horaChegada ou status aqui,
-          // pois estes são dados de criação e não devem ser alterados na edição.
         };
 
-        // Chama a API de atualização do check-in
         await atualizarCheckIn(checkInSelecionado.id, dadosParaAtualizar);
 
-        // Atualiza o estado local para refletir a mudança imediatamente
-        // (é uma atualização otimista, o ideal é re-fetch completo para garantir consistência)
         const updatedConsultas = consultas.map((c) => {
           if (c.checkin && c.checkin.id === checkInSelecionado.id) {
             return {
@@ -362,9 +361,6 @@ useEffect(() => {
         });
         setConsultas(updatedConsultas);
 
-        // Opcional, mas recomendado: re-fetch completo dos dados após a atualização
-        // para garantir que a tabela esteja totalmente sincronizada com o backend.
-        // Chame a função fetchData diretamente ou extraia a lógica de carregamento.
         const consultasResponse = await getConsultasPorData(filtros.filtroData);
         const consultasArray = Array.isArray(consultasResponse.data)
           ? consultasResponse.data
@@ -373,21 +369,16 @@ useEffect(() => {
           return consulta.dataConsulta === filtros.filtroData;
         });
         setConsultas(consultasDoDia);
-
-
       } else {
         // Lógica para CRIAÇÃO de NOVO Check-In
         const checkInData = {
           ...dadosCheckIn,
           consultaId: consultaSelecionada.id,
-          matriculaProfissional: 3, // Considere obter isso de um contexto de autenticação/usuário logado
+          matriculaProfissional: consultaSelecionada.medicoId, // Considere obter isso de um contexto de autenticação/usuário logado
           horaChegada: new Date().toISOString(),
-          status: "registrado", // Conforme seu modelo CheckIn no backend
         };
         await realizarCheckIn(checkInData);
 
-        // Após salvar um novo check-in, faça um re-fetch dos dados
-        // para garantir que a tabela mostre o novo check-in com o status correto
         const consultasResponse = await getConsultasPorData(filtros.filtroData);
         const consultasArray = Array.isArray(consultasResponse.data)
           ? consultasResponse.data

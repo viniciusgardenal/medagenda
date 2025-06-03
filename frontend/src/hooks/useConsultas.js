@@ -39,7 +39,7 @@ export const useConsultas = (initialFilters, initialStatus) => {
       // console.log("Médicos:", medicosResponse.data.data);
       // console.log("Tipos de Consulta:", tiposConsultaResponse.data.data);
 
-      setConsultas(consultasResponse.data.data || []);
+      setConsultas(consultasResponse.data || []);
       setPacientes(pacientesResponse.data || []);
       setMedicos(medicosResponse.data || []);
       setTiposConsulta(tiposConsultaResponse.data || []);

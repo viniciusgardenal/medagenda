@@ -136,7 +136,7 @@ exports.getCheckInConsultas = async (req, res) => {
 };
 
 exports.gerarRelatorioCheckIns = async (req, res) => {
- try {
+  try {
     const checkIns = await CheckIn.findAll({
       include: [
         {
@@ -175,7 +175,10 @@ exports.gerarRelatorioCheckIns = async (req, res) => {
 
     // Estilizar cabeçalhos
     worksheet.getRow(1).font = { bold: true };
-    worksheet.getRow(1).alignment = { vertical: "middle", horizontal: "center" };
+    worksheet.getRow(1).alignment = {
+      vertical: "middle",
+      horizontal: "center",
+    };
     worksheet.getRow(1).fill = {
       type: "pattern",
       pattern: "solid",
@@ -184,14 +187,25 @@ exports.gerarRelatorioCheckIns = async (req, res) => {
 
     // Adicionar dados
     checkIns.forEach((checkIn) => {
-      const prioridade = checkIn.prioridade === 0 ? "Normal" : checkIn.prioridade === 1 ? "Média" : "Alta";
+      const prioridade =
+        checkIn.prioridade === 0
+          ? "Normal"
+          : checkIn.prioridade === 1
+          ? "Média"
+          : "Alta";
       worksheet.addRow({
         id: checkIn.id,
-        paciente: checkIn.consulta?.paciente ? `${checkIn.consulta.paciente.nome} ${checkIn.consulta.paciente.sobrenome}` : "N/A",
-        medico: checkIn.consulta?.medico ? `${checkIn.consulta.medico.nome} (${checkIn.consulta.medico.crm})` : "N/A",
+        paciente: checkIn.consulta?.paciente
+          ? `${checkIn.consulta.paciente.nome} ${checkIn.consulta.paciente.sobrenome}`
+          : "N/A",
+        medico: checkIn.consulta?.medico
+          ? `${checkIn.consulta.medico.nome} (${checkIn.consulta.medico.crm})`
+          : "N/A",
         dataConsulta: checkIn.consulta?.dataConsulta || "N/A",
         horaConsulta: checkIn.consulta?.horaConsulta?.slice(0, 5) || "N/A",
-        horaChegada: checkIn.horaChegada ? new Date(checkIn.horaChegada).toLocaleString("pt-BR") : "N/A",
+        horaChegada: checkIn.horaChegada
+          ? new Date(checkIn.horaChegada).toLocaleString("pt-BR")
+          : "N/A",
         pressaoArterial: checkIn.pressaoArterial || "N/A",
         temperatura: checkIn.temperatura || "N/A",
         peso: checkIn.peso || "N/A",
@@ -253,9 +267,13 @@ exports.atualizarCheckIn = async (req, res) => {
 
     await checkIn.save(); // Salva as alterações no banco de dados
 
-    res.status(200).json({ message: "Check-in atualizado com sucesso.", checkIn });
+    res
+      .status(200)
+      .json({ message: "Check-in atualizado com sucesso.", checkIn });
   } catch (error) {
     console.error("Erro ao atualizar check-in:", error);
-    res.status(500).json({ message: "Erro ao atualizar check-in", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Erro ao atualizar check-in", error: error.message });
   }
 };

@@ -18,6 +18,20 @@ const InputField = ({
 
   const isTextarea = type === "textarea";
 
+  // Prepara props específicas para o input
+  let inputSpecificProps = {};
+
+  // Se o tipo for 'date', calcula a data de hoje para usar no atributo 'min'
+  if (type === "date") {
+    const today = new Date();
+    const year = today.getFullYear();
+    // getMonth() retorna 0-11, então adicionamos 1
+    // padStart garante que tenhamos dois dígitos para o mês e dia (ex: 06 em vez de 6)
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    const day = String(today.getDate()).padStart(2, "0");
+    inputSpecificProps.min = `${year}-${month}-${day}`;
+  }
+
   return (
     <div className="space-y-1">
       <label className="block text-sm font-semibold text-gray-700">
@@ -35,6 +49,7 @@ const InputField = ({
         <input
           type={type}
           {...props}
+          {...inputSpecificProps} // Adiciona props específicas como 'min' para data
           {...register(name, { required })} // 3. Conecta o campo ao formulário
           disabled={disabled}
           className={className}

@@ -160,7 +160,11 @@ export const generateMedicamentosReport = async (params = {}) => {
       "Erro ao gerar relatório de medicamentos:",
       error.response?.data || error.message
     );
-    throw error.response?.data || { error: "Erro ao gerar relatório de medicamentos." };
+    throw (
+      error.response?.data || {
+        error: "Erro ao gerar relatório de medicamentos.",
+      }
+    );
   }
 };
 export const criarSolicitacaoExames = async (dadosSolicitacaoExames) => {
@@ -346,7 +350,9 @@ export const gerarRelatorioCheckIns = async () => {
       console.error("Error details from Blob:", errorText);
       throw new Error(`Error generating report: ${errorText}`);
     }
-    throw error.response?.data || { error: "Erro ao gerar relatório de check-ins." };
+    throw (
+      error.response?.data || { error: "Erro ao gerar relatório de check-ins." }
+    );
   }
 };
 
@@ -380,8 +386,8 @@ export const agendarConsulta = async (dadosConsulta) => {
   return await api.post(`${apiUrl}/consultas`, dadosConsulta);
 };
 
-export const getConsultas = async () => {
-  return await api.get(`${apiUrl}/consultas`);
+export const getConsultas = async (params = {}) => {
+  return await api.get(`${apiUrl}/consultas`, { params });
 };
 
 export const getConsultasPorDataEMedico = async (data, matricula) => {
@@ -527,6 +533,10 @@ export const gerarRelatorioAtendimentos = async () => {
       console.error("Error details from Blob:", errorText);
       throw new Error(`Error generating report: ${errorText}`);
     }
-    throw error.response?.data || { error: "Erro ao gerar relatório de atendimentos." };
+    throw (
+      error.response?.data || {
+        error: "Erro ao gerar relatório de atendimentos.",
+      }
+    );
   }
 };

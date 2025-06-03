@@ -128,12 +128,10 @@ const listarConsultasDoDia = async (req, res) => {
         {
           model: Paciente,
           as: "paciente", // 'as' deve corresponder ao apelido na sua associação
-          attributes: ["cpf", "nome", "sobrenome"], // Especifique quais colunas trazer
         },
         {
           model: Profissional,
           as: "medico",
-          attributes: ["matricula", "nome", "crm"],
         },
         {
           model: TipoConsulta,
@@ -165,8 +163,12 @@ const listarConsultas = async (req, res) => {
     }
 
     const consultas = await Consulta.findAll({
-      where: whereClause,
-      // --- ADICIONE O MESMO BLOCO 'INCLUDE' AQUI ---
+      where: {
+        status: {
+          // Busca consultas prontas para atendimento ou já atendidas
+          [Op.or]: ["checkin_realizado"],
+        },
+      },
       include: [
         {
           model: Paciente,
@@ -193,7 +195,7 @@ const listarConsultas = async (req, res) => {
       ],
     });
 
-    res.status(200).json({ status: "success", data: consultas });
+    res.status(200).json(consultas);
   } catch (error) {
     handleError(res, 500, "Erro ao listar consultas", error);
   }
@@ -201,16 +203,11 @@ const listarConsultas = async (req, res) => {
 
 const getHorariosDisponiveis = async (req, res) => {
   try {
-    const { medicoId, dataConsulta } = req.params; // ex: dataConsulta = "2025-05-30"
-    const DURACAO_CONSULTA_MINUTOS = 60; // Defina a duração padrão da consulta
+    const { medicoId, dataConsulta: dataConsultaParam } = req.params; // ex: dataConsultaParam = "2025-05-30"
+    const DURACAO_CONSULTA_MINUTOS = 60;
 
-    // 1. Determinar o dia da semana a partir da data
-    // console.log("dataConsulta:", dataConsulta);
+    const diaSemana = getDayOfWeek(dataConsultaParam);
 
-    const diaSemana = getDayOfWeek(dataConsulta);
-    // console.log("diaSemana:", diaSemana);
-
-    // 2. Buscar a regra de horário para o profissional e o dia da semana
     const regraHorario = await HorarioProfissional.findOne({
       where: {
         matriculaProfissional: medicoId,
@@ -219,32 +216,27 @@ const getHorariosDisponiveis = async (req, res) => {
       },
     });
 
-    console.log("regraHorario:", regraHorario);
     if (!regraHorario) {
       return res.status(200).json({
         status: "success",
-        data: [], // Retorna array vazio se o profissional não trabalha neste dia
+        data: [],
         message:
           "Profissional não possui horário de trabalho para este dia da semana.",
       });
     }
 
-    // 3. Gerar todos os slots de horário possíveis
     const horariosPossiveis = [];
     const { inicio, fim, intervaloInicio, intervaloFim } = regraHorario;
 
-    let slotAtual = new Date(`${dataConsulta}T${inicio}`);
-    const horarioFim = new Date(`${dataConsulta}T${fim}`);
+    let slotAtual = new Date(`${dataConsultaParam}T${inicio}`);
+    const horarioFimDt = new Date(`${dataConsultaParam}T${fim}`);
 
-    while (slotAtual < horarioFim) {
-      // Formata a hora para HH:mm
+    while (slotAtual < horarioFimDt) {
       const horaFormatada = slotAtual.toTimeString().slice(0, 5);
       horariosPossiveis.push(horaFormatada);
-      // Incrementa o slot pela duração da consulta
       slotAtual.setMinutes(slotAtual.getMinutes() + DURACAO_CONSULTA_MINUTOS);
     }
 
-    // 4. Excluir os horários de intervalo
     let slotsValidos = horariosPossiveis;
     if (intervaloInicio && intervaloFim) {
       slotsValidos = horariosPossiveis.filter((hora) => {
@@ -252,11 +244,29 @@ const getHorariosDisponiveis = async (req, res) => {
       });
     }
 
-    // 5. Buscar consultas já agendadas para filtrar os horários ocupados
+    // --- INÍCIO DA NOVA LÓGICA DE FILTRO POR HORA ATUAL ---
+    const agora = new Date();
+    const hojeString = agora.toISOString().split("T")[0]; // Data de hoje no formato YYYY-MM-DD
+
+    // Verifica se a data da consulta é o dia de hoje
+    if (dataConsultaParam === hojeString) {
+      // Filtra os slots para incluir apenas horários futuros
+      slotsValidos = slotsValidos.filter((horaSlot) => {
+        // Cria objetos Date para comparação precisa
+        const dataHoraSlot = new Date(`${dataConsultaParam}T${horaSlot}:00`);
+        // Compara o horário do slot com a hora atual
+        // O slot deve ser pelo menos alguns minutos no futuro para ser útil,
+        // ou pode ser >= agora se você permitir agendamentos imediatos.
+        // Vamos considerar que o slot deve começar APÓS a hora atual.
+        return dataHoraSlot > agora;
+      });
+    }
+    // --- FIM DA NOVA LÓGICA DE FILTRO POR HORA ATUAL ---
+
     const consultasAgendadas = await Consulta.findAll({
       where: {
         medicoId,
-        dataConsulta,
+        dataConsulta: dataConsultaParam, // Usar a dataParam aqui
         status: { [Op.ne]: "cancelada" },
       },
       attributes: ["horaConsulta"],
@@ -264,14 +274,12 @@ const getHorariosDisponiveis = async (req, res) => {
 
     const horariosOcupados = consultasAgendadas.map((c) => c.horaConsulta);
 
-    // 6. Filtrar e retornar a lista final de horários disponíveis
     const horariosDisponiveis = slotsValidos.filter(
       (h) => !horariosOcupados.includes(h)
     );
 
     res.status(200).json({ status: "success", data: horariosDisponiveis });
   } catch (error) {
-    // Substitua 'handleError' pela sua função de tratamento de erro
     console.error("Erro ao buscar horários:", error);
     res.status(500).json({
       status: "error",

@@ -55,7 +55,8 @@ const TableRow = ({
   getPrioridadeLegenda,
   formatarDataHoraBR,
 }) => {
-  const checkInRealizado = consulta.status === "checkin_realizado";
+  const checkInRealizado =
+    consulta.status === "checkin_realizado" || consulta.status === "realizada";
   return (
     <tr className="hover:bg-blue-50 transition-colors">
       <td className="px-4 py-3 text-sm text-gray-700">
@@ -499,7 +500,9 @@ const CheckInPacientes = () => {
         params = { data: dataRelatorio };
       } else if (tipoFiltroRelatorio === "periodo") {
         if (!dataInicioRelatorio || !dataFimRelatorio) {
-          setError("Por favor, selecione as datas de início e fim para o período.");
+          setError(
+            "Por favor, selecione as datas de início e fim para o período."
+          );
           return;
         }
         // Validação básica: data de início não pode ser depois da data de fim
@@ -515,14 +518,19 @@ const CheckInPacientes = () => {
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement("a");
       link.href = url;
-      link.setAttribute("download", `relatorio_checkins_${tipoFiltroRelatorio}.xlsx`);
+      link.setAttribute(
+        "download",
+        `relatorio_checkins_${tipoFiltroRelatorio}.xlsx`
+      );
       document.body.appendChild(link);
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Erro ao baixar relatório:", error);
-      setError("Erro ao gerar o relatório de check-ins. Verifique as datas e tente novamente.");
+      setError(
+        "Erro ao gerar o relatório de check-ins. Verifique as datas e tente novamente."
+      );
     }
   };
 
@@ -537,12 +545,18 @@ const CheckInPacientes = () => {
 
         {/* Seção para Download do Relatório - Added mt-6 */}
         <div className="mt-6 bg-green-50 p-4 rounded-lg shadow-sm border border-green-200 flex flex-col md:flex-row items-center justify-between gap-4">
-          <h3 className="text-lg font-semibold text-green-800 shrink-0 mb-2 md:mb-0">Gerar Relatório de Check-Ins</h3>
-          
+          <h3 className="text-lg font-semibold text-green-800 shrink-0 mb-2 md:mb-0">
+            Gerar Relatório de Check-Ins
+          </h3>
+
           <div className="flex flex-1 flex-wrap md:flex-nowrap gap-3 items-center justify-end">
             {/* Seleção do Tipo de Filtro */}
-            <div className="flex-grow max-w-[180px]"> {/* Limita a largura para compactar */}
-              <label htmlFor="tipoFiltroRelatorio" className="sr-only">Tipo de Filtro</label>
+            <div className="flex-grow max-w-[180px]">
+              {" "}
+              {/* Limita a largura para compactar */}
+              <label htmlFor="tipoFiltroRelatorio" className="sr-only">
+                Tipo de Filtro
+              </label>
               <select
                 id="tipoFiltroRelatorio"
                 className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
@@ -561,8 +575,12 @@ const CheckInPacientes = () => {
 
             {/* Campos de Data Condicionais */}
             {tipoFiltroRelatorio === "dia" ? (
-              <div className="flex-grow max-w-[180px]"> {/* Limita a largura para compactar */}
-                <label htmlFor="dataRelatorio" className="sr-only">Data do Relatório</label>
+              <div className="flex-grow max-w-[180px]">
+                {" "}
+                {/* Limita a largura para compactar */}
+                <label htmlFor="dataRelatorio" className="sr-only">
+                  Data do Relatório
+                </label>
                 <input
                   type="date"
                   id="dataRelatorio"
@@ -573,8 +591,12 @@ const CheckInPacientes = () => {
               </div>
             ) : (
               <>
-                <div className="flex-grow max-w-[180px]"> {/* Limita a largura para compactar */}
-                  <label htmlFor="dataInicioRelatorio" className="sr-only">Data de Início</label>
+                <div className="flex-grow max-w-[180px]">
+                  {" "}
+                  {/* Limita a largura para compactar */}
+                  <label htmlFor="dataInicioRelatorio" className="sr-only">
+                    Data de Início
+                  </label>
                   <input
                     type="date"
                     id="dataInicioRelatorio"
@@ -583,8 +605,12 @@ const CheckInPacientes = () => {
                     onChange={(e) => setDataInicioRelatorio(e.target.value)}
                   />
                 </div>
-                <div className="flex-grow max-w-[180px]"> {/* Limita a largura para compactar */}
-                  <label htmlFor="dataFimRelatorio" className="sr-only">Data de Fim</label>
+                <div className="flex-grow max-w-[180px]">
+                  {" "}
+                  {/* Limita a largura para compactar */}
+                  <label htmlFor="dataFimRelatorio" className="sr-only">
+                    Data de Fim
+                  </label>
                   <input
                     type="date"
                     id="dataFimRelatorio"
@@ -595,7 +621,7 @@ const CheckInPacientes = () => {
                 </div>
               </>
             )}
-            
+
             <button
               onClick={handleDownloadRelatorio}
               className="inline-flex items-center justify-center gap-2 rounded-full bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-green-700 transition w-full md:w-auto"
@@ -618,7 +644,6 @@ const CheckInPacientes = () => {
             </button>
           </div>
         </div>
-
 
         {error && (
           // Added mt-6 for spacing above error message

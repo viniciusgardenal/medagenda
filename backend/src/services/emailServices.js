@@ -40,11 +40,12 @@ const enviarEmailDeLembrete = async (consulta) => {
     return;
   }
 
-  // Formata a data para o padrão brasileiro
-  const dataFormatada = new Date(consulta.dataConsulta).toLocaleDateString(
-    "pt-BR",
-    { timeZone: "America/Sao_Paulo" }
-  );
+  const dataConsultaStringCorrigida = consulta.dataConsulta.replace(/-/g, "/");
+  const dataObjeto = new Date(dataConsultaStringCorrigida);
+
+  const dataFormatada = dataObjeto.toLocaleDateString("pt-BR", {
+    timeZone: "America/Sao_Paulo",
+  });
 
   const mailOptions = {
     from: `"MedAgenda" <${process.env.EMAIL_USER}>`,

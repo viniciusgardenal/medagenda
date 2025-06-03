@@ -137,6 +137,35 @@ exports.getCheckInConsultas = async (req, res) => {
 
 exports.gerarRelatorioCheckIns = async (req, res) => {
   try {
+    const { data, dataInicio, dataFim } = req.query; // Recebe os parâmetros de data ou período
+
+    let whereCondition = {};
+
+    if (data) {
+      // Filtra por um dia específico
+      // Garante que a data seja tratada como o dia inteiro (da 00:00:00 à 23:59:59)
+      const selectedDate = new Date(data);
+      selectedDate.setUTCHours(0, 0, 0, 0); // Define para o início do dia em UTC
+      const nextDate = new Date(selectedDate);
+      nextDate.setUTCDate(selectedDate.getUTCDate() + 1); // Adiciona um dia para pegar até o final do dia
+
+      whereCondition["$consulta.dataConsulta$"] = {
+        [Op.gte]: selectedDate.toISOString().split('T')[0], // Converte para 'YYYY-MM-DD' para comparação de data
+        [Op.lt]: nextDate.toISOString().split('T')[0],
+      };
+    } else if (dataInicio && dataFim) {
+      // Filtra por um período personalizado
+      const startDate = new Date(dataInicio);
+      startDate.setUTCHours(0, 0, 0, 0); // Define para o início do dia em UTC
+      const endDate = new Date(dataFim);
+      endDate.setUTCHours(23, 59, 59, 999); // Define para o final do dia em UTC
+
+      whereCondition["$consulta.dataConsulta$"] = {
+        [Op.gte]: startDate.toISOString().split('T')[0],
+        [Op.lte]: endDate.toISOString().split('T')[0],
+      };
+    }
+
     const checkIns = await CheckIn.findAll({
       include: [
         {
@@ -146,11 +175,22 @@ exports.gerarRelatorioCheckIns = async (req, res) => {
             { model: Paciente, as: "paciente" },
             { model: Profissional, as: "medico" },
           ],
+          where: Object.keys(whereCondition).length > 0 ? { dataConsulta: whereCondition["$consulta.dataConsulta$"] } : {}, // Aplica a condição de filtro aqui
         },
         { model: Profissional, as: "profissional" },
       ],
+      where: Object.keys(whereCondition).length === 0 ? {} : {
+        // Se não houver filtro na consulta, garantimos que essa condição não limite os resultados.
+        // Se houver, garantimos que a consulta principal do CheckIn não seja afetada,
+        // pois o filtro já está no include da Consulta.
+        // Essa parte pode ser ajustada dependendo de como `dataConsulta` é armazenado no CheckIn, se for o caso.
+      },
       order: [["horaChegada", "ASC"]],
     });
+
+    if (checkIns.length === 0) {
+      return res.status(404).json({ message: "Nenhum check-in encontrado para o período selecionado." });
+    }
 
     // Criar planilha Excel
     const workbook = new ExcelJS.Workbook();

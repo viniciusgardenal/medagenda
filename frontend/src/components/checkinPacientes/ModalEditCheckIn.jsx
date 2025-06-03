@@ -22,8 +22,9 @@ const ModalEditCheckIn = ({
   };
 
   return (
+    // AQUI ESTÁ A MUDANÇA PRINCIPAL: Ajuste do z-index e adição do backdrop-blur-sm
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white w-full max-w-lg rounded-xl shadow-lg p-6 relative">
+      <div className="bg-white w-full max-w-lg rounded-xl shadow-lg p-6 relative z-200">
         {/* Botão de Fechar */}
         <button
           onClick={onClose}

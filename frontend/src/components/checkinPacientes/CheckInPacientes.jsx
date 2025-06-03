@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import {
   getConsultasPorData,
   realizarCheckIn,
+  // Certifique-se de que gerarRelatorioCheckIns pode receber parâmetros
   gerarRelatorioCheckIns,
   atualizarCheckIn,
 } from "../../config/apiServices";
@@ -17,7 +18,8 @@ const SearchFilter = ({
   onFiltroDataChange,
 }) => {
   return (
-    <div className="flex gap-4">
+    // Added mt-6 for spacing above this component
+    <div className="flex gap-4 mt-6">
       <div className="flex-1">
         <label className="block text-sm font-semibold text-gray-700 mb-1">
           Busca Geral
@@ -199,6 +201,14 @@ const CheckInPacientes = () => {
   const [sortField, setSortField] = useState("nome");
   const [sortDirection, setSortDirection] = useState("asc");
 
+  // Novas estados para o filtro de relatório
+  const [tipoFiltroRelatorio, setTipoFiltroRelatorio] = useState("dia"); // 'dia' ou 'periodo'
+  const [dataRelatorio, setDataRelatorio] = useState(
+    new Date().toISOString().split("T")[0]
+  );
+  const [dataInicioRelatorio, setDataInicioRelatorio] = useState("");
+  const [dataFimRelatorio, setDataFimRelatorio] = useState("");
+
   const getPrioridadeLegenda = (prioridade) => {
     switch (prioridade) {
       case 0:
@@ -264,7 +274,6 @@ const CheckInPacientes = () => {
           : [];
 
         const consultasDoDia = consultasArray.filter((consulta) => {
-          "";
           return consulta.dataConsulta === filtros.filtroData;
         });
 
@@ -347,6 +356,7 @@ const CheckInPacientes = () => {
 
         await atualizarCheckIn(checkInSelecionado.id, dadosParaAtualizar);
 
+        // Atualiza o estado local para refletir a mudança imediatamente
         const updatedConsultas = consultas.map((c) => {
           if (c.checkin && c.checkin.id === checkInSelecionado.id) {
             return {
@@ -361,6 +371,7 @@ const CheckInPacientes = () => {
         });
         setConsultas(updatedConsultas);
 
+        // Recarrega os dados do dia para garantir que tudo esteja sincronizado
         const consultasResponse = await getConsultasPorData(filtros.filtroData);
         const consultasArray = Array.isArray(consultasResponse.data)
           ? consultasResponse.data
@@ -374,11 +385,15 @@ const CheckInPacientes = () => {
         const checkInData = {
           ...dadosCheckIn,
           consultaId: consultaSelecionada.id,
-          matriculaProfissional: consultaSelecionada.medicoId, // Considere obter isso de um contexto de autenticação/usuário logado
+          // Considere obter matriculaProfissional de um contexto de autenticação/usuário logado
+          // Por enquanto, usaremos consultaSelecionada.medicoId como exemplo,
+          // mas isso deve ser a matrícula do profissional que está REALIZANDO o check-in.
+          matriculaProfissional: consultaSelecionada.medicoId, // ATENÇÃO: Revisar esta linha
           horaChegada: new Date().toISOString(),
         };
         await realizarCheckIn(checkInData);
 
+        // Recarrega os dados do dia para exibir o novo check-in
         const consultasResponse = await getConsultasPorData(filtros.filtroData);
         const consultasArray = Array.isArray(consultasResponse.data)
           ? consultasResponse.data
@@ -427,7 +442,7 @@ const CheckInPacientes = () => {
 
   const openEditModal = (checkIn) => {
     const consulta = consultas.find((c) => c.id === checkIn.consultaId);
-    setConsultaSelecionada(consulta);
+    setConsultaSelecionada(consulta); // Pode ser útil ter a consulta ligada ao checkin para exibir detalhes
     setCheckInSelecionado(checkIn);
     setDadosCheckIn({
       pressaoArterial: checkIn.pressaoArterial || "",
@@ -471,58 +486,148 @@ const CheckInPacientes = () => {
     setCurrentPage(1);
   };
 
+  // Alterada a função para receber os parâmetros de data
   const handleDownloadRelatorio = async () => {
+    setError(null); // Limpa erros anteriores
     try {
-      const response = await gerarRelatorioCheckIns();
+      let params = {};
+      if (tipoFiltroRelatorio === "dia") {
+        if (!dataRelatorio) {
+          setError("Por favor, selecione uma data para o relatório.");
+          return;
+        }
+        params = { data: dataRelatorio };
+      } else if (tipoFiltroRelatorio === "periodo") {
+        if (!dataInicioRelatorio || !dataFimRelatorio) {
+          setError("Por favor, selecione as datas de início e fim para o período.");
+          return;
+        }
+        // Validação básica: data de início não pode ser depois da data de fim
+        if (new Date(dataInicioRelatorio) > new Date(dataFimRelatorio)) {
+          setError("A data de início não pode ser posterior à data de fim.");
+          return;
+        }
+        params = { dataInicio: dataInicioRelatorio, dataFim: dataFimRelatorio };
+      }
+
+      // Chama a função da API passando os parâmetros
+      const response = await gerarRelatorioCheckIns(params);
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement("a");
       link.href = url;
-      link.setAttribute("download", "relatorio_checkins.xlsx");
+      link.setAttribute("download", `relatorio_checkins_${tipoFiltroRelatorio}.xlsx`);
       document.body.appendChild(link);
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Erro ao baixar relatório:", error);
-      setError("Erro ao gerar o relatório de check-ins.");
+      setError("Erro ao gerar o relatório de check-ins. Verifique as datas e tente novamente.");
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-200 backdrop-blur-sm p-6">
-      <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-md p-6 space-y-6">
+    <div className="min-h-screen bg-gray-200 p-6">
+      <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-md p-6">
         <div className="border-b pb-4">
           <h2 className="text-3xl font-bold text-blue-600">
             Check-In de Pacientes
           </h2>
         </div>
-        <button
-          onClick={handleDownloadRelatorio}
-          className="inline-flex items-center gap-2 rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700 transition"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V8"
-            />
-          </svg>
-          Baixar Relatório de Check-Ins
-        </button>
+
+        {/* Seção para Download do Relatório - Added mt-6 */}
+        <div className="mt-6 bg-green-50 p-4 rounded-lg shadow-sm border border-green-200 flex flex-col md:flex-row items-center justify-between gap-4">
+          <h3 className="text-lg font-semibold text-green-800 shrink-0 mb-2 md:mb-0">Gerar Relatório de Check-Ins</h3>
+          
+          <div className="flex flex-1 flex-wrap md:flex-nowrap gap-3 items-center justify-end">
+            {/* Seleção do Tipo de Filtro */}
+            <div className="flex-grow max-w-[180px]"> {/* Limita a largura para compactar */}
+              <label htmlFor="tipoFiltroRelatorio" className="sr-only">Tipo de Filtro</label>
+              <select
+                id="tipoFiltroRelatorio"
+                className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                value={tipoFiltroRelatorio}
+                onChange={(e) => {
+                  setTipoFiltroRelatorio(e.target.value);
+                  setDataRelatorio(new Date().toISOString().split("T")[0]);
+                  setDataInicioRelatorio("");
+                  setDataFimRelatorio("");
+                }}
+              >
+                <option value="dia">Dia Específico</option>
+                <option value="periodo">Período Personalizado</option>
+              </select>
+            </div>
+
+            {/* Campos de Data Condicionais */}
+            {tipoFiltroRelatorio === "dia" ? (
+              <div className="flex-grow max-w-[180px]"> {/* Limita a largura para compactar */}
+                <label htmlFor="dataRelatorio" className="sr-only">Data do Relatório</label>
+                <input
+                  type="date"
+                  id="dataRelatorio"
+                  className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  value={dataRelatorio}
+                  onChange={(e) => setDataRelatorio(e.target.value)}
+                />
+              </div>
+            ) : (
+              <>
+                <div className="flex-grow max-w-[180px]"> {/* Limita a largura para compactar */}
+                  <label htmlFor="dataInicioRelatorio" className="sr-only">Data de Início</label>
+                  <input
+                    type="date"
+                    id="dataInicioRelatorio"
+                    className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    value={dataInicioRelatorio}
+                    onChange={(e) => setDataInicioRelatorio(e.target.value)}
+                  />
+                </div>
+                <div className="flex-grow max-w-[180px]"> {/* Limita a largura para compactar */}
+                  <label htmlFor="dataFimRelatorio" className="sr-only">Data de Fim</label>
+                  <input
+                    type="date"
+                    id="dataFimRelatorio"
+                    className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    value={dataFimRelatorio}
+                    onChange={(e) => setDataFimRelatorio(e.target.value)}
+                  />
+                </div>
+              </>
+            )}
+            
+            <button
+              onClick={handleDownloadRelatorio}
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-green-700 transition w-full md:w-auto"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V8"
+                />
+              </svg>
+              Baixar Relatório
+            </button>
+          </div>
+        </div>
+
 
         {error && (
-          <div className="p-4 text-sm text-red-700 bg-red-100 rounded-lg border border-red-300">
+          // Added mt-6 for spacing above error message
+          <div className="mt-6 p-4 text-sm text-red-700 bg-red-100 rounded-lg border border-red-300">
             {error}
           </div>
         )}
 
+        {/* SearchFilter component will have mt-6 from its internal definition */}
         <SearchFilter
           filtroNome={filtros.filtroNome}
           filtroData={filtros.filtroData}
@@ -535,11 +640,13 @@ const CheckInPacientes = () => {
         />
 
         {isLoading ? (
-          <div className="text-center py-4">
+          // Added mt-6 for spacing above loading message
+          <div className="mt-6 text-center py-4">
             <p className="text-sm text-gray-500">Carregando consultas...</p>
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-lg shadow-md">
+          // Added mt-6 for spacing above table container
+          <div className="mt-6 overflow-x-auto rounded-lg shadow-md">
             <table className="min-w-full divide-y divide-gray-200 bg-white">
               <thead className="bg-blue-600 text-white">
                 <tr>
@@ -623,13 +730,16 @@ const CheckInPacientes = () => {
         )}
 
         {consultasOrdenadasFiltradas.length > 0 && (
-          <Pagination
-            totalItems={consultasOrdenadasFiltradas.length}
-            itemsPerPage={itemsPerPage}
-            currentPage={currentPage}
-            onPageChange={handlePageChange}
-            maxPageButtons={5}
-          />
+          // Wrapped Pagination in a div with mt-6 for spacing
+          <div className="mt-6">
+            <Pagination
+              totalItems={consultasOrdenadasFiltradas.length}
+              itemsPerPage={itemsPerPage}
+              currentPage={currentPage}
+              onPageChange={handlePageChange}
+              maxPageButtons={5}
+            />
+          </div>
         )}
 
         {modalAddOpen && consultaSelecionada && (

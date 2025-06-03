@@ -326,30 +326,42 @@ export const atualizarCheckIn = async (checkInId, dadosAtualizados) => {
   }
 };
 
-export const gerarRelatorioCheckIns = async () => {
+export const gerarRelatorioCheckIns = async (params = {}) => { // Adicione params como argumento com valor padrão
   try {
     const url = `${apiUrl}/relatorio/excel`;
-    console.log("Requesting URL:", url);
+    console.log("Requesting URL:", url, "with params:", params); // Para depuração
+    
     const response = await api.get(url, {
       responseType: "blob",
+      params: params, // Passe os parâmetros de data para a requisição
     });
+    
     // Verify content-type
     if (
       response.headers["content-type"] !==
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     ) {
-      const errorText = await response.data.text();
-      console.error("Unexpected response from server:", errorText);
-      throw new Error(`Unexpected response: ${errorText}`);
+      // Se o erro do servidor não for um blob, pode ser texto
+      if (response.data instanceof Blob) {
+        const errorText = await response.data.text();
+        console.error("Unexpected response from server:", errorText);
+        throw new Error(`Unexpected response: ${errorText}`);
+      } else {
+        // Se não for um blob, assume que é texto ou JSON direto
+        console.error("Unexpected response from server:", response.data);
+        throw new Error(`Unexpected response: ${JSON.stringify(response.data)}`);
+      }
     }
     return response;
   } catch (error) {
     console.error("Erro ao gerar relatório de check-ins:", error);
     if (error.response?.data instanceof Blob) {
+      // Tenta ler o blob de erro como texto
       const errorText = await error.response.data.text();
       console.error("Error details from Blob:", errorText);
       throw new Error(`Error generating report: ${errorText}`);
     }
+    // Lida com outros tipos de erros, como erros de rede ou respostas JSON de erro
     throw (
       error.response?.data || { error: "Erro ao gerar relatório de check-ins." }
     );

@@ -36,6 +36,21 @@ const FilterSection = ({ filtros, setFiltros }) => (
         onChange={(e) => setFiltros({ ...filtros, filtroNome: e.target.value })}
       />
     </div>
+    <div className="flex-1">
+      <label className="block text-sm font-semibold text-gray-700 mb-1">
+        Status
+      </label>
+      <select
+        className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+        value={filtros.filtroStatus}
+        onChange={(e) =>
+          setFiltros({ ...filtros, filtroStatus: e.target.value })
+        }
+      >
+        <option value="checkin_realizado">Check-in Realizado</option>
+        <option value="realizada">Realizada</option>
+      </select>
+    </div>
   </div>
 );
 
@@ -253,7 +268,10 @@ const RegistroAtendimento = () => {
     prescricao: "",
     observacoes: "",
   });
-  const [filtros, setFiltros] = useState({ filtroNome: "" });
+  const [filtros, setFiltros] = useState({
+    filtroNome: "",
+    filtroStatus: "checkin_realizado", // Ou o valor padrão que você quer, ex: "todos_relevantes"
+  });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -264,13 +282,46 @@ const RegistroAtendimento = () => {
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
+      setError(null);
       try {
-        console.log("Chamando GetConsultas...");
-        const response = await getConsultas({
-          status: ["checkin_realizado"],
-        });
-        console.log("response", response);
-        setItems(response.data);
+        console.log("Filtros atuais:", filtros); // Bom para depurar
+
+        // 1. Preparar o objeto de parâmetros para a API
+        const params = {};
+
+        // 2. Lógica para o filtro de status:
+        if (
+          filtros.filtroStatus &&
+          filtros.filtroStatus !== "todos_relevantes"
+        ) {
+          // Se um filtro específico de status foi selecionado (e não é uma opção "todos")
+          // Envia apenas esse status para a API.
+          // A API precisa estar preparada para receber um único status.
+          params.status = filtros.filtroStatus;
+        } else {
+          // Se filtros.filtroStatus for "" ou "todos_relevantes" (ou como você definir o valor padrão/inicial no select),
+          // então queremos buscar os status padrão para esta tela.
+          // A API precisa estar preparada para receber um array de status ou múltiplos parâmetros de status.
+          params.status = ["checkin_realizado", "realizada"];
+        }
+
+        // 3. Adicionar outros filtros, como o de nome (searchTerm)
+        if (filtros.filtroNome) {
+          params.searchTerm = filtros.filtroNome;
+        }
+
+        // 4. Adicionar filtro de data, se aplicável a esta tela (você não o tem no FilterSection atual)
+        // if (filtros.filtroData) {
+        //   params.dataConsulta = filtros.filtroData;
+        // }
+
+        console.log("Parâmetros enviados para API:", params); // Bom para depurar
+
+        // 5. Chamar a API com os parâmetros construídos
+        const response = await getConsultas(params);
+
+        console.log("Resposta da API (getConsultas):", response.data);
+        setItems(response.data.data || response.data || []);
       } catch (err) {
         console.error("Erro ao carregar dados:", err);
         setError("Erro ao carregar dados. Tente novamente mais tarde.");
@@ -279,7 +330,7 @@ const RegistroAtendimento = () => {
       }
     };
     fetchData();
-  }, []);
+  }, [filtros.filtroStatus, filtros.filtroNome]); // Dependências corretas
 
   const itemsFiltrados = items.filter((item) => {
     const termo = filtros.filtroNome.toLowerCase();

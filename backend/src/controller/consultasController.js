@@ -7,8 +7,7 @@ const RegistroObitos = require("../model/registroObitos");
 const HorarioProfissional = require("../model/horariosProfissionais");
 const { Op } = require("sequelize");
 const sequelize = require("../config/db");
-const { enviarEmailDeLembrete } = require('../services/emailServices'); // (arquivo emailServices.js)
-
+const { enviarEmailDeLembrete } = require("../services/emailServices"); // (arquivo emailServices.js)
 
 // Função auxiliar para tratamento de erros
 const handleError = (res, status, message, error) => {
@@ -160,17 +159,49 @@ const listarConsultasDoDia = async (req, res) => {
 const listarConsultas = async (req, res) => {
   try {
     const whereClause = {};
+
+    // Restrict to medico's own consultations if role is "medico"
     if (req.user.role === "medico") {
       whereClause.medicoId = req.user.id;
     }
 
-    const consultas = await Consulta.findAll({
-      where: {
-        status: {
-          // Busca consultas prontas para atendimento ou já atendidas
-          [Op.or]: ["checkin_realizado"],
+    // Handle status filter
+    const { status, searchTerm } = req.query;
+    if (status) {
+      if (Array.isArray(status)) {
+        whereClause.status = {
+          [Op.in]: status,
+        };
+      } else {
+        whereClause.status = status;
+      }
+    } else {
+      // Default statuses when no specific status is provided
+      whereClause.status = {
+        [Op.in]: ["checkin_realizado", "realizada"],
+      };
+    }
+
+    // Handle search term for patient name, doctor name, consultation type, etc.
+    if (searchTerm) {
+      whereClause[Op.or] = [
+        {
+          "$paciente.nome$": { [Op.like]: `%${searchTerm}%` },
         },
-      },
+        {
+          "$paciente.sobrenome$": { [Op.like]: `%${searchTerm}%` },
+        },
+        {
+          "$medico.nome$": { [Op.like]: `%${searchTerm}%` },
+        },
+        {
+          "$tipoConsulta.nomeTipoConsulta$": { [Op.like]: `%${searchTerm}%` },
+        },
+      ];
+    }
+
+    const consultas = await Consulta.findAll({
+      where: whereClause,
       include: [
         {
           model: Paciente,

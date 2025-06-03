@@ -139,12 +139,12 @@ const SolicitacaoExames = () => {
     }
 
     return (
-      <div className="flex justify-center mt-6">
-        <nav className="inline-flex rounded-md shadow">
+      <div className="mt-6">
+        <nav className="inline-flex rounded-lg shadow-md">
           <button
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}
-            className="px-3 py-2 bg-white border border-gray-300 rounded-l-md text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+            className="px-4 py-2 bg-white border border-gray-200 rounded-l-lg text-sm font-semibold text-gray-700 hover:bg-blue-50 disabled:opacity-50 transition-colors"
           >
             Anterior
           </button>
@@ -152,10 +152,10 @@ const SolicitacaoExames = () => {
             <button
               key={number}
               onClick={() => handlePageChange(number)}
-              className={`px-3 py-2 border border-gray-300 text-sm font-medium ${
+              className={`px-4 py-2 border border-gray-200 text-sm font-semibold ${
                 currentPage === number
                   ? "bg-blue-600 text-white"
-                  : "bg-white text-gray-500 hover:bg-gray-50"
+                  : "bg-white text-gray-700 hover:bg-blue-50 transition-colors"
               }`}
             >
               {number}
@@ -164,7 +164,7 @@ const SolicitacaoExames = () => {
           <button
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className="px-3 py-2 bg-white border border-gray-300 rounded-r-md text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+            className="px-4 py-2 bg-white border border-gray-200 rounded-r-lg text-sm font-semibold text-gray-700 hover:bg-blue-50 disabled:opacity-50 transition-colors"
           >
             Próximo
           </button>
@@ -249,11 +249,10 @@ const SolicitacaoExames = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-200 backdrop-blur-sm p-6"> {/* Adicionado backdrop-blur-sm para consistência */}
-      <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-md p-6 space-y-6"> {/* Ajustado para rounded-2xl e space-y-6 */}
+    <div className="min-h-screen bg-gray-200 p-6">
+      <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-md p-6">
         <div className="border-b pb-4 flex justify-between items-center">
           <h2 className="text-3xl font-bold text-blue-600 flex items-center gap-3">
-            {/* Adicionado SVG para ícone consistente */}
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-8 w-8"
@@ -272,7 +271,7 @@ const SolicitacaoExames = () => {
           </h2>
           <button
             onClick={() => setIsModalOpenAdd(true)}
-            className="px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 text-sm font-semibold shadow" // Ajustado para rounded-full e adicionado text-sm font-semibold shadow
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700 transition-colors"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -293,7 +292,7 @@ const SolicitacaoExames = () => {
         </div>
 
         {error && (
-          <div className="p-4 text-sm text-red-700 bg-red-100 rounded-lg border border-red-300"> {/* Ajustado para p-4, bg-red-100, border e rounded-lg */}
+          <div className="mt-6 p-4 text-sm text-red-700 bg-red-100 rounded-lg border border-red-300">
             {error}
           </div>
         )}
@@ -317,8 +316,7 @@ const SolicitacaoExames = () => {
           />
         )}
 
-        {/* Filtros: Ajustado para usar classes de layout e tipografia consistentes */}
-        <div className="flex flex-col md:flex-row gap-4 mb-4"> {/* Reduzido mb-6 para mb-4 */}
+        <div className="flex flex-col md:flex-row gap-4 mt-6">
           <div className="flex-1">
             <label className="block text-sm font-semibold text-gray-700 mb-1">
               Nome do Paciente
@@ -457,14 +455,13 @@ const SolicitacaoExames = () => {
           </div>
         </div>
 
-        {/* Tabela de Solicitação de Exames */}
-        <div className="overflow-x-auto rounded-lg shadow-md"> {/* Adicionado rounded-lg shadow-md para a tabela */}
+        <div className="mt-6 overflow-x-auto rounded-lg shadow-md">
           {solicitacaoExames.length === 0 ? (
-            <p className="text-center text-gray-600 py-4 text-base font-medium bg-white"> {/* Adicionado bg-white aqui */}
+            <p className="text-center text-gray-500 py-4 text-sm bg-white">
               Nenhuma solicitação de exame encontrada.
             </p>
           ) : currentSolicitacoes.length === 0 ? (
-            <p className="text-center text-gray-600 py-4 text-base font-medium bg-white"> {/* Adicionado bg-white aqui */}
+            <p className="text-center text-gray-500 py-4 text-sm bg-white">
               Nenhuma solicitação encontrada com os filtros aplicados.
             </p>
           ) : (

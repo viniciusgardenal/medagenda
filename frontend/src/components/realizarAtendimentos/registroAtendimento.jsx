@@ -29,7 +29,7 @@ const formatarDataHoraBR = (dataHora) => {
 };
 
 const FilterSection = ({ filtros, setFiltros }) => (
-  <div className="flex gap-4">
+  <div className="flex flex-col md:flex-row gap-4 mt-6">
     <div className="flex-1">
       <label className="block text-sm font-semibold text-gray-700 mb-1">
         Buscar
@@ -46,8 +46,22 @@ const FilterSection = ({ filtros, setFiltros }) => (
 );
 
 const HeaderSection = () => (
-  <div className="border-b pb-4">
-    <h2 className="text-3xl font-bold text-blue-600">
+  <div className="border-b pb-4 flex justify-between items-center">
+    <h2 className="text-3xl font-bold text-blue-600 flex items-center gap-3">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className="h-8 w-8"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        strokeWidth="2"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
+        />
+      </svg>
       Registro de Atendimentos
     </h2>
   </div>
@@ -61,24 +75,24 @@ const TableRow = ({ item, onRegister, onView, onEdit, onDelete }) => {
 
   return (
     <tr className="hover:bg-blue-50 transition-colors">
-      <td className="px-4 py-3 text-sm text-gray-700">
+      <td className="px-6 py-3 text-sm text-gray-700 font-medium">
         {item.paciente?.nome} {item.paciente?.sobrenome}
       </td>
-      <td className="px-4 py-3 text-sm text-gray-700">
+      <td className="px-6 py-3 text-sm text-gray-700">
         {item.medico?.nome} (CRM: {item.medico?.crm})
       </td>
-      <td className="px-4 py-3 text-sm text-gray-700">
+      <td className="px-6 py-3 text-sm text-gray-700">
         {item.tipoConsulta?.nomeTipoConsulta || "N/A"}
       </td>
-      <td className="px-4 py-3 text-sm text-gray-700">{dataHora}</td>
-      <td className="px-4 py-3 text-sm text-gray-700">
+      <td className="px-6 py-3 text-sm text-gray-700">{dataHora}</td>
+      <td className="px-6 py-3 text-sm text-gray-700">
         {isConsulta ? item.motivo : item.diagnostico || "N/A"}
       </td>
-      <td className="px-4 py-3 flex gap-3">
+      <td className="px-6 py-3 flex gap-3">
         {isConsulta && item.status === "checkin_realizado" ? (
           <button
             onClick={() => onRegister(item)}
-            className="text-green-500 hover:text-green-700"
+            className="text-green-600 hover:text-green-700 transition-colors"
             title="Registrar Atendimento"
           >
             <FaPlus className="h-5 w-5" />
@@ -90,21 +104,21 @@ const TableRow = ({ item, onRegister, onView, onEdit, onDelete }) => {
                 console.log("Clicou em Visualizar:", item);
                 onView(item);
               }}
-              className="text-blue-500 hover:text-blue-700"
+              className="text-blue-600 hover:text-blue-700 transition-colors"
               title="Visualizar Atendimento"
             >
               <FaEye className="h-5 w-5" />
             </button>
             <button
               onClick={() => onEdit(item)}
-              className="text-yellow-500 hover:text-yellow-700"
+              className="text-blue-600 hover:text-blue-700 transition-colors"
               title="Editar Atendimento"
             >
               <FaEdit className="h-5 w-5" />
             </button>
             <button
               onClick={() => onDelete(item)}
-              className="text-red-500 hover:text-red-700"
+              className="text-red-600 hover:text-red-700 transition-colors"
               title="Excluir Atendimento"
             >
               <FaTrash className="h-5 w-5" />
@@ -133,7 +147,7 @@ const AtendimentoTable = ({
   const sortItems = (items) => {
     const fieldMap = {
       nome: (i) => i.paciente?.nome?.toLowerCase() || "",
-      medico: (i) =>
+      medicoufu: (i) =>
         `${i.medico?.nome} ${i.medico?.sobrenome}`.toLowerCase() || "",
       tipo: (i) => i.tipoConsulta?.nomeTipoConsulta?.toLowerCase() || "z",
       horario: (i) => (i.status ? i.horaConsulta : i.dataAtendimento),
@@ -155,13 +169,13 @@ const AtendimentoTable = ({
   );
 
   return isLoading ? (
-    <div className="text-center py-4 text-sm text-gray-500">
-      Carregando dados...
+    <div className="text-center py-3 text-sm text-gray-500 bg-white">
+      Carregando...
     </div>
   ) : (
     <>
-      <div className="overflow-x-auto rounded-lg shadow-md">
-        <table className="min-w-full divide-y divide-gray-200 bg-white">
+      <div className="mt-3 overflow-x-auto rounded-lg shadow-md">
+        <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-blue-600 text-white">
             <tr>
               {[
@@ -177,7 +191,7 @@ const AtendimentoTable = ({
                   <th
                     key={header}
                     onClick={() => fields[idx] && handleSort(fields[idx])}
-                    className={`px-4 py-3 text-left text-sm font-semibold cursor-pointer ${
+                    className={`px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider cursor-pointer ${
                       idx === 0 ? "rounded-tl-lg" : ""
                     } ${idx === 5 ? "rounded-tr-lg" : ""} ${
                       sortField === fields[idx] ? "bg-blue-700" : ""
@@ -205,7 +219,7 @@ const AtendimentoTable = ({
               ))
             ) : (
               <tr>
-                <td colSpan="6" className="px-4 py-4 text-center text-gray-500">
+                <td colSpan="6" className="px-6 py-4 text-center text-sm text-gray-500">
                   Nenhum registro encontrado.
                 </td>
               </tr>
@@ -214,13 +228,15 @@ const AtendimentoTable = ({
         </table>
       </div>
       {sorted.length > 0 && (
-        <Pagination
-          totalItems={sorted.length}
-          itemsPerPage={itemsPerPage}
-          currentPage={currentPage}
-          onPageChange={setCurrentPage}
-          maxPageButtons={5}
-        />
+        <div className="mt-6">
+          <Pagination
+            totalItems={sorted.length}
+            itemsPerPage={itemsPerPage}
+            currentPage={currentPage}
+            onPageChange={setCurrentPage}
+            maxPageButtons={5}
+          />
+        </div>
       )}
     </>
   );
@@ -385,12 +401,12 @@ const RegistroAtendimento = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-200 backdrop-blur-sm p-6">
-      <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-md p-6 space-y-6">
+    <div className="min-h-screen bg-gray-200 p-6">
+      <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-md p-6">
         <HeaderSection />
         <button
           onClick={handleDownloadRelatorio}
-          className="inline-flex items-center gap-2 rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700 transition"
+          className="inline-flex items-center mt-6 gap-2 rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700 transition-colors"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -409,7 +425,7 @@ const RegistroAtendimento = () => {
           Baixar Relatório de Atendimentos
         </button>
         {error && (
-          <div className="p-4 text-sm text-red-700 bg-red-100 rounded-lg border border-red-300">
+          <div className="mt-6 p-4 text-sm text-red-700 bg-red-100 rounded-lg border border-red-300">
             {error}
           </div>
         )}

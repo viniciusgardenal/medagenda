@@ -339,14 +339,14 @@ const GerenciarRegistroObitos = () => {
 
   return (
     <div className="min-h-screen bg-gray-200 p-6">
-      <section className="max-w-6xl mx-auto bg-white rounded-2xl shadow-md p-6 space-y-6">
+      <section className="max-w-6xl mx-auto bg-white rounded-2xl shadow-md p-6">
         <div className="border-b pb-4 flex justify-between items-center">
           <h2 className="text-3xl font-bold text-blue-600 flex items-center gap-3">
             Gerenciar Registro de Óbitos
           </h2>
           <button
             onClick={() => setIsAddModalOpen(true)}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700 transition-colors"
           >
             <FaPlus className="h-5 w-5" />
             Novo Registro
@@ -354,12 +354,12 @@ const GerenciarRegistroObitos = () => {
         </div>
 
         {error && (
-          <div className="bg-red-50 text-red-600 p-4 rounded-md text-sm font-medium">
+          <div className="mt-6 p-4 text-sm text-red-700 bg-red-100 rounded-lg border border-red-300">
             {error}
           </div>
         )}
 
-        <div className="flex flex-col md:flex-row gap-4 mb-6">
+        <div className="flex flex-col md:flex-row gap-4 mt-6">
           <div className="flex-1">
             <label className="block text-sm font-semibold text-gray-700 mb-1">
               Nome do Paciente
@@ -398,17 +398,17 @@ const GerenciarRegistroObitos = () => {
           </div>
         </div>
 
-        <div className="overflow-x-auto rounded-lg shadow-md">
+        <div className="mt-6 overflow-x-auto rounded-lg shadow-md">
           {isLoading ? (
-            <p className="text-center text-gray-600 py-4 text-base font-medium">
+            <p className="text-center text-gray-500 py-4 text-sm bg-white">
               Carregando registros...
             </p>
           ) : pacientes.length === 0 || profissionais.length === 0 ? (
-            <p className="text-center text-gray-600 py-4 text-base font-medium">
+            <p className="text-center text-gray-500 py-4 text-sm bg-white">
               Dados incompletos. Verifique a conexão com a API.
             </p>
           ) : obitosOrdenados.length === 0 ? (
-            <p className="text-center text-gray-600 py-4 text-base font-medium">
+            <p className="text-center text-gray-500 py-4 text-sm bg-white">
               Nenhum registro de óbito encontrado.
             </p>
           ) : (
@@ -430,7 +430,7 @@ const GerenciarRegistroObitos = () => {
                             ][index]
                           )
                         }
-                        className="px-6 py-3.5 text-left text-sm font-semibold uppercase tracking-wide cursor-pointer"
+                        className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider cursor-pointer"
                       >
                         {header}
                         {sortField ===
@@ -448,7 +448,7 @@ const GerenciarRegistroObitos = () => {
                       </th>
                     )
                   )}
-                  <th className="px-6 py-3.5 text-left text-sm font-semibold uppercase tracking-wide">
+                  <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">
                     Ações
                   </th>
                 </tr>
@@ -458,27 +458,27 @@ const GerenciarRegistroObitos = () => {
                   <tr>
                     <td
                       colSpan="6"
-                      className="px-6 py-4 text-center text-gray-600 text-base font-medium"
+                      className="px-6 py-4 text-center text-gray-500 text-sm"
                     >
                       Nenhum registro encontrado após filtragem.
                     </td>
                   </tr>
                 ) : (
                   currentObitos.map((obito) => (
-                    <tr key={obito.idRegistroObito} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4 text-sm text-gray-800 font-medium">
+                    <tr key={obito.idRegistroObito} className="hover:bg-blue-50 transition-colors">
+                      <td className="px-6 py-4 text-sm text-gray-700 font-medium">
                         {obito.idRegistroObito}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-800">
+                      <td className="px-6 py-4 text-sm text-gray-700">
                         {getPacienteNome(obito.cpfPaciente)}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-800">
+                      <td className="px-6 py-4 text-sm text-gray-700">
                         {getProfissionalNome(obito.matriculaProfissional)}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-800">
+                      <td className="px-6 py-4 text-sm text-gray-700">
                         {formatDate(obito.dataObito)}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-800">
+                      <td className="px-6 py-4 text-sm text-gray-700">
                         {obito.causaObito || "N/A"}
                       </td>
                       <td className="px-6 py-4 text-sm flex gap-3">

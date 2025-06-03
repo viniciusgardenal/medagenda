@@ -278,8 +278,8 @@ const gerarRelatorioAtendimentos = async (req, res) => {
           ? new Date(atendimento.dataAtendimento).toLocaleString("pt-BR")
           : "N/A",
         diagnostico: atendimento.diagnostico || "N/A",
-        prescrição: atendimento.prescrição || "N/A",
-        observações: atendimento.observações || "N/A",
+        prescrição: atendimento.prescricao || "N/A",
+        observações: atendimento.observacoes || "N/A",
       });
     });
 

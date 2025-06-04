@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import moment from "moment";
-import { FaStethoscope, FaFileMedical, FaCalendarAlt, FaInfoCircle, FaMapMarkerAlt, FaClipboardList, FaSave, FaTimes } from "react-icons/fa";
+import { FaStethoscope, FaFileMedical, FaCalendarAlt, FaInfoCircle, FaMapMarkerAlt, FaClipboardList, FaSave, FaTimes, FaUserMd } from "react-icons/fa"; // Added FaUserMd
 
 // Função para formatar CPF com pontuação
 const formatarCpfComPontuacao = (cpf) => {
+  if (!cpf) return "";
   const cpfLimpo = cpf.replace(/\D/g, "");
   if (cpfLimpo.length !== 11) return cpf;
   return `${cpfLimpo.slice(0, 3)}.${cpfLimpo.slice(3, 6)}.${cpfLimpo.slice(6, 9)}-${cpfLimpo.slice(9)}`;
@@ -14,13 +15,13 @@ const ModalEditObito = ({
   onClose,
   onSubmit,
   obito,
-  pacientes,
-  profissionais,
+  pacientes, // Lista de todos os pacientes para encontrar o nome
+  profissionais, // Lista de todos os profissionais
   isSaving,
 }) => {
   const [formData, setFormData] = useState({
-    cpfPaciente: "",
-    matriculaProfissional: "",
+    cpfPaciente: "", // Será preenchido pelo 'obito' e não será alterável
+    matriculaProfissional: "", // Será preenchido pelo 'obito' e não será alterável
     dataObito: "",
     causaObito: "",
     localObito: "",
@@ -28,23 +29,18 @@ const ModalEditObito = ({
     observacoes: "",
     status: "Ativo",
   });
+  const [displayPacienteInfo, setDisplayPacienteInfo] = useState("");
+  const [displayProfissionalInfo, setDisplayProfissionalInfo] = useState(""); // Novo estado para info do profissional
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
     if (obito) {
-      const normalizedCpf = obito.cpfPaciente ? obito.cpfPaciente.replace(/\D/g, "") : "";
-      const cpfComPontuacao = formatarCpfComPontuacao(normalizedCpf);
-      // Verificar se o CPF do obito existe na lista de pacientes
-      const pacienteExiste = pacientes.find(
-        (p) => p.cpf === cpfComPontuacao
-      );
-      console.log("CPF inicial do obito:", normalizedCpf, "Com pontuação:", cpfComPontuacao);
-      console.log("Paciente existe na lista?", !!pacienteExiste);
-      console.log("Lista de pacientes:", pacientes);
+      const cpfOriginalFormatado = formatarCpfComPontuacao(obito.cpfPaciente);
+      const originalMatriculaProfissional = obito.matriculaProfissional ? parseInt(obito.matriculaProfissional, 10).toString() : "";
 
       setFormData({
-        cpfPaciente: pacienteExiste ? cpfComPontuacao : (pacientes[0]?.cpf || ""),
-        matriculaProfissional: obito.matriculaProfissional || "",
+        cpfPaciente: cpfOriginalFormatado,
+        matriculaProfissional: originalMatriculaProfissional, // Armazena a matrícula original
         dataObito: obito.dataObito
           ? moment(obito.dataObito).format("YYYY-MM-DDTHH:mm")
           : "",
@@ -54,9 +50,30 @@ const ModalEditObito = ({
         observacoes: obito.observacoes || "",
         status: obito.status || "Ativo",
       });
+
+      // Encontra e define a informação do paciente para exibição
+      const pacienteInfo = pacientes.find(p => formatarCpfComPontuacao(p.cpf) === cpfOriginalFormatado);
+      if (pacienteInfo) {
+        setDisplayPacienteInfo(`${pacienteInfo.nome} ${pacienteInfo.sobrenome || ""} (${cpfOriginalFormatado})`);
+      } else {
+        setDisplayPacienteInfo(`CPF: ${cpfOriginalFormatado} (Informações do paciente não encontradas)`);
+      }
+
+      // Encontra e define a informação do profissional para exibição
+      if (originalMatriculaProfissional && profissionais) {
+        const profissionalInfo = profissionais.find(p => parseInt(p.matricula, 10).toString() === originalMatriculaProfissional);
+        if (profissionalInfo) {
+          setDisplayProfissionalInfo(`${profissionalInfo.nome} ${profissionalInfo.sobrenome || ""} (${originalMatriculaProfissional})`);
+        } else {
+          setDisplayProfissionalInfo(`Matrícula: ${originalMatriculaProfissional} (Profissional não encontrado na lista)`);
+        }
+      } else {
+        setDisplayProfissionalInfo("Profissional não informado ou lista indisponível");
+      }
+
       setErrors({});
     }
-  }, [obito, pacientes]);
+  }, [obito, pacientes, profissionais]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -66,22 +83,7 @@ const ModalEditObito = ({
 
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.cpfPaciente) {
-      newErrors.cpfPaciente = "CPF do paciente é obrigatório.";
-    } else {
-      const cpfComPontuacao = formatarCpfComPontuacao(formData.cpfPaciente);
-      if (!pacientes.find((p) => p.cpf === cpfComPontuacao)) {
-        newErrors.cpfPaciente = "CPF do paciente não encontrado.";
-      }
-    }
-    if (!formData.matriculaProfissional) {
-      newErrors.matriculaProfissional = "Matrícula do profissional é obrigatória.";
-    } else {
-      const normalizedMatricula = parseInt(formData.matriculaProfissional, 10).toString();
-      if (!profissionais.find((p) => parseInt(p.matricula, 10).toString() === normalizedMatricula)) {
-        newErrors.matriculaProfissional = "Profissional não encontrado.";
-      }
-    }
+    // Não há validação para cpfPaciente e matriculaProfissional aqui, pois são fixos.
     if (!formData.dataObito) newErrors.dataObito = "Data do óbito é obrigatória.";
     if (!formData.causaObito) newErrors.causaObito = "Causa do óbito é obrigatória.";
     if (!formData.localObito) newErrors.localObito = "Local do óbito é obrigatório.";
@@ -99,17 +101,16 @@ const ModalEditObito = ({
       return;
     }
 
-    const normalizedData = {
-      ...formData,
-      cpfPaciente: formatarCpfComPontuacao(formData.cpfPaciente), // Envia com pontuação
-      matriculaProfissional: parseInt(formData.matriculaProfissional, 10).toString(),
-      dataObito: moment(formData.dataObito).isValid()
-        ? moment(formData.dataObito).format("YYYY-MM-DD HH:mm")
-        : formData.dataObito,
+    // Envia formData diretamente. cpfPaciente e matriculaProfissional já estão corretos.
+    const submitData = {
+        ...formData,
+        // matriculaProfissional já está no formato correto em formData
+        dataObito: moment(formData.dataObito).isValid()
+            ? moment(formData.dataObito).format("YYYY-MM-DD HH:mm") // Formato esperado pelo backend
+            : formData.dataObito,
     };
-
-    console.log("Dados enviados para edição:", normalizedData);
-    onSubmit(obito.idRegistroObito, normalizedData);
+    console.log("Dados enviados para edição:", submitData);
+    onSubmit(obito.idRegistroObito, submitData);
   };
 
   if (!isOpen) return null;
@@ -117,109 +118,52 @@ const ModalEditObito = ({
   return (
     <div className="fixed inset-0 bg-gray-800 bg-opacity-60 flex items-center justify-center z-50">
       <div className="bg-white w-full max-w-3xl p-8 rounded-2xl shadow-2xl relative transform transition-all">
-        {/* Cabeçalho */}
         <div className="flex items-center gap-3 mb-6">
           <FaStethoscope className="h-8 w-8 text-blue-600" />
           <h2 className="text-2xl font-bold text-gray-800">Editar Registro de Óbito</h2>
         </div>
-
-        {/* Botão de fechar */}
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors"
           aria-label="Fechar modal"
           disabled={isSaving}
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M6 18L18 6M6 6l12 12"
-            />
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
-
-        {/* Formulário */}
         <form onSubmit={handleSubmit}>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-6">
-            {/* Paciente */}
             <div className="sm:col-span-2 border-b border-gray-200 pb-4">
               <label className="flex items-center gap-2 text-sm font-semibold text-gray-900">
                 <FaFileMedical className="h-4 w-4 text-blue-500" />
-                Paciente
+                Paciente (Não alterável)
               </label>
-              <select
-                name="cpfPaciente"
-                value={formData.cpfPaciente}
-                onChange={handleChange}
-                className={`mt-1 w-full px-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors ${
-                  errors.cpfPaciente ? "border-red-500" : "border-gray-300"
-                }`}
-                disabled={pacientes.length === 0 || isSaving}
-              >
-                {pacientes.length === 0 ? (
-                  <option value="">Nenhum paciente disponível</option>
-                ) : (
-                  <>
-                    <option value="">Selecione um paciente</option>
-                    {pacientes.map((paciente) => (
-                      <option key={paciente.cpf} value={paciente.cpf}>
-                        {`${paciente.nome} ${paciente.sobrenome || ""} (${paciente.cpf})`}
-                      </option>
-                    ))}
-                  </>
-                )}
-              </select>
-              {errors.cpfPaciente && (
-                <p className="text-red-500 text-xs mt-1 pl-6">{errors.cpfPaciente}</p>
-              )}
+              <input
+                type="text"
+                value={displayPacienteInfo}
+                className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg text-sm bg-gray-100 cursor-not-allowed"
+                disabled
+              />
             </div>
 
-            {/* Profissional */}
             <div className="sm:col-span-2 border-b border-gray-200 pb-4">
               <label className="flex items-center gap-2 text-sm font-semibold text-gray-900">
-                <FaFileMedical className="h-4 w-4 text-blue-500" />
-                Profissional Responsável
+                <FaUserMd className="h-4 w-4 text-blue-500" /> {/* Ícone alterado/adicionado */}
+                Profissional Responsável (Não alterável)
               </label>
-              <select
-                name="matriculaProfissional"
-                value={formData.matriculaProfissional}
-                onChange={handleChange}
-                className={`mt-1 w-full px-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors ${
-                  errors.matriculaProfissional ? "border-red-500" : "border-gray-300"
-                }`}
-                disabled={profissionais.length === 0 || isSaving}
-              >
-                {profissionais.length === 0 ? (
-                  <option value="">Nenhum profissional disponível</option>
-                ) : (
-                  <>
-                    <option value="">Selecione um profissional</option>
-                    {profissionais.map((profissional) => (
-                      <option key={profissional.matricula} value={profissional.matricula}>
-                        {`${profissional.nome} ${profissional.sobrenome || ""} (${profissional.matricula})`}
-                      </option>
-                    ))}
-                  </>
-                )}
-              </select>
-              {errors.matriculaProfissional && (
-                <p className="text-red-500 text-xs mt-1 pl-6">{errors.matriculaProfissional}</p>
-              )}
+              <input
+                type="text"
+                value={displayProfissionalInfo}
+                className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg text-sm bg-gray-100 cursor-not-allowed"
+                disabled
+              />
             </div>
 
-            {/* Data do Óbito */}
             <div>
               <label className="flex items-center gap-2 text-sm font-semibold text-gray-900">
                 <FaCalendarAlt className="h-4 w-4 text-blue-500" />
-                Data do Óbito
+                Data do Óbito <span className="text-red-500">*</span>
               </label>
               <input
                 type="datetime-local"
@@ -231,16 +175,13 @@ const ModalEditObito = ({
                 }`}
                 disabled={isSaving}
               />
-              {errors.dataObito && (
-                <p className="text-red-500 text-xs mt-1 pl-6">{errors.dataObito}</p>
-              )}
+              {errors.dataObito && <p className="text-red-500 text-xs mt-1 pl-1">{errors.dataObito}</p>}
             </div>
 
-            {/* Causa do Óbito */}
             <div>
               <label className="flex items-center gap-2 text-sm font-semibold text-gray-900">
                 <FaInfoCircle className="h-4 w-4 text-blue-500" />
-                Causa do Óbito
+                Causa do Óbito <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -252,16 +193,13 @@ const ModalEditObito = ({
                 }`}
                 disabled={isSaving}
               />
-              {errors.causaObito && (
-                <p className="text-red-500 text-xs mt-1 pl-6">{errors.causaObito}</p>
-              )}
+              {errors.causaObito && <p className="text-red-500 text-xs mt-1 pl-1">{errors.causaObito}</p>}
             </div>
 
-            {/* Local do Óbito */}
             <div>
               <label className="flex items-center gap-2 text-sm font-semibold text-gray-900">
                 <FaMapMarkerAlt className="h-4 w-4 text-blue-500" />
-                Local do Óbito
+                Local do Óbito <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -273,16 +211,13 @@ const ModalEditObito = ({
                 }`}
                 disabled={isSaving}
               />
-              {errors.localObito && (
-                <p className="text-red-500 text-xs mt-1 pl-6">{errors.localObito}</p>
-              )}
+              {errors.localObito && <p className="text-red-500 text-xs mt-1 pl-1">{errors.localObito}</p>}
             </div>
 
-            {/* Número do Atestado de Óbito */}
             <div>
               <label className="flex items-center gap-2 text-sm font-semibold text-gray-900">
                 <FaClipboardList className="h-4 w-4 text-blue-500" />
-                Nº Atestado de Óbito
+                Nº Atestado de Óbito <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -294,16 +229,13 @@ const ModalEditObito = ({
                 }`}
                 disabled={isSaving}
               />
-              {errors.numeroAtestadoObito && (
-                <p className="text-red-500 text-xs mt-1 pl-6">{errors.numeroAtestadoObito}</p>
-              )}
+              {errors.numeroAtestadoObito && <p className="text-red-500 text-xs mt-1 pl-1">{errors.numeroAtestadoObito}</p>}
             </div>
 
-            {/* Status */}
             <div>
               <label className="flex items-center gap-2 text-sm font-semibold text-gray-900">
                 <FaInfoCircle className="h-4 w-4 text-blue-500" />
-                Status
+                Status <span className="text-red-500">*</span>
               </label>
               <select
                 name="status"
@@ -317,7 +249,6 @@ const ModalEditObito = ({
               </select>
             </div>
 
-            {/* Observações */}
             <div className="sm:col-span-2 border-b border-gray-200 pb-4">
               <label className="flex items-center gap-2 text-sm font-semibold text-gray-900">
                 <FaInfoCircle className="h-4 w-4 text-blue-500" />
@@ -333,22 +264,15 @@ const ModalEditObito = ({
             </div>
           </div>
 
-          {/* Botões de Ação */}
           <div className="flex justify-end gap-4 mt-8">
-            <button
-              type="button"
-              onClick={onClose}
-              className="inline-flex items-center px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors text-sm disabled:opacity-50"
-              disabled={isSaving}
-              aria-label="Cancelar edição"
-            >
+            <button type="button" onClick={onClose} className="inline-flex items-center px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors text-sm disabled:opacity-50" disabled={isSaving} aria-label="Cancelar edição">
               <FaTimes className="h-4 w-4 mr-2" />
               Cancelar
             </button>
-            <button
-              type="submit"
-              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm disabled:opacity-50"
-              disabled={isSaving || pacientes.length === 0}
+            <button 
+              type="submit" 
+              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm disabled:opacity-50" 
+              disabled={isSaving} // O botão Salvar não depende mais de profissionais.length
               aria-label="Salvar alterações"
             >
               <FaSave className="h-4 w-4 mr-2" />

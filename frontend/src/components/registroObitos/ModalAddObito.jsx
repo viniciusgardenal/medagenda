@@ -9,8 +9,9 @@ const ModalAddObito = ({ isOpen, onClose, onSubmit, pacientes, profissionais, is
     localObito: "",
     numeroAtestadoObito: "",
     observacoes: "",
-    status: "Ativo",
+    status: "Ativo", // Status padrão
   });
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -19,6 +20,8 @@ const ModalAddObito = ({ isOpen, onClose, onSubmit, pacientes, profissionais, is
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    // Validação básica no frontend pode ser adicionada aqui se necessário,
+    // mas o backend já possui validações robustas.
     onSubmit(formData);
   };
 
@@ -34,7 +37,7 @@ const ModalAddObito = ({ isOpen, onClose, onSubmit, pacientes, profissionais, is
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <div className="space-y-1">
               <label className="block text-sm font-medium text-gray-700">
-                Paciente (CPF)
+                Paciente (CPF) <span className="text-red-500">*</span>
               </label>
               <select
                 name="cpfPaciente"
@@ -52,14 +55,14 @@ const ModalAddObito = ({ isOpen, onClose, onSubmit, pacientes, profissionais, is
                   ))
                 ) : (
                   <option value="" disabled>
-                    Nenhum paciente disponível
+                    Nenhum paciente disponível (Carregue a lista de pacientes)
                   </option>
                 )}
               </select>
             </div>
             <div className="space-y-1">
               <label className="block text-sm font-medium text-gray-700">
-                Profissional (Matrícula)
+                Profissional (Matrícula) <span className="text-red-500">*</span>
               </label>
               <select
                 name="matriculaProfissional"
@@ -77,14 +80,14 @@ const ModalAddObito = ({ isOpen, onClose, onSubmit, pacientes, profissionais, is
                   ))
                 ) : (
                   <option value="" disabled>
-                    Nenhum profissional disponível
+                    Nenhum profissional disponível (Carregue a lista de profissionais)
                   </option>
                 )}
               </select>
             </div>
             <div className="space-y-1">
               <label className="block text-sm font-medium text-gray-700">
-                Data do Óbito
+                Data do Óbito <span className="text-red-500">*</span>
               </label>
               <input
                 type="datetime-local"
@@ -97,7 +100,7 @@ const ModalAddObito = ({ isOpen, onClose, onSubmit, pacientes, profissionais, is
             </div>
             <div className="space-y-1">
               <label className="block text-sm font-medium text-gray-700">
-                Causa do Óbito
+                Causa do Óbito <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -110,7 +113,7 @@ const ModalAddObito = ({ isOpen, onClose, onSubmit, pacientes, profissionais, is
             </div>
             <div className="space-y-1">
               <label className="block text-sm font-medium text-gray-700">
-                Local do Óbito
+                Local do Óbito <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -123,7 +126,7 @@ const ModalAddObito = ({ isOpen, onClose, onSubmit, pacientes, profissionais, is
             </div>
             <div className="space-y-1">
               <label className="block text-sm font-medium text-gray-700">
-                Número do Atestado de Óbito
+                Número do Atestado de Óbito <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -143,12 +146,12 @@ const ModalAddObito = ({ isOpen, onClose, onSubmit, pacientes, profissionais, is
                 value={formData.observacoes}
                 onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                rows="4"
+                rows="3" // Ajustado para 3 linhas, pode ser o que preferir
               />
             </div>
             <div className="space-y-1">
               <label className="block text-sm font-medium text-gray-700">
-                Status
+                Status <span className="text-red-500">*</span>
               </label>
               <select
                 name="status"
@@ -173,7 +176,7 @@ const ModalAddObito = ({ isOpen, onClose, onSubmit, pacientes, profissionais, is
             <button
               type="submit"
               className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg text-sm"
-              disabled={isSaving}
+              disabled={isSaving || pacientes.length === 0 || profissionais.length === 0} // Desabilita se não houver pacientes/profissionais
             >
               {isSaving ? "Adicionando..." : "Adicionar"}
             </button>

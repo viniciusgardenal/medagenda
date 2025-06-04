@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { FaPlus } from "react-icons/fa";
 import ConfirmationModal from "../util/confirmationModal";
-import AlertMessage from "../util/alertMessage";
-import SuccessAlert from "../util/successAlert";
 import Pagination from "../util/Pagination";
 import {
   getPlanoDeSaude,
@@ -11,6 +10,7 @@ import {
 import ModalPlanoSaude from "./modalPlanoDeSaude";
 import TabelaPlanoSaude from "./tabelaPlanoDeSaude";
 import ModalEditarPlanoSaude from "./modalEditarPlanoDeSaude";
+import ModalDetalhesPlanoDeSaude from "./modalDetalhesPlanoDeSaude";
 
 const PlanoSaude = () => {
   const [planosSaude, setPlanosSaude] = useState([]);
@@ -23,16 +23,22 @@ const PlanoSaude = () => {
   const [showEditSuccessAlert, setShowEditSuccessAlert] = useState(false);
   const [isModalOpenEditar, setIsModalOpenEditar] = useState(false);
   const [planoSaudeSelecionado, setPlanoSaudeSelecionado] = useState(null);
+  const [isModalDetalhesOpen, setIsModalDetalhesOpen] = useState(false);
+  const [planoParaDetalhes, setPlanoParaDetalhes] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(8);
+  const [isLoading, setIsLoading] = useState(false);
 
   const loadPlanosSaude = async () => {
+    setIsLoading(true);
     try {
       const response = await getPlanoDeSaude();
       setPlanosSaude(response.data);
       setCurrentPage(1);
     } catch (error) {
       console.error("Erro ao carregar planos de saúde:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -93,6 +99,11 @@ const PlanoSaude = () => {
     }
   };
 
+  const handleDetalhes = (plano) => {
+    setPlanoParaDetalhes(plano);
+    setIsModalDetalhesOpen(true);
+  };
+
   const handleCloseModal = () => {
     setIsModalOpenEditar(false);
     setPlanoSaudeSelecionado(null);
@@ -106,79 +117,103 @@ const PlanoSaude = () => {
 
   return (
     <div className="min-h-screen bg-gray-200 p-6">
-      <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-md p-6 space-y-6">
-        <div className="border-b pb-4">
-          <h2 className="text-3xl font-bold text-blue-600">
+      <section className="max-w-6xl mx-auto bg-white rounded-2xl shadow-md p-6">
+        <div className="border-b pb-4 flex justify-between items-center">
+          <h2 className="text-3xl font-bold text-blue-600 flex items-center gap-3">
             Gerenciar Planos de Saúde
           </h2>
+          <button
+            onClick={() => setIsModalOpenAdd(true)}
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700 transition-colors"
+          >
+            <FaPlus className="h-5 w-5" />
+            Adicionar Plano de Saúde
+          </button>
         </div>
 
         {showAlert && (
-          <AlertMessage
-            message="Plano de saúde excluído com sucesso."
-            onClose={() => setShowAlert(false)}
-          />
+          <div className="mt-6 p-4 text-sm text-red-700 bg-red-100 rounded-lg border border-red-300">
+            Plano de saúde excluído com sucesso.
+          </div>
         )}
         {showSuccessAlert && (
-          <SuccessAlert
-            message="Plano de saúde adicionado com sucesso!"
-            onClose={() => setShowSuccessAlert(false)}
-          />
+          <div className="mt-6 p-4 text-sm text-green-700 bg-green-100 rounded-lg border border-green-200">
+            Plano de saúde adicionado com sucesso!
+          </div>
         )}
         {showEditSuccessAlert && (
-          <SuccessAlert
-            message="Plano de saúde editado com sucesso!"
-            onClose={() => setShowEditSuccessAlert(false)}
-          />
+          <div className="mt-6 p-4 text-sm text-green-700 bg-green-100 rounded-lg border border-green-200">
+            Plano de saúde editado com sucesso!
+          </div>
         )}
 
-        <div className="flex flex-col md:flex-row gap-4 mb-6">
-          <input
-            type="text"
-            value={filtro}
-            onChange={handleFiltroChange}
-            placeholder="Filtrar por operadora"
-            className="w-full md:w-1/2 px-4 py-2 border rounded-md"
-          />
-          <div className="flex-shrink-0">
-            <button
-              onClick={() => setIsModalOpenAdd(true)}
-              className="w-full md:w-auto px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 4v16m8-8H4"
-                />
-              </svg>
-              Adicionar Plano de Saúde
-            </button>
+        <div className="flex flex-col md:flex-row gap-4 mt-6">
+          <div className="flex-1">
+            <label className="block text-sm font-semibold text-gray-700 mb-1">
+              Busca por Nome da Operadora
+            </label>
+            <div className="relative">
+              <input
+                id="filtro"
+                type="text"
+                value={filtro}
+                onChange={handleFiltroChange}
+                className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                placeholder="Filtrar por operadora"
+              />
+              {filtro && (
+                <button
+                  onClick={() => handleFiltroChange({ target: { value: "" } })}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
-        <div className="overflow-x-auto rounded-lg shadow-md">
-          <TabelaPlanoSaude
-            planos={currentItems}
-            onExcluir={handleDelete}
-            onEditar={handleEditar}
-          />
+        <div className="mt-6 overflow-x-auto rounded-lg shadow-md">
+          {isLoading ? (
+            <p className="text-center text-gray-500 py-4 text-sm bg-white">
+              Carregando registros...
+            </p>
+          ) : planosSaudeFiltrados.length === 0 ? (
+            <p className="text-center text-gray-500 py-4 text-sm bg-white">
+              Nenhum plano de saúde encontrado.
+            </p>
+          ) : (
+            <TabelaPlanoSaude
+              planos={currentItems}
+              onExcluir={handleDelete}
+              onEditar={handleEditar}
+              onDetalhes={handleDetalhes}
+            />
+          )}
         </div>
 
-        <Pagination
-          totalItems={planosSaudeFiltrados.length}
-          itemsPerPage={itemsPerPage}
-          currentPage={currentPage}
-          onPageChange={handlePageChange}
-          maxPageButtons={5}
-        />
+        {planosSaudeFiltrados.length > 0 && (
+          <div className="mt-6">
+            <Pagination
+              totalItems={planosSaudeFiltrados.length}
+              itemsPerPage={itemsPerPage}
+              currentPage={currentPage}
+              onPageChange={handlePageChange}
+              maxPageButtons={5}
+            />
+          </div>
+        )}
 
         {isModalOpenAdd && (
           <ModalPlanoSaude
@@ -191,8 +226,19 @@ const PlanoSaude = () => {
           <ModalEditarPlanoSaude
             isOpen={isModalOpenEditar}
             onClose={handleCloseModal}
-            planoSaude={planoSaudeSelecionado}
+            plano={planoSaudeSelecionado}
             onUpdate={handleUpdatePlanoSaude}
+          />
+        )}
+        {isModalDetalhesOpen && planoParaDetalhes && (
+          <ModalDetalhesPlanoDeSaude
+            isOpen={isModalDetalhesOpen}
+            onClose={() => {
+              setIsModalDetalhesOpen(false);
+              setPlanoParaDetalhes(null);
+            }}
+            planoDeSaude={planoParaDetalhes}
+            onEditar={handleEditar}
           />
         )}
         {isModalOpen && (
@@ -200,9 +246,10 @@ const PlanoSaude = () => {
             isOpen={isModalOpen}
             onConfirm={confirmDelete}
             onCancel={() => setIsModalOpen(false)}
+            message="Deseja excluir este plano de saúde?"
           />
         )}
-      </div>
+      </section>
     </div>
   );
 };

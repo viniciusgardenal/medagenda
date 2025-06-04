@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
-import FiltroPacientes from "./filtroPacientes";
+import { FaPlus } from "react-icons/fa";
 import ConfirmationModal from "../util/confirmationModal";
-import AlertMessage from "../util/alertMessage";
-import SuccessAlert from "../util/successAlert";
 import {
   getPacientes,
   getPacientesId,
@@ -27,13 +25,13 @@ const Pacientes = () => {
   const [pacientesSelecionado, setPacientesSelecionado] = useState(null);
   const [isModalOpenDetalhes, setIsModalOpenDetalhes] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(8); // Número fixo de pacientes por página
+  const [itemsPerPage] = useState(8);
 
   const loadPacientes = async () => {
     try {
       const response = await getPacientes();
       setPacientes(response.data);
-      setCurrentPage(1); // Reseta para a primeira página ao carregar novos dados
+      setCurrentPage(1);
     } catch (error) {
       console.error("Erro ao carregar pacientes:", error);
     }
@@ -45,7 +43,7 @@ const Pacientes = () => {
 
   const handleFiltroChange = (e) => {
     setFiltro(e.target.value);
-    setCurrentPage(1); // Reseta para a primeira página ao mudar o filtro
+    setCurrentPage(1);
   };
 
   const pacientesFiltrados = pacientes.filter((paciente) => {
@@ -58,7 +56,6 @@ const Pacientes = () => {
     );
   });
 
-  // Calcular pacientes da página atual
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentPacientes = pacientesFiltrados.slice(
@@ -126,69 +123,74 @@ const Pacientes = () => {
 
   return (
     <div className="min-h-screen bg-gray-200 p-6">
-      <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-md p-6 space-y-6">
-        {/* Título */}
-        <div className="border-b pb-4">
-          <h2 className="text-3xl font-bold text-blue-600">
-            Pesquisar Pacientes
+      <section className="max-w-6xl mx-auto bg-white rounded-2xl shadow-md p-6">
+        <div className="border-b pb-4 flex justify-between items-center">
+          <h2 className="text-3xl font-bold text-blue-600 flex items-center gap-3">
+            Gerenciar Pacientes
           </h2>
+          <button
+            onClick={() => setIsModalOpenAdd(true)}
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700 transition-colors"
+          >
+            <FaPlus className="h-5 w-5" />
+            Adicionar Paciente
+          </button>
         </div>
 
-        {/* Alertas */}
         {showAlert && (
-          <AlertMessage
-            message="Item excluído com sucesso."
-            onClose={() => setShowAlert(false)}
-          />
+          <div className="mt-6 p-4 text-sm text-red-700 bg-red-100 rounded-lg border border-red-300">
+            Item excluído com sucesso.
+          </div>
         )}
         {showSuccessAlert && (
-          <SuccessAlert
-            message="Paciente adicionado com sucesso!"
-            onClose={() => setShowSuccessAlert(false)}
-          />
+          <div className="mt-6 p-4 text-sm text-green-700 bg-green-100 rounded-lg border border-red-300">
+            Paciente adicionado com sucesso!
+          </div>
         )}
         {showEditSuccessAlert && (
-          <SuccessAlert
-            message="Paciente editado com sucesso!"
-            onClose={() => setShowEditSuccessAlert(false)}
-          />
+          <div className="mt-6 p-4 text-sm text-green-700 bg-green-100 rounded-lg border border-red-300">
+            Paciente editado com sucesso!
+          </div>
         )}
 
-        {/* Bloco de filtro e botão */}
-        <div className="flex flex-col md:flex-row gap-4 mb-6">
-          <FiltroPacientes
-            filtro={filtro}
-            onFiltroChange={handleFiltroChange}
-          />
-          <div className="flex-shrink-0">
-            <label className="block text-sm font-semibold text-gray-700 mb-1 invisible">
-              Placeholder
+        <div className="flex flex-col md:flex-row gap-4 mt-6">
+          <div className="flex-1">
+            <label className="block text-sm font-semibold text-gray-700 mb-1">
+              Busca por CPF, Nome, Sobrenome ou Data de Nascimento
             </label>
-            <button
-              onClick={() => setIsModalOpenAdd(true)}
-              className="w-full md:w-auto px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 4v16m8-8H4"
-                />
-              </svg>
-              Adicionar Paciente
-            </button>
+            <div className="relative">
+              <input
+                id="filtro"
+                type="text"
+                value={filtro}
+                onChange={handleFiltroChange}
+                className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                placeholder="Filtrar por CPF, nome, sobrenome ou data de nascimento"
+              />
+              {filtro && (
+                <button
+                  onClick={() => handleFiltroChange({ target: { value: "" } })}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Tabela */}
-        <div className="overflow-x-auto rounded-lg shadow-md">
+        <div className="mt-6 overflow-x-auto rounded-lg shadow-md">
           <TabelaPacientes
             pacientes={currentPacientes}
             onExcluir={handleDelete}
@@ -197,16 +199,18 @@ const Pacientes = () => {
           />
         </div>
 
-        {/* Paginação */}
-        <Pagination
-          totalItems={pacientesFiltrados.length}
-          itemsPerPage={itemsPerPage}
-          currentPage={currentPage}
-          onPageChange={handlePageChange}
-          maxPageButtons={5}
-        />
+        {pacientesFiltrados.length > 0 && (
+          <div className="mt-6">
+            <Pagination
+              totalItems={pacientesFiltrados.length}
+              itemsPerPage={itemsPerPage}
+              currentPage={currentPage}
+              onPageChange={handlePageChange}
+              maxPageButtons={5}
+            />
+          </div>
+        )}
 
-        {/* Modais */}
         {isModalOpenAdd && (
           <ModalPacientes
             isOpen={isModalOpenAdd}
@@ -227,6 +231,7 @@ const Pacientes = () => {
             isOpen={isModalOpen}
             onConfirm={confirmDelete}
             onCancel={() => setIsModalOpen(false)}
+            message="Deseja excluir este paciente?"
           />
         )}
         {isModalOpenDetalhes && pacientesSelecionado && (
@@ -236,7 +241,7 @@ const Pacientes = () => {
             pacientes={pacientesSelecionado}
           />
         )}
-      </div>
+      </section>
     </div>
   );
 };

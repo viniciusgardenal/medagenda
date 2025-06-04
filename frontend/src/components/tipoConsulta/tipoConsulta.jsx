@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
-import FiltroTipoConsulta from "./filtroTipoConsulta";
+import { FaPlus } from "react-icons/fa";
 import ConfirmationModal from "../util/confirmationModal";
-import AlertMessage from "../util/alertMessage";
-import SuccessAlert from "../util/successAlert";
 import {
   getTipoConsulta,
   getTipoConsultaId,
@@ -12,7 +10,7 @@ import ModalTipoConsulta from "./modalTipoConsulta";
 import TabelaTipoConsulta from "./tabelaTipoConsulta";
 import ModalEditarTipoConsulta from "./modalEditarTipoConsulta";
 import ModalDetalhesTipoConsulta from "./modalDetalhesConsulta";
-import Pagination from "../util/Pagination"; // Importando o componente de paginação
+import Pagination from "../util/Pagination";
 
 const TipoConsulta = () => {
   const [tipoConsulta, setTipoConsulta] = useState([]);
@@ -27,13 +25,13 @@ const TipoConsulta = () => {
   const [tipoConsultaSelecionado, setTipoConsultaSelecionado] = useState(null);
   const [isModalOpenDetalhes, setIsModalOpenDetalhes] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(8); // 10 itens por página
+  const [itemsPerPage] = useState(8);
 
   const loadTipoConsulta = async () => {
     try {
       const response = await getTipoConsulta();
       setTipoConsulta(response.data);
-      setCurrentPage(1); // Resetar para a primeira página ao carregar novos dados
+      setCurrentPage(1);
     } catch (error) {
       console.error("Erro ao carregar tipos de consulta:", error);
     }
@@ -45,14 +43,13 @@ const TipoConsulta = () => {
 
   const handleFiltroChange = (e) => {
     setFiltro(e.target.value);
-    setCurrentPage(1); // Resetar para a primeira página ao mudar o filtro
+    setCurrentPage(1);
   };
 
   const tipoConsultaFiltrados = tipoConsulta.filter((tpc) =>
     tpc.nomeTipoConsulta.toLowerCase().includes(filtro.toLowerCase())
   );
 
-  // Calcular índices dos itens da página atual
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = tipoConsultaFiltrados.slice(
@@ -120,81 +117,99 @@ const TipoConsulta = () => {
 
   return (
     <div className="min-h-screen bg-gray-200 p-6">
-      <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-md p-6 space-y-6">
-        <div className="border-b pb-4">
-          <h2 className="text-3xl font-bold text-blue-600">
-            Pesquisar Tipos de Consultas
+      <section className="max-w-6xl mx-auto bg-white rounded-2xl shadow-md p-6">
+        <div className="border-b pb-4 flex justify-between items-center">
+          <h2 className="text-3xl font-bold text-blue-600 flex items-center gap-3">
+            Gerenciar Tipos de Consultas
           </h2>
+          <button
+            onClick={() => setIsModalOpenAdd(true)}
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700 transition-colors"
+          >
+            <FaPlus className="h-5 w-5" />
+            Adicionar Tipo de Consulta
+          </button>
         </div>
 
         {showAlert && (
-          <AlertMessage
-            message="Item excluído com sucesso."
-            onClose={() => setShowAlert(false)}
-          />
+          <div className="mt-6 p-4 text-sm text-red-700 bg-red-100 rounded-lg border border-red-300">
+            Item excluído com sucesso.
+          </div>
         )}
         {showSuccessAlert && (
-          <SuccessAlert
-            message="Tipo de consulta adicionado com sucesso!"
-            onClose={() => setShowSuccessAlert(false)}
-          />
+          <div className="mt-6 p-4 text-sm text-green-700 bg-green-100 rounded-lg border border-red-300">
+            Tipo de consulta adicionado com sucesso!
+          </div>
         )}
         {showEditSuccessAlert && (
-          <SuccessAlert
-            message="Tipo de consulta editado com sucesso!"
-            onClose={() => setShowEditSuccessAlert(false)}
-          />
+          <div className="mt-6 p-4 text-sm text-green-700 bg-green-100 rounded-lg border border-red-300">
+            Tipo de consulta editado com sucesso!
+          </div>
         )}
 
-        <div className="flex flex-col md:flex-row gap-4 mb-6">
-          <FiltroTipoConsulta
-            filtro={filtro}
-            onFiltroChange={handleFiltroChange}
-          />
-          <div className="flex-shrink-0">
-            <label className="block text-sm font-semibold text-gray-700 mb-1 invisible">
-              Placeholder
+        <div className="flex flex-col md:flex-row gap-4 mt-6">
+          <div className="flex-1">
+            <label className="block text-sm font-semibold text-gray-700 mb-1">
+              Busca por Nome do Tipo de Consulta
             </label>
-            <button
-              onClick={() => setIsModalOpenAdd(true)}
-              className="w-full md:w-auto px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 4v16m8-8H4"
-                />
-              </svg>
-              Adicionar Tipo de Consulta
-            </button>
+            <div className="relative">
+              <input
+                id="filtro"
+                type="text"
+                value={filtro}
+                onChange={handleFiltroChange}
+                className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                placeholder="Filtrar por nome do tipo de consulta"
+              />
+              {filtro && (
+                <button
+                  onClick={() => handleFiltroChange({ target: { value: "" } })}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
-        <div className="overflow-x-auto rounded-lg shadow-md">
-          <TabelaTipoConsulta
-            tpc={currentItems} // Passar apenas os itens da página atual
-            onExcluir={handleDelete}
-            onEditar={handleEditar}
-            onDetalhes={handleDetalhes}
-          />
+        <div className="mt-6 overflow-x-auto rounded-lg shadow-md">
+          {tipoConsultaFiltrados.length === 0 ? (
+            <p className="text-center text-gray-500 py-4 text-sm bg-white">
+              Nenhum tipo de consulta encontrado.
+            </p>
+          ) : (
+            <TabelaTipoConsulta
+              tpc={currentItems}
+              onExcluir={handleDelete}
+              onEditar={handleEditar}
+              onDetalhes={handleDetalhes}
+            />
+          )}
         </div>
 
-        {/* Componente de Paginação */}
-        <Pagination
-          totalItems={tipoConsultaFiltrados.length}
-          itemsPerPage={itemsPerPage}
-          currentPage={currentPage}
-          onPageChange={handlePageChange}
-          maxPageButtons={5} // Mostrar até 5 botões de página
-        />
+        {tipoConsultaFiltrados.length > 0 && (
+          <div className="mt-6">
+            <Pagination
+              totalItems={tipoConsultaFiltrados.length}
+              itemsPerPage={itemsPerPage}
+              currentPage={currentPage}
+              onPageChange={handlePageChange}
+              maxPageButtons={5}
+            />
+          </div>
+        )}
 
         {isModalOpenAdd && (
           <ModalTipoConsulta
@@ -216,6 +231,7 @@ const TipoConsulta = () => {
             isOpen={isModalOpen}
             onConfirm={confirmDelete}
             onCancel={() => setIsModalOpen(false)}
+            message="Deseja excluir este tipo de consulta?"
           />
         )}
         {isModalOpenDetalhes && tipoConsultaSelecionado && (
@@ -225,7 +241,7 @@ const TipoConsulta = () => {
             tipoConsulta={tipoConsultaSelecionado}
           />
         )}
-      </div>
+      </section>
     </div>
   );
 };

@@ -24,25 +24,34 @@ const lerPlanoDeSaude = async (req, res) => {
 const lerPlanoDeSaudeId = async (req, res) => {
   try {
     const id = req.params.id; // Captura o ID da requisição
-    const planoSaude = await planoDeSaude.findByPk(id); // Busca pelo plano de saúde com o ID
+    const planoSaudeEncontrado = await planoDeSaude.findByPk(id); // Busca pelo plano de saúde com o ID
 
-    const planoData = {
-      ...planoSaude.dataValues,
-      dataInicio: moment
-        .utc(planoSaude.dataInicio)
-        .add(1, "day")
-        .local()
-        .format("L"),
-      dataFim: moment.utc(planoSaude.dataFim).add(1, "day").local().format("L"),
-    };
-
-    if (planoData)
+    if (planoSaudeEncontrado) { // VERIFICAÇÃO PRIMEIRO
+      const planoData = {
+        ...planoSaudeEncontrado.dataValues,
+        // Formata as datas apenas se existirem, para evitar erros com datas nulas
+        dataInicio: planoSaudeEncontrado.dataInicio 
+          ? moment
+              .utc(planoSaudeEncontrado.dataInicio)
+              .add(1, "day") // A lógica de adicionar 1 dia pode precisar de revisão dependendo do fuso horário e armazenamento
+              .local()
+              .format("L") 
+          : null, // Ou undefined, ou string vazia, conforme a necessidade do frontend
+        dataFim: planoSaudeEncontrado.dataFim
+          ? moment
+              .utc(planoSaudeEncontrado.dataFim)
+              .add(1, "day") // A lógica de adicionar 1 dia pode precisar de revisão
+              .local()
+              .format("L")
+          : null,
+      };
       res.status(200).json(planoData); // Retorna o plano de saúde encontrado
-    else {
+    } else {
       res.status(404).json({ message: "Plano de Saúde não encontrado!" }); // Caso não encontre o plano
     }
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Erro em lerPlanoDeSaudeId:", error); // É bom logar o erro no servidor também
+    res.status(500).json({ error: error.message, detail: "Erro interno ao processar a solicitação do plano de saúde." });
   }
 };
 

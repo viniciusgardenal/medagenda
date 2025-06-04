@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
-import FiltroMedicamentos from "./filtroMedicamentos";
+import { FaPlus } from "react-icons/fa";
 import ConfirmationModal from "../util/confirmationModal";
-import AlertMessage from "../util/alertMessage";
-import SuccessAlert from "../util/successAlert";
 import {
   getMedicamentos,
   getMedicamentosId,
@@ -14,7 +12,6 @@ import TabelaMedicamentos from "./tabelaMedicamentos";
 import ModalEditarMedicamentos from "./modalEditarMedicamentos";
 import ModalDetalhesMedicamentos from "./modalDetalhesMedicamentos";
 import Pagination from "../util/Pagination";
-import { FaPlus } from "react-icons/fa";
 
 const Medicamentos = () => {
   const [medicamentos, setMedicamentos] = useState([]);
@@ -209,8 +206,7 @@ const Medicamentos = () => {
 
   return (
     <div className="min-h-screen bg-gray-200 p-6">
-      <section className="max-w-6xl mx-auto bg-white rounded-2xl shadow-md p-6 space-y-6">
-        {/* Título e Botão Adicionar */}
+      <section className="max-w-6xl mx-auto bg-white rounded-2xl shadow-md p-6">
         <div className="border-b pb-4 flex justify-between items-center">
           <h2 className="text-3xl font-bold text-blue-600 flex items-center gap-3">
             Gerenciar Medicamentos
@@ -218,50 +214,69 @@ const Medicamentos = () => {
           <button
             onClick={() => setIsModalOpenAdd(true)}
             disabled={isSaving}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700 transition-colors disabled:opacity-50"
           >
             <FaPlus className="h-5 w-5" />
             Novo Medicamento
           </button>
         </div>
 
-        {/* Mensagem de Erro */}
         {error && (
-          <div className="bg-red-50 text-red-600 p-4 rounded-md text-sm font-medium">
+          <div className="mt-6 p-4 text-sm text-red-700 bg-red-100 rounded-lg border border-red-300">
             {error}
           </div>
         )}
 
-        {/* Alertas */}
         {showAlert && (
-          <AlertMessage
-            message="Medicamento excluído com sucesso."
-            onClose={() => setShowAlert(false)}
-          />
+          <div className="mt-6 p-4 text-sm text-red-700 bg-red-100 rounded-lg border border-red-300">
+            Medicamento excluído com sucesso.
+          </div>
         )}
         {showSuccessAlert && (
-          <SuccessAlert
-            message="Medicamento adicionado com sucesso!"
-            onClose={() => setShowSuccessAlert(false)}
-          />
+          <div className="mt-6 p-4 text-sm text-green-700 bg-green-100 rounded-lg border border-red-300">
+            Medicamento adicionado com sucesso!
+          </div>
         )}
         {showEditSuccessAlert && (
-          <SuccessAlert
-            message="Medicamento editado com sucesso!"
-            onClose={() => setShowEditSuccessAlert(false)}
-          />
+          <div className="mt-6 p-4 text-sm text-green-700 bg-green-100 rounded-lg border border-red-300">
+            Medicamento editado com sucesso!
+          </div>
         )}
 
-        {/* Filtro e Botão Exportar */}
-        <div className="flex flex-col md:flex-row gap-4 mb-6">
+        <div className="flex flex-col md:flex-row gap-4 mt-6">
           <div className="flex-1">
             <label className="block text-sm font-semibold text-gray-700 mb-1">
               Pesquisar Medicamento
             </label>
-            <FiltroMedicamentos
-              filtro={filtro}
-              onFiltroChange={handleFiltroChange}
-            />
+            <div className="relative">
+              <input
+                id="filtro"
+                type="text"
+                value={filtro}
+                onChange={handleFiltroChange}
+                className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                placeholder="Filtrar por nome, fabricante ou descrição"
+              />
+              {filtro && (
+                <button
+                  onClick={() => handleFiltroChange({ target: { value: "" } })}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </button>
+              )}
+            </div>
           </div>
           <div className="flex-1">
             <label className="block text-sm font-semibold text-gray-700 mb-1 invisible">
@@ -270,7 +285,7 @@ const Medicamentos = () => {
             <button
               onClick={handleExportExcel}
               disabled={isSaving}
-              className="w-full md:w-auto px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-green-700 transition-colors disabled:opacity-50"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -291,14 +306,13 @@ const Medicamentos = () => {
           </div>
         </div>
 
-        {/* Tabela */}
-        <div className="overflow-x-auto rounded-lg shadow-md">
+        <div className="mt-6 overflow-x-auto rounded-lg shadow-md">
           {isLoading ? (
-            <p className="text-center text-gray-600 py-4 text-base font-medium">
+            <p className="text-center text-gray-500 py-4 text-sm bg-white">
               Carregando registros...
             </p>
           ) : medicamentosOrdenados.length === 0 ? (
-            <p className="text-center text-gray-600 py-4 text-base font-medium">
+            <p className="text-center text-gray-500 py-4 text-sm bg-white">
               Nenhum medicamento encontrado.
             </p>
           ) : (
@@ -314,7 +328,6 @@ const Medicamentos = () => {
           )}
         </div>
 
-        {/* Paginação */}
         {medicamentosOrdenados.length > 0 && (
           <div className="mt-6">
             <Pagination
@@ -327,7 +340,6 @@ const Medicamentos = () => {
           </div>
         )}
 
-        {/* Modais */}
         {isModalOpenAdd && (
           <ModalMedicamentos
             isOpen={isModalOpenAdd}

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { FaPlus } from "react-icons/fa";
 import ConfirmationModal from "../util/confirmationModal";
 import AlertMessage from "../util/alertMessage";
 import SuccessAlert from "../util/successAlert";
@@ -8,7 +9,6 @@ import {
   excluirProfissional,
 } from "../../config/apiServices";
 import ModalProfissional from "./modalProfissional";
-import TabelaProfissionais from "../profissionais/tabelaProfissionais";
 import ModalEditarProfissional from "./modalEditarProfissional";
 import ModalDetalhesProfissional from "./modalDetalhesProfissional";
 import Pagination from "../util/Pagination";
@@ -26,13 +26,15 @@ const Profissionais = () => {
   const [profissionalSelecionado, setProfissionalSelecionado] = useState(null);
   const [isModalOpenDetalhes, setIsModalOpenDetalhes] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(8); // Número fixo de profissionais por página
+  const [itemsPerPage] = useState(8);
+  const [sortField, setSortField] = useState("nome");
+  const [sortDirection, setSortDirection] = useState("asc");
 
   const loadProfissionais = async () => {
     try {
       const response = await getProfissionais();
-      setProfissionais(response.data);
-      setCurrentPage(1); // Reseta para a primeira página ao carregar novos dados
+      setProfissionais(response.data || []);
+      setCurrentPage(1);
     } catch (error) {
       console.error("Erro ao carregar profissionais:", error);
     }
@@ -44,7 +46,38 @@ const Profissionais = () => {
 
   const handleFiltroChange = (e) => {
     setFiltro(e.target.value);
-    setCurrentPage(1); // Reseta para a primeira página ao mudar o filtro
+    setCurrentPage(1);
+  };
+
+  const sortProfissionais = (profissionais) => {
+    return [...profissionais].sort((a, b) => {
+      const fieldMap = {
+        nome: (item) => item.nome.toLowerCase(),
+        email: (item) => item.email.toLowerCase(),
+        telefone: (item) => item.telefone,
+        tipoProfissional: (item) => item.tipoProfissional.toLowerCase(),
+        dataNascimento: (item) => new Date(item.dataNascimento).valueOf(),
+      };
+      const valueA = fieldMap[sortField](a);
+      const valueB = fieldMap[sortField](b);
+
+      const direction = sortDirection === "asc" ? 1 : -1;
+
+      if (sortField === "dataNascimento") {
+        return (valueA - valueB) * direction;
+      }
+      return valueA.localeCompare(valueB) * direction;
+    });
+  };
+
+  const handleSort = (field) => {
+    if (field === sortField) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortField(field);
+      setSortDirection("asc");
+    }
+    setCurrentPage(1);
   };
 
   const profissionaisFiltrados = profissionais.filter((profissional) => {
@@ -58,10 +91,10 @@ const Profissionais = () => {
     );
   });
 
-  // Calcular profissionais da página atual
+  const profissionaisOrdenados = sortProfissionais(profissionaisFiltrados);
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentProfissionais = profissionaisFiltrados.slice(
+  const currentProfissionais = profissionaisOrdenados.slice(
     indexOfFirstItem,
     indexOfLastItem
   );
@@ -128,36 +161,37 @@ const Profissionais = () => {
 
   return (
     <div className="min-h-screen bg-gray-200 p-6">
-      <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-md p-6 space-y-6">
-        {/* Título */}
-        <div className="border-b pb-4">
-          <h2 className="text-3xl font-bold text-blue-600">
-            Pesquisar Profissionais
+      <section className="max-w-6xl mx-auto bg-white rounded-2xl shadow-md p-6">
+        <div className="border-b pb-4 flex justify-between items-center">
+          <h2 className="text-3xl font-bold text-blue-600 flex items-center gap-3">
+            Gerenciar Profissionais
           </h2>
+          <button
+            onClick={() => setIsModalOpenAdd(true)}
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700 transition-colors"
+          >
+            <FaPlus className="h-5 w-5" />
+            Cadastrar Profissional
+          </button>
         </div>
 
-        {/* Alertas */}
         {showAlert && (
-          <AlertMessage
-            message="Excluído com sucesso."
-            onClose={() => setShowAlert(false)}
-          />
+          <div className="mt-6 p-4 text-sm text-red-700 bg-red-100 rounded-lg border border-red-300">
+            Excluído com sucesso.
+          </div>
         )}
         {showSuccessAlert && (
-          <SuccessAlert
-            message="Adicionado com sucesso!"
-            onClose={() => setShowSuccessAlert(false)}
-          />
+          <div className="mt-6 p-4 text-sm text-green-700 bg-green-100 rounded-lg border border-green-300">
+            Adicionado com sucesso!
+          </div>
         )}
         {showEditSuccessAlert && (
-          <SuccessAlert
-            message="Editado com sucesso!"
-            onClose={() => setShowEditSuccessAlert(false)}
-          />
+          <div className="mt-6 p-4 text-sm text-green-700 bg-green-100 rounded-lg border border-green-300">
+            Editado com sucesso!
+          </div>
         )}
 
-        {/* Bloco de filtro e botão */}
-        <div className="flex flex-col md:flex-row gap-4 mb-6">
+        <div className="flex flex-col md:flex-row gap-4 mt-6">
           <div className="flex-1">
             <label className="block text-sm font-semibold text-gray-700 mb-1">
               Busca por Nome, E-mail, Telefone ou Profissional
@@ -169,7 +203,7 @@ const Profissionais = () => {
                 value={filtro}
                 onChange={handleFiltroChange}
                 className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-                placeholder="Digite para buscar..."
+                placeholder="Filtrar por nome, e-mail, telefone ou profissional"
               />
               {filtro && (
                 <button
@@ -192,60 +226,164 @@ const Profissionais = () => {
               )}
             </div>
           </div>
-          <div className="flex-shrink-0">
-            <label className="block text-sm font-semibold text-gray-700 mb-1 invisible">
-              Placeholder
-            </label>
-            <button
-              onClick={() => setIsModalOpenAdd(true)}
-              className="w-full md:w-auto px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 4v16m8-8H4"
-                />
-              </svg>
-              Cadastrar Profissional
-            </button>
+        </div>
+
+        <div className="mt-6 overflow-x-auto rounded-lg shadow-md">
+          {profissionais.length === 0 ? (
+            <p className="text-center text-gray-500 py-4 text-sm bg-white">
+              Nenhum profissional encontrado.
+            </p>
+          ) : (
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-blue-600 text-white">
+                <tr>
+                  {["Nome", "E-mail", "Telefone", "Tipo Profissional", "Data de Nascimento"].map(
+                    (header, index) => (
+                      <th
+                        key={header}
+                        onClick={() =>
+                          handleSort(
+                            ["nome", "email", "telefone", "tipoProfissional", "dataNascimento"][index]
+                          )
+                        }
+                        className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider cursor-pointer"
+                      >
+                        {header}
+                        {sortField ===
+                          ["nome", "email", "telefone", "tipoProfissional", "dataNascimento"][index] && (
+                          <span className="ml-2">
+                            {sortDirection === "asc" ? "↑" : "↓"}
+                          </span>
+                        )}
+                      </th>
+                    )
+                  )}
+                  <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">
+                    Ações
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {currentProfissionais.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan="6"
+                      className="px-6 py-4 text-center text-gray-500 text-sm"
+                    >
+                      Nenhum profissional encontrado após filtragem.
+                    </td>
+                  </tr>
+                ) : (
+                  currentProfissionais.map((profissional) => (
+                    <tr key={profissional.matricula} className="hover:bg-blue-50 transition-colors">
+                      <td className="px-6 py-4 text-sm text-gray-700 font-medium">
+                        {profissional.nome}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-700">
+                        {profissional.email}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-700">
+                        {profissional.telefone}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-700">
+                        {profissional.tipoProfissional}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-700">
+                        {profissional.dataNascimento}
+                      </td>
+                      <td className="px-6 py-4 text-sm flex gap-3">
+                        <button
+                          onClick={() => handleDetalhes(profissional.matricula)}
+                          className="text-blue-600 hover:text-blue-700 transition-colors"
+                          title="Ver Detalhes"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-5 w-5"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                            />
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                            />
+                          </svg>
+                        </button>
+                        <button
+                          onClick={() => handleEditar(profissional.matricula)}
+                          className="text-yellow-500 hover:text-yellow-700 transition-colors"
+                          title="Editar Profissional"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-5 w-5"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                            />
+                          </svg>
+                        </button>
+                        <button
+                          onClick={() => handleDelete(profissional.matricula)}
+                          className="text-red-600 hover:text-red-700 transition-colors"
+                          title="Excluir Profissional"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-5 w-5"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5-4h4m-4 4v12m4-12v12"
+                            />
+                          </svg>
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          )}
+        </div>
+
+        {profissionaisOrdenados.length > 0 && (
+          <div className="mt-6">
+            <Pagination
+              totalItems={profissionaisOrdenados.length}
+              itemsPerPage={itemsPerPage}
+              currentPage={currentPage}
+              onPageChange={handlePageChange}
+              maxPageButtons={5}
+            />
           </div>
-        </div>
-
-        {/* Tabela */}
-        <div className="overflow-x-auto rounded-lg shadow-md">
-          <TabelaProfissionais
-            profissionais={currentProfissionais}
-            onExcluir={handleDelete}
-            onEditar={handleEditar}
-            onDetalhes={handleDetalhes}
-          />
-        </div>
-
-        {/* Paginação */}
-        <Pagination
-          totalItems={profissionaisFiltrados.length}
-          itemsPerPage={itemsPerPage}
-          currentPage={currentPage}
-          onPageChange={handlePageChange}
-          maxPageButtons={5}
-        />
-
-        {/* Modais */}
-        {isModalOpenAdd && (
-          <ModalProfissional
-            isOpen={isModalOpenAdd}
-            onClose={() => setIsModalOpenAdd(false)}
-            onSave={handleSave}
-          />
         )}
+
+        <ModalProfissional
+          isOpen={isModalOpenAdd}
+          onClose={() => setIsModalOpenAdd(false)}
+          onSave={handleSave}
+        />
         {isModalOpenEditar && profissionalSelecionado && (
           <ModalEditarProfissional
             isOpen={isModalOpenEditar}
@@ -259,6 +397,7 @@ const Profissionais = () => {
             isOpen={isModalOpen}
             onConfirm={confirmDelete}
             onCancel={() => setIsModalOpen(false)}
+            message="Deseja excluir este profissional?"
           />
         )}
         {isModalOpenDetalhes && profissionalSelecionado && (
@@ -268,7 +407,7 @@ const Profissionais = () => {
             profissional={profissionalSelecionado}
           />
         )}
-      </div>
+      </section>
     </div>
   );
 };

@@ -8,7 +8,23 @@ import ModalAddObservacao from "./modalAddObservacao";
 import ModalViewObservacao from "./ModalViewObservacao";
 import FiltroRegistroResultadoExames from "./filtroRegistroResultadoExames";
 import Pagination from "../util/Pagination";
-import { FaPlus, FaEdit, FaEye, FaCheckCircle, FaSyncAlt, FaFileMedical } from "react-icons/fa";
+// FaEdit e FaEye serão substituídos por SVGs. FaSyncAlt parece não utilizado.
+import { FaPlus, FaCheckCircle, /*FaEdit, FaEye, FaSyncAlt,*/ FaFileMedical } from "react-icons/fa";
+
+// Componente SVG para o ícone de Visualizar
+const ViewIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+  </svg>
+);
+
+// Componente SVG para o ícone de Editar
+const EditIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+  </svg>
+);
 
 // Componente para cada linha da tabela
 const TableRow = ({ registro, onAdd, onEdit, onView }) => {
@@ -16,52 +32,52 @@ const TableRow = ({ registro, onAdd, onEdit, onView }) => {
     registro.observacoes && registro.observacoes.trim() !== "";
 
   return (
-    <tr className="hover:bg-gray-100 transition-colors">
-      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{registro.idRegistro}</td>
-      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+    <tr className="hover:bg-blue-50 transition-colors">
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 font-medium">{registro.idRegistro}</td>
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
         {registro.solicitacaoExame?.tipoExame.nomeTipoExame || "N/A"}
       </td>
-      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
         {new Date(registro.solicitacaoExame.dataSolicitacao).toLocaleDateString("pt-BR")}
       </td>
-      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
         {registro.profissional.nome || "N/A"}
       </td>
-      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
         {registro.paciente.nome || "N/A"}
       </td>
-      <td className="px-4 py-3 whitespace-nowrap">
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
         {resultadoDefinido ? (
-          <span className="inline-flex items-center gap-1 rounded-full bg-green-600 px-2 py-1 text-sm font-semibold text-white shadow">
+          <span className="inline-flex items-center gap-1 rounded-full bg-green-600 px-2 py-1 text-xs font-semibold text-white shadow-sm">
             <FaCheckCircle className="h-4 w-4" />
             Registrado
           </span>
         ) : (
           <button
             onClick={() => onAdd(registro)}
-            className="inline-flex items-center gap-1 rounded-full bg-orange-600 px-2 py-1 text-sm font-semibold text-white shadow hover:bg-orange-700 transition"
+            className="inline-flex items-center gap-1 rounded-full bg-orange-500 px-2 py-1 text-xs font-semibold text-white shadow-sm hover:bg-orange-600 transition"
           >
             <FaPlus className="h-4 w-4" />
             Definir
           </button>
         )}
       </td>
-      <td className="px-4 py-3 whitespace-nowrap flex gap-2">
+      <td className="px-6 py-4 whitespace-nowrap text-sm flex gap-3">
         <button
           onClick={() => onEdit(registro)}
-          className="text-green-500 hover:text-green-700"
+          className="text-yellow-500 hover:text-yellow-700 transition-colors"
           title="Editar Resultado"
           aria-label="Editar resultado do exame"
         >
-          <FaEdit className="h-5 w-5" />
+          <EditIcon />
         </button>
         <button
           onClick={() => onView(registro)}
-          className="text-blue-500 hover:text-blue-700"
+          className="text-blue-600 hover:text-blue-700 transition-colors"
           title="Visualizar Resultado"
           aria-label="Visualizar resultado do exame"
         >
-          <FaEye className="h-5 w-5" />
+          <ViewIcon />
         </button>
       </td>
     </tr>
@@ -101,66 +117,54 @@ const RegistroResultadoExames = () => {
     fetchData();
   }, []);
 
-  const sortRegistros = (registros) => {
-    return [...registros].sort((a, b) => {
+  const sortRegistros = (registrosToSort) => {
+    return [...registrosToSort].sort((a, b) => {
       let valueA, valueB;
       const fieldMap = {
         idRegistro: (item) => item.idRegistro,
-        nomeExame: (item) => item.solicitacaoExame?.tipoExame.nomeTipoExame.toLowerCase() || "",
-        dataSolicitacao: (item) =>
-          new Date(item.solicitacaoExame.dataSolicitacao),
-        profissional: (item) => item.profissional.nome.toLowerCase() || "",
-        paciente: (item) => item.paciente.nome.toLowerCase() || "",
-        status: (item) =>
-          item.observacoes && item.observacoes.trim() !== ""
-            ? "registrado"
-            : "definir",
+        nomeExame: (item) => (item.solicitacaoExame?.tipoExame.nomeTipoExame || "").toLowerCase(),
+        dataSolicitacao: (item) => new Date(item.solicitacaoExame.dataSolicitacao),
+        profissional: (item) => (item.profissional.nome || "").toLowerCase(),
+        paciente: (item) => (item.paciente.nome || "").toLowerCase(),
+        status: (item) => (item.observacoes && item.observacoes.trim() !== "" ? "registrado" : "definir"),
       };
-      valueA = fieldMap[sortField](a);
-      valueB = fieldMap[sortField](b);
-      if (sortField === "dataSolicitacao") {
-        return sortDirection === "asc" ? valueA - valueB : valueB - valueA;
-      }
+
+      valueA = fieldMap[sortField] ? fieldMap[sortField](a) : (sortField === "idRegistro" ? 0 : (sortField === "dataSolicitacao" ? new Date(0) : ""));
+      valueB = fieldMap[sortField] ? fieldMap[sortField](b) : (sortField === "idRegistro" ? 0 : (sortField === "dataSolicitacao" ? new Date(0) : ""));
+      
       const direction = sortDirection === "asc" ? 1 : -1;
-      return valueA > valueB ? direction : -direction;
+
+      if (sortField === "dataSolicitacao") {
+        return (valueA.getTime() - valueB.getTime()) * direction;
+      }
+      if (typeof valueA === 'number' && typeof valueB === 'number') {
+        return (valueA - valueB) * direction;
+      }
+      return String(valueA).localeCompare(String(valueB)) * direction;
     });
   };
 
   const handleFiltroChange = (novosFiltros) => {
     setFiltros(novosFiltros);
-    setCurrentPage(1); // Resetar a página ao mudar os filtros
+    setCurrentPage(1);
   };
 
   const registrosFiltrados = registros.filter((registro) => {
     const { filtroId, filtroNome, filtroNomeExame } = filtros;
 
-    // Filtro por ID
     const idMatch = filtroId
-      ? String(registro.idRegistro)
-          .toLowerCase()
-          .includes(filtroId.toLowerCase()) ||
-        String(registro.solicitacaoExame.idSolicitacaoExame)
-          .toLowerCase()
-          .includes(filtroId.toLowerCase())
+      ? String(registro.idRegistro).toLowerCase().includes(filtroId.toLowerCase()) ||
+        String(registro.solicitacaoExame.idSolicitacaoExame).toLowerCase().includes(filtroId.toLowerCase())
       : true;
 
-    // Filtro por nome (profissional, paciente ou observações)
     const nomeMatch = filtroNome
-      ? registro.profissional.nome
-          .toLowerCase()
-          .includes(filtroNome.toLowerCase()) ||
-        registro.paciente.nome
-          .toLowerCase()
-          .includes(filtroNome.toLowerCase()) ||
-        (registro.observacoes &&
-          registro.observacoes.toLowerCase().includes(filtroNome.toLowerCase()))
+      ? (registro.profissional.nome || "").toLowerCase().includes(filtroNome.toLowerCase()) ||
+        (registro.paciente.nome || "").toLowerCase().includes(filtroNome.toLowerCase()) ||
+        (registro.observacoes && registro.observacoes.toLowerCase().includes(filtroNome.toLowerCase()))
       : true;
 
-    // Filtro por nome do exame
     const nomeExameMatch = filtroNomeExame
-      ? registro.solicitacaoExame?.tipoExame.nomeTipoExame
-          .toLowerCase()
-          .includes(filtroNomeExame.toLowerCase())
+      ? (registro.solicitacaoExame?.tipoExame.nomeTipoExame || "").toLowerCase().includes(filtroNomeExame.toLowerCase())
       : true;
 
     return idMatch && nomeMatch && nomeExameMatch;
@@ -194,8 +198,10 @@ const RegistroResultadoExames = () => {
       await atualizarRegistroResultadoExame(idRegistro, {
         observacoes: observacaoEditada,
       });
-      const response = await getRegistrosInativosResultadoExames();
-      setRegistros(response.data.data || []);
+      // Re-fetch data to get the updated list including the one just changed
+      // Note: getRegistrosInativosResultadoExames might not return it if it became "ativo" implicitly by having observacoes.
+      // For simplicity, we call fetchData() which re-fetches all.
+      fetchData(); 
       setModalAddOpen(false);
       setModalEditOpen(false);
       setObservacaoEditada("");
@@ -237,116 +243,90 @@ const RegistroResultadoExames = () => {
 
   const examesRegistrados = registros.length - examesPendentes;
 
+  const tableHeaders = ["ID Registro", "Nome do Exame", "Data da Solicitação", "Profissional", "Paciente", "Status Resultado", "Ações"];
+  const sortableFields = ["idRegistro", "nomeExame", "dataSolicitacao", "profissional", "paciente", "status" /* Status para ordenação */];
+
+
   return (
-    <section className="max-w-6xl mx-auto mt-6 px-4 py-6 bg-gray-50 rounded-2xl shadow-lg">
-      {/* Cabeçalho */}
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-blue-600 flex items-center gap-2">
-          <FaFileMedical className="h-6 w-6" />
-          Resultados de Exames
-        </h2>
-      </div>
-
-      {/* Mensagem de Erro */}
-      {error && (
-        <div className="bg-red-100 text-red-700 p-3 rounded-lg mb-4 text-sm">
-          {error}
+    <div className="min-h-screen bg-gray-200 p-6">
+      <section className="max-w-6xl mx-auto bg-white rounded-2xl shadow-md p-6">
+        {/* Cabeçalho */}
+        <div className="border-b pb-4 flex justify-between items-center">
+          <h2 className="text-3xl font-bold text-blue-600 flex items-center gap-3">
+            <FaFileMedical className="h-7 w-7" />
+            Resultados de Exames
+          </h2>
         </div>
-      )}
 
-      {/* Cards de Estatísticas */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div className="bg-white p-4 rounded-lg shadow-md">
-          <h3 className="text-sm font-semibold text-gray-700 mb-1">
-            Total de Registros
-          </h3>
-          <p className="text-xl font-bold text-blue-600">{registros.length}</p>
-        </div>
-        <div className="bg-white p-4 rounded-lg shadow-md">
-          <h3 className="text-sm font-semibold text-gray-700 mb-1">
-            Exames Pendentes
-          </h3>
-          <p className="text-xl font-bold text-blue-600">{examesPendentes}</p>
-        </div>
-        <div className="bg-white p-4 rounded-lg shadow-md">
-          <h3 className="text-sm font-semibold text-gray-700 mb-1">
-            Exames Registrados
-          </h3>
-          <p className="text-xl font-bold text-blue-600">{examesRegistrados}</p>
-        </div>
-      </div>
+        {/* Mensagem de Erro */}
+        {error && (
+          <div className="mt-6 p-4 text-sm text-red-700 bg-red-100 rounded-lg border border-red-300" role="alert">
+            {error}
+          </div>
+        )}
 
-      {/* Filtros */}
-      <div className="bg-white p-4 rounded-lg shadow-md mb-6">
-        <FiltroRegistroResultadoExames onFiltroChange={handleFiltroChange} />
-      </div>
+        {/* Cards de Estatísticas */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+          <div className="bg-slate-50 p-4 rounded-lg shadow">
+            <h3 className="text-sm font-semibold text-gray-600 mb-1">
+              Total de Registros
+            </h3>
+            <p className="text-2xl font-bold text-blue-600">{registros.length}</p>
+          </div>
+          <div className="bg-slate-50 p-4 rounded-lg shadow">
+            <h3 className="text-sm font-semibold text-gray-600 mb-1">
+              Exames Pendentes
+            </h3>
+            <p className="text-2xl font-bold text-orange-500">{examesPendentes}</p>
+          </div>
+          <div className="bg-slate-50 p-4 rounded-lg shadow">
+            <h3 className="text-sm font-semibold text-gray-600 mb-1">
+              Exames Registrados
+            </h3>
+            <p className="text-2xl font-bold text-green-600">{examesRegistrados}</p>
+          </div>
+        </div>
 
-      {/* Tabela de Registros */}
-      <div className="bg-white p-4 rounded-lg shadow-md mb-6">
-        {isLoading ? (
-          <p className="text-center text-gray-500 py-2">Carregando registros...</p>
-        ) : registrosOrdenadosFiltrados.length === 0 ? (
-          <p className="text-center text-gray-500 py-2">
-            Nenhum registro encontrado.
-          </p>
-        ) : (
-          <div className="overflow-x-auto rounded-lg">
+        {/* Filtros */}
+        <div className="mt-6 p-4 bg-slate-50 rounded-lg shadow">
+          <FiltroRegistroResultadoExames onFiltroChange={handleFiltroChange} />
+        </div>
+
+        {/* Tabela de Registros */}
+        <div className="mt-6 overflow-x-auto rounded-lg shadow-md">
+          {isLoading ? (
+            <p className="text-center text-gray-500 py-4 text-sm">Carregando registros...</p>
+          ) : (
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-blue-600 text-white">
                 <tr>
-                  {[
-                    "ID Registro",
-                    "Nome do Exame",
-                    "Data da Solicitação",
-                    "Profissional",
-                    "Paciente",
-                  ].map((header, index) => (
+                  {tableHeaders.map((header, index) => (
                     <th
                       key={header}
-                      onClick={() =>
-                        handleSort(
-                          [
-                            "idRegistro",
-                            "nomeExame",
-                            "dataSolicitacao",
-                            "profissional",
-                            "paciente",
-                          ][index]
-                        )
-                      }
-                      className="px-3 py-3 text-left text-sm font-semibold uppercase tracking-wider cursor-pointer"
+                      onClick={() => sortableFields[index] && handleSort(sortableFields[index])}
+                      className={`px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider ${sortableFields[index] ? 'cursor-pointer' : ''}`}
                     >
                       {header}
-                      {sortField ===
-                        [
-                          "idRegistro",
-                          "nomeExame",
-                          "dataSolicitacao",
-                          "profissional",
-                          "paciente",
-                        ][index] && (
-                        <span className="ml-1">
+                      {sortableFields[index] && sortField === sortableFields[index] && (
+                        <span className="ml-2">
                           {sortDirection === "asc" ? "↑" : "↓"}
                         </span>
                       )}
                     </th>
                   ))}
-                  <th className="px-3 py-3 text-left text-sm font-semibold uppercase tracking-wider cursor-pointer">
-                    Definir Resultado
-                  </th>
-                  <th className="px-3 py-3 text-left text-sm font-semibold uppercase tracking-wider cursor-pointer">
-                    Ações
-                  </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {currentRegistros.length === 0 ? (
                   <tr>
                     <td
-                      colSpan="7"
-                      className="px-4 py-3 text-center text-gray-500 text-sm"
+                      colSpan={tableHeaders.length}
+                      className="px-6 py-4 text-center text-gray-500 text-sm"
                     >
-                      Nenhum registro encontrado.
+                      {registrosFiltrados.length === 0 && (filtros.filtroId || filtros.filtroNome || filtros.filtroNomeExame)
+                        ? "Nenhum registro encontrado após filtragem."
+                        : "Nenhum registro encontrado."
+                      }
                     </td>
                   </tr>
                 ) : (
@@ -362,54 +342,54 @@ const RegistroResultadoExames = () => {
                 )}
               </tbody>
             </table>
+          )}
+        </div>
+
+        {/* Paginação */}
+        {registrosOrdenadosFiltrados.length > itemsPerPage && (
+          <div className="mt-6">
+            <Pagination
+              totalItems={registrosOrdenadosFiltrados.length}
+              itemsPerPage={itemsPerPage}
+              currentPage={currentPage}
+              onPageChange={handlePageChange}
+              maxPageButtons={5}
+            />
           </div>
         )}
-      </div>
 
-      {/* Paginação */}
-      {registrosOrdenadosFiltrados.length > 0 && (
-        <div className="mb-6">
-          <Pagination
-            totalItems={registrosOrdenadosFiltrados.length}
-            itemsPerPage={itemsPerPage}
-            currentPage={currentPage}
-            onPageChange={handlePageChange}
-            maxPageButtons={5}
+        {/* Modals */}
+        {modalAddOpen && registroSelecionado && (
+          <ModalAddObservacao
+            isOpen={modalAddOpen}
+            onClose={closeModal}
+            registro={registroSelecionado}
+            observacaoEditada={observacaoEditada}
+            setObservacaoEditada={setObservacaoEditada}
+            onSave={handleUpdateObservacao} // Usar a mesma função de update, já que adicionar é definir 'observacoes'
           />
-        </div>
-      )}
+        )}
 
-      {/* Modals */}
-      {modalAddOpen && registroSelecionado && (
-        <ModalAddObservacao
-          isOpen={modalAddOpen}
-          onClose={closeModal}
-          registro={registroSelecionado}
-          observacaoEditada={observacaoEditada}
-          setObservacaoEditada={setObservacaoEditada}
-          onSave={handleUpdateObservacao}
-        />
-      )}
+        {modalEditOpen && registroSelecionado && (
+          <ModalEditObservacao
+            isOpen={modalEditOpen}
+            onClose={closeModal}
+            registro={registroSelecionado}
+            observacaoEditada={observacaoEditada}
+            setObservacaoEditada={setObservacaoEditada}
+            onSave={handleUpdateObservacao}
+          />
+        )}
 
-      {modalEditOpen && registroSelecionado && (
-        <ModalEditObservacao
-          isOpen={modalEditOpen}
-          onClose={closeModal}
-          registro={registroSelecionado}
-          observacaoEditada={observacaoEditada}
-          setObservacaoEditada={setObservacaoEditada}
-          onSave={handleUpdateObservacao}
-        />
-      )}
-
-      {modalViewOpen && registroSelecionado && (
-        <ModalViewObservacao
-          isOpen={modalViewOpen}
-          onClose={closeModal}
-          registro={registroSelecionado}
-        />
-      )}
-    </section>
+        {modalViewOpen && registroSelecionado && (
+          <ModalViewObservacao
+            isOpen={modalViewOpen}
+            onClose={closeModal}
+            registro={registroSelecionado}
+          />
+        )}
+      </section>
+    </div>
   );
 };
 

@@ -1,9 +1,16 @@
+// /model/gerarAtestados.js (ou Atestado.js)
+
 const { Model, DataTypes } = require("sequelize");
 const sequelize = require("../config/db");
-const Paciente = require("./paciente");
-const Profissional = require("./profissionais");
+// Não é necessário importar Paciente e Profissional aqui se as chaves estrangeiras forem strings
 
-class Atestado extends Model {}
+class Atestado extends Model {
+  static associate(models) {
+    // Definir associações aqui se estiver usando um arquivo central de associações
+    this.belongsTo(models.Paciente, { foreignKey: "cpfPaciente", as: "paciente" });
+    this.belongsTo(models.Profissional, { foreignKey: "matriculaProfissional", as: "profissional" });
+  }
+}
 
 Atestado.init(
   {
@@ -38,16 +45,16 @@ Atestado.init(
       type: DataTypes.STRING,
       allowNull: false,
       references: {
-        model: Paciente,
-        key: "cpf",
+        model: 'pacientes', // Nome da tabela
+        key: 'cpf',
       },
     },
     matriculaProfissional: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: Profissional,
-        key: "matricula",
+        model: 'profissionais', // Nome da tabela
+        key: 'matricula',
       },
     },
   },
@@ -57,9 +64,5 @@ Atestado.init(
     timestamps: true,
   }
 );
-
-// Definir associações
-Atestado.belongsTo(Paciente, { foreignKey: "cpfPaciente", as: "Paciente" });
-Atestado.belongsTo(Profissional, { foreignKey: "matriculaProfissional", as: "Profissional" });
 
 module.exports = Atestado;

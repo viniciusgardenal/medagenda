@@ -1,3 +1,5 @@
+// /routes/atestadoRoutes.js
+
 const express = require("express");
 const router = express.Router();
 const atestadoController = require("../controller/gerarAtestadosController");
@@ -6,7 +8,7 @@ const checkpermissao = require("../middlewares/checarPermissao");
 // Rotas para atestados
 router.post(
   "/atestados",
-  checkpermissao("consultar"),
+  checkpermissao("criar"), // Permissão mais específica
   atestadoController.criarAtestado
 );
 
@@ -22,7 +24,11 @@ router.get(
   atestadoController.lerAtestadoId
 );
 
-// Rota para download do atestado como arquivo de texto
-router.get("/atestados/:id/download", atestadoController.downloadAtestado);
+// Rota para download do atestado como PDF
+router.get(
+    "/atestados/:id/download",
+    checkpermissao("consultar"), // Adicionar verificação de permissão
+    atestadoController.downloadAtestadoPdf
+);
 
 module.exports = router;

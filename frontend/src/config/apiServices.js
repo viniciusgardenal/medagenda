@@ -261,9 +261,9 @@ export const criarReceita = async (dadosReceita) => {
   return await api.post(`/receitas`, dadosReceita);
 };
 
-export const criarAtestado = async (dadosAtestado) => {
-  return await api.post(`${apiUrl}/atestados`, dadosAtestado, {
-    responseType: "blob",
+export const criarAtestado = (dadosAtestado) => {
+  return api.post("/atestados", dadosAtestado, {
+    responseType: 'blob', // Importante para receber o PDF
   });
 };
 
@@ -275,9 +275,10 @@ export const lerAtestadoId = async (id) => {
   return await api.get(`${apiUrl}/atestados/${id}`);
 };
 
-export const downloadAtestado = async (id) => {
-  return await api.get(`${apiUrl}/atestados/${id}/download`, {
-    responseType: "blob",
+export const downloadAtestadoPdf = (idAtestado) => {
+  // A rota deve bater com a que definimos no backend
+  return api.get(`/atestados/${idAtestado}/download`, {
+    responseType: 'blob', // Essencial para o navegador entender que é um arquivo
   });
 };
 

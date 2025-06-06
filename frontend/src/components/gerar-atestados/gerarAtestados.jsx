@@ -1,280 +1,241 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import {
   criarAtestado,
-  getPacientes,
-  getProfissionais,
   lerAtestados,
-  downloadAtestado,
+  downloadAtestadoPdf,
+  getPacientes,
 } from "../../config/apiServices";
 import ModalAddAtestado from "./modalAddAtestado";
 import ModalViewAtestados from "./modalViewAtestado";
-import { FaPlus, FaEye, FaSyncAlt } from "react-icons/fa";
+import ModalDetalhesAtestado from "./modalDetalhesAtestado";
+import TableHeader from './TableHeader';
+import Pagination from '../util/Pagination'; // Adicionado para a paginação
+import { FaPlus } from "react-icons/fa";
+import moment from "moment";
 
 const GerarAtestados = () => {
-  const [pacientes, setPacientes] = useState([]);
-  const [profissionais, setProfissionais] = useState([]);
+  // --- Estados ---
   const [atestados, setAtestados] = useState([]);
+  const [pacientes, setPacientes] = useState([]);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [selectedAtestado, setSelectedAtestado] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null);
+  const [sortField, setSortField] = useState("dataEmissao");
+  const [sortDirection, setSortDirection] = useState("desc");
+  const [filtros, setFiltros] = useState({ paciente: '', profissional: '', tipo: '' });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(8);
+
   const [dadosAtestado, setDadosAtestado] = useState({
     cpfPaciente: "",
     matriculaProfissional: "",
-    tipoAtestado: "",
+    tipoAtestado: "Médico",
     motivo: "",
     observacoes: "",
-    status: "Ativo",
   });
 
-  const loadDados = async () => {
+  const loadDados = useCallback(async () => {
     setIsLoading(true);
+    setError(null);
+    setSuccessMessage(null);
     try {
-      const pacientesResponse = await getPacientes();
-      if (Array.isArray(pacientesResponse.data)) {
-        setPacientes(pacientesResponse.data);
-      } else {
-        console.error("Os dados de pacientes não são um array", pacientesResponse.data);
-      }
-
-      const profissionaisResponse = await getProfissionais();
-      if (Array.isArray(profissionaisResponse.data)) {
-        setProfissionais(profissionaisResponse.data);
-      } else {
-        console.error("Os dados de profissionais não são um array", profissionaisResponse.data);
-      }
-
-      try {
-        const atestadosResponse = await lerAtestados();
-        if (Array.isArray(atestadosResponse.data)) {
-          setAtestados(atestadosResponse.data);
-        } else {
-          console.error("Os dados de atestados não são um array", atestadosResponse.data);
-          setAtestados([]);
-        }
-      } catch (error) {
-        console.error("Erro ao carregar atestados:", error);
-        setAtestados([]);
-      }
-    } catch (error) {
-      console.error("Erro ao carregar dados", error);
+      // Otimizado para buscar apenas os dados necessários para esta tela.
+      const [atestadosRes, pacientesRes] = await Promise.all([
+        lerAtestados(),
+        getPacientes(),
+      ]);
+      const validAtestados = (Array.isArray(atestadosRes?.data) ? atestadosRes.data : []).filter(a => a && a.paciente && a.profissional);
+      setAtestados(validAtestados);
+      setPacientes(Array.isArray(pacientesRes.data) ? pacientesRes.data : []);
+    } catch (err) {
+      console.error("Erro ao carregar dados:", err);
+      setError("Não foi possível carregar os dados.");
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadDados();
-  }, []);
-
+  }, [loadDados]);
+  
   const handleSave = async () => {
     setIsSaving(true);
+    setError(null);
+    setSuccessMessage(null);
     try {
-      const dadosParaEnviar = {
-        ...dadosAtestado,
-        matriculaProfissional: [{ matricula: dadosAtestado.matriculaProfissional }],
-      };
-
+      const dadosParaEnviar = { ...dadosAtestado };
       const response = await criarAtestado(dadosParaEnviar);
+      
       const blob = new Blob([response.data], { type: 'application/pdf' });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
-      a.style.display = "none";
       a.href = url;
-      a.download = `atestado_${dadosAtestado.cpfPaciente}.pdf`;
+      const contentDisposition = response.headers['content-disposition'];
+      let fileName = `atestado_${dadosAtestado.cpfPaciente}.pdf`;
+      if (contentDisposition) {
+        const fileNameMatch = contentDisposition.match(/filename="(.+)"/);
+        if (fileNameMatch?.length === 2) fileName = fileNameMatch[1];
+      }
+      a.download = fileName;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
 
-      try {
-        const atestadosResponse = await lerAtestados();
-        if (Array.isArray(atestadosResponse.data)) {
-          setAtestados(atestadosResponse.data);
-        }
-      } catch (error) {
-        console.error("Erro ao atualizar a lista de atestados:", error);
-      }
-
-      setDadosAtestado({
-        cpfPaciente: "",
-        matriculaProfissional: "",
-        tipoAtestado: "",
-        motivo: "",
-        observacoes: "",
-        status: "Ativo",
-      });
+      setSuccessMessage("Atestado gerado com sucesso!");
       setIsAddModalOpen(false);
+      await loadDados();
     } catch (error) {
-      console.error("Erro ao gerar atestado", error);
-      alert("Erro ao gerar atestado. Tente novamente.");
+      console.error("Erro ao gerar atestado:", error);
+      const errorMessage = error.response?.data?.error || "Erro ao gerar atestado.";
+      setError(errorMessage);
     } finally {
       setIsSaving(false);
     }
   };
 
   const handleDownload = async (atestado) => {
+    setError(null);
     try {
-      const response = await downloadAtestado(atestado.idAtestado);
-      const blob = new Blob([response.data], { type: 'text/plain' });
+      const response = await downloadAtestadoPdf(atestado.idAtestado);
+      const blob = new Blob([response.data], { type: 'application/pdf' });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
-      a.style.display = "none";
       a.href = url;
-      a.download = `atestado_${atestado.idAtestado}.txt`;
+      a.download = `atestado_${atestado.idAtestado}.pdf`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
     } catch (error) {
-      console.error("Erro ao baixar atestado", error);
-      alert("Erro ao baixar atestado. Tente novamente.");
+      console.error("Erro ao baixar atestado:", error);
+      setError("Erro ao baixar o PDF do atestado.");
     }
   };
 
-  const handleRefresh = () => {
-    loadDados();
+  const openAddModal = () => { setIsAddModalOpen(true); setError(null); setSuccessMessage(null); };
+  const openDetailsModal = (atestado) => { setSelectedAtestado(atestado); setIsDetailsModalOpen(true); };
+  const closeAllModals = () => {
+    setIsAddModalOpen(false);
+    setIsDetailsModalOpen(false);
+  }
+  
+  const handleSort = (field) => {
+    const newDirection = sortField === field && sortDirection === 'desc' ? 'asc' : 'desc';
+    setSortField(field);
+    setSortDirection(newDirection);
+    setCurrentPage(1);
+  };
+  
+  const handleFiltroChange = (e) => {
+    const { name, value } = e.target;
+    setFiltros(prev => ({ ...prev, [name]: value }));
+    setCurrentPage(1);
   };
 
-  const ultimosAtestados = atestados.slice(0, 5); // Mostra apenas os 5 primeiros atestados
+  const atestadosProcessados = useMemo(() => {
+    let result = [...atestados];
+    result = result.filter(a => 
+      `${a.paciente?.nome} ${a.paciente?.sobrenome}`.toLowerCase().includes(filtros.paciente.toLowerCase()) &&
+      (a.profissional?.nome || '').toLowerCase().includes(filtros.profissional.toLowerCase()) &&
+      (a.tipoAtestado || '').toLowerCase().includes(filtros.tipo.toLowerCase())
+    );
+    result.sort((a, b) => {
+        const direction = sortDirection === 'asc' ? 1 : -1;
+        const fieldMap = {
+            dataEmissao: item => moment(item.dataEmissao).valueOf(),
+            paciente: item => `${item.paciente?.nome} ${item.paciente?.sobrenome}`.toLowerCase(),
+            profissional: item => (item.profissional?.nome || '').toLowerCase(),
+            tipoAtestado: item => (item.tipoAtestado || "").toLowerCase()
+        };
+        const valueA = fieldMap[sortField] ? fieldMap[sortField](a) : (a[sortField] || '');
+        const valueB = fieldMap[sortField] ? fieldMap[sortField](b) : (b[sortField] || '');
+        if (typeof valueA === 'number') return (valueA - valueB) * direction;
+        return String(valueA).localeCompare(String(valueB)) * direction;
+    });
+    return result;
+  }, [atestados, sortField, sortDirection, filtros]);
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentAtestados = atestadosProcessados.slice(indexOfFirstItem, indexOfLastItem);
+  
+  const tableHeaders = [
+    { label: "Data", field: "dataEmissao" }, { label: "Paciente", field: "paciente" },
+    { label: "Profissional", field: "profissional" }, { label: "Tipo", field: "tipoAtestado" }
+  ];
 
   return (
-    <section className="max-w-6xl mx-auto mt-10 px-6 py-8 bg-gray-50 rounded-2xl shadow-lg">
-      <div className="flex justify-between items-center mb-8">
-        <h2 className="text-3xl font-bold text-blue-600">
-          Gerar Atestados Médicos
-        </h2>
-        <button
-          onClick={handleRefresh}
-          className="flex items-center gap-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors disabled:opacity-50"
-          disabled={isLoading}
-        >
-          <FaSyncAlt className={`h-5 w-5 ${isLoading ? "animate-spin" : ""}`} />
-          {isLoading ? "Atualizando..." : "Atualizar Dados"}
-        </button>
-      </div>
-
-      {/* Cards de Estatísticas */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h3 className="text-lg font-semibold text-gray-700 mb-2">
-            Total de Atestados
-          </h3>
-          <p className="text-2xl font-bold text-blue-600">{atestados.length}</p>
+    <div className="min-h-screen bg-gray-200 p-6">
+      <section className="max-w-6xl mx-auto bg-white rounded-2xl shadow-lg p-6">
+        <div className="border-b pb-4 flex justify-between items-center">
+          <h2 className="text-3xl font-bold text-blue-600">Gerenciar Atestados</h2>
+          <button
+            onClick={openAddModal}
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          >
+            <FaPlus /> Novo Atestado
+          </button>
         </div>
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h3 className="text-lg font-semibold text-gray-700 mb-2">
-            Pacientes Cadastrados
-          </h3>
-          <p className="text-2xl font-bold text-blue-600">{pacientes.length}</p>
-        </div>
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h3 className="text-lg font-semibold text-gray-700 mb-2">
-            Profissionais Disponíveis
-          </h3>
-          <p className="text-2xl font-bold text-blue-600">{profissionais.length}</p>
-        </div>
-      </div>
 
-      {/* Ações */}
-      <div className="flex flex-wrap gap-4 mb-8">
-        <button
-          onClick={() => setIsAddModalOpen(true)}
-          className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 transition-colors"
-        >
-          <FaPlus className="h-5 w-5" />
-          Novo Atestado
-        </button>
-        <button
-          onClick={() => setIsViewModalOpen(true)}
-          className="flex items-center gap-2 px-6 py-3 bg-gray-300 text-gray-700 font-semibold rounded-md hover:bg-gray-400 transition-colors"
-        >
-          <FaEye className="h-5 w-5" />
-          Visualizar Todos os Atestados
-        </button>
-      </div>
+        {error && <div className="mt-6 p-4 text-sm text-red-700 bg-red-100 rounded-lg border border-red-300">{error}</div>}
+        {successMessage && <div className="mt-6 p-4 text-sm text-green-700 bg-green-100 rounded-lg border border-green-300">{successMessage}</div>}
+        
+        <div className="flex flex-col md:flex-row gap-4 mt-6">
+            <div className="flex-1"><label htmlFor="filtroPaciente" className="block text-sm font-semibold text-gray-700 mb-1">Paciente</label><input id="filtroPaciente" type="text" name="paciente" value={filtros.paciente} onChange={handleFiltroChange} placeholder="Filtrar por paciente..." className="w-full px-3 py-2 text-sm border rounded-md"/></div>
+            <div className="flex-1"><label htmlFor="filtroProfissional" className="block text-sm font-semibold text-gray-700 mb-1">Profissional</label><input id="filtroProfissional" type="text" name="profissional" value={filtros.profissional} onChange={handleFiltroChange} placeholder="Filtrar por profissional..." className="w-full px-3 py-2 text-sm border rounded-md"/></div>
+            <div className="flex-1"><label htmlFor="filtroTipo" className="block text-sm font-semibold text-gray-700 mb-1">Tipo de Atestado</label><input id="filtroTipo" type="text" name="tipo" value={filtros.tipo} onChange={handleFiltroChange} placeholder="Filtrar por tipo..." className="w-full px-3 py-2 text-sm border rounded-md"/></div>
+        </div>
 
-      {/* Últimos Atestados */}
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <h3 className="text-xl font-semibold text-gray-800 mb-4">
-          Últimos Atestados Criados
-        </h3>
-        {ultimosAtestados.length === 0 ? (
-          <p className="text-base text-gray-500 text-center py-4">
-            Nenhum atestado criado recentemente.
-          </p>
-        ) : (
-          <div className="overflow-x-auto rounded-lg">
+        <div className="mt-6 overflow-x-auto rounded-lg shadow-md">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-blue-600 text-white">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                    Data de Emissão
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                    Paciente
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                    Profissional
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                    Tipo
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                    Status
-                  </th>
+                <tr className="bg-blue-600">
+                  {tableHeaders.map(header => ( <TableHeader key={header.field} {...header} sortField={sortField} sortDirection={sortDirection} onSort={handleSort} /> ))}
+                  <th className="px-6 py-3 text-center text-sm font-semibold uppercase">Ações</th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {ultimosAtestados.map((atestado) => (
-                  <tr key={atestado.idAtestado}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {new Date(atestado.dataEmissao).toLocaleString('pt-PT', {
-                        day: '2-digit',
-                        month: '2-digit',
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        hour12: false
-                      })}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {atestado.Paciente ? `${atestado.Paciente.nome} ${atestado.Paciente.sobrenome || ""}` : "Não definido"}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {atestado.Profissional ? atestado.Profissional.nome : "Não definido"}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {atestado.tipoAtestado || "Não definido"}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {atestado.status || "Não definido"}
-                    </td>
-                  </tr>
-                ))}
+              <tbody className="divide-y divide-gray-200 bg-white">
+                {isLoading ? ( <tr><td colSpan={tableHeaders.length + 1} className="p-4 text-center text-gray-500">Carregando...</td></tr> ) 
+                : currentAtestados.length === 0 ? ( <tr><td colSpan={tableHeaders.length + 1} className="p-4 text-center text-gray-500">Nenhum atestado encontrado.</td></tr>) 
+                : ( currentAtestados.map((atestado) => (
+                      <tr key={atestado.idAtestado} className="hover:bg-blue-50">
+                          <td className="px-6 py-4 text-sm">{moment(atestado.dataEmissao).format("DD/MM/YYYY")}</td>
+                          <td className="px-6 py-4 text-sm font-medium">{`${atestado.paciente.nome} ${atestado.paciente.sobrenome}`}</td>
+                          <td className="px-6 py-4 text-sm">{atestado.profissional.nome}</td>
+                          <td className="px-6 py-4 text-sm">{atestado.tipoAtestado}</td>
+                          <td className="px-6 py-4 text-sm flex justify-center gap-4">
+                            <button onClick={() => openDetailsModal(atestado)} className="text-blue-600 hover:text-blue-800" title="Visualizar Detalhes">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                            </button>
+                            <button onClick={() => handleDownload(atestado)} className="text-green-600 hover:text-green-800" title="Baixar PDF">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                            </button>
+                          </td>
+                      </tr>
+                  ))
+                )}
               </tbody>
             </table>
-          </div>
+        </div>
+        
+        {atestadosProcessados.length > itemsPerPage && (
+            <div className="mt-6">
+                <Pagination totalItems={atestadosProcessados.length} itemsPerPage={itemsPerPage} currentPage={currentPage} onPageChange={setCurrentPage} />
+            </div>
         )}
-      </div>
-
-      {/* Modals */}
-      <ModalAddAtestado
-        isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
-        dadosAtestado={dadosAtestado}
-        setDadosAtestado={setDadosAtestado}
-        onSave={handleSave}
-        isSaving={isSaving}
-        pacientes={pacientes}
-        profissionais={profissionais}
-      />
-
-      <ModalViewAtestados
-        isOpen={isViewModalOpen}
-        onClose={() => setIsViewModalOpen(false)}
-        atestados={atestados}
-        onDownload={handleDownload}
-      />
-    </section>
+        
+        <ModalAddAtestado isOpen={isAddModalOpen} onClose={closeAllModals} onSave={handleSave} isSaving={isSaving} pacientes={pacientes} dadosAtestado={dadosAtestado} setDadosAtestado={setDadosAtestado} />
+        <ModalDetalhesAtestado isOpen={isDetailsModalOpen} onClose={closeAllModals} atestado={selectedAtestado} />
+        {/* ModalViewAtestados foi removido pois a tabela principal agora tem todas as funcionalidades */}
+      </section>
+    </div>
   );
 };
 

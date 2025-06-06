@@ -1,5 +1,3 @@
-import React from "react";
-
 const ModalEditAtendimento = ({
   isOpen,
   onClose,
@@ -26,11 +24,7 @@ const ModalEditAtendimento = ({
   };
 
   const isFormValid = () => {
-    return (
-      dadosAtendimento.diagnostico.trim() !== "" ||
-      dadosAtendimento.prescricao.trim() !== "" ||
-      dadosAtendimento.observacoes.trim() !== ""
-    );
+    return dadosAtendimento.diagnostico.trim() !== "";
   };
 
   return (
@@ -45,7 +39,7 @@ const ModalEditAtendimento = ({
               Paciente
             </label>
             <p className="text-sm text-gray-600">
-              {atendimento.paciente.nome} {atendimento.paciente.sobrenome}
+              {atendimento.paciente?.nome} {atendimento.paciente?.sobrenome}
             </p>
           </div>
           <div>
@@ -53,10 +47,7 @@ const ModalEditAtendimento = ({
               Data e Hora
             </label>
             <p className="text-sm text-gray-600">
-              {formatarDataHoraBR(
-                atendimento.dataAtendimento,
-                atendimento.dataAtendimento
-              )}
+              {formatarDataHoraBR(atendimento.atendimento?.dataAtendimento)}
             </p>
           </div>
           <div>
@@ -64,7 +55,7 @@ const ModalEditAtendimento = ({
               htmlFor="diagnostico"
               className="block text-sm font-semibold text-gray-700"
             >
-              Diagnóstico
+              Diagnóstico <span className="text-red-500">*</span>
             </label>
             <textarea
               id="diagnostico"

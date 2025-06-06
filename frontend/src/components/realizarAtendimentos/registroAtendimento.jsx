@@ -86,11 +86,7 @@ const TableRow = ({ item, onRegister, onView, onEdit, onDelete }) => {
 
   const dataHora = isPendingRegistration
     ? formatarDataHoraBR(`${item.dataConsulta}T${item.horaConsulta}`)
-    : formatarDataHoraBR(item.dataAtendimento);
-
-  const displayMotivoDiagnostico = isPendingRegistration
-    ? item.motivo
-    : item.diagnostico || "N/A";
+    : formatarDataHoraBR(item.atendimento.dataAtendimento);
 
   return (
     <tr className="hover:bg-blue-50 transition-colors">
@@ -107,7 +103,7 @@ const TableRow = ({ item, onRegister, onView, onEdit, onDelete }) => {
       </td>
       <td className="px-6 py-3 text-sm text-gray-700">{dataHora}</td>
       <td className="px-6 py-3 text-sm text-gray-700">
-        {displayMotivoDiagnostico}
+        {item.atendimento.diagnostico}
       </td>
       <td className="px-6 py-3 flex gap-3">
         {isPendingRegistration ? (
@@ -368,8 +364,13 @@ const RegistroAtendimento = () => {
   };
 
   const handleEditarAtendimento = async () => {
+    // console.log("Dados do atendimento para edição:", atendimentoSelecionado);
+
     try {
-      await atualizarAtendimento(atendimentoSelecionado.id, dadosAtendimento);
+      await atualizarAtendimento(
+        atendimentoSelecionado.atendimento.id,
+        dadosAtendimento
+      );
       setItems(
         items.map((item) =>
           item.id === atendimentoSelecionado.id

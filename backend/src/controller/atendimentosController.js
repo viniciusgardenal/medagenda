@@ -144,11 +144,11 @@ const atualizarAtendimento = async (req, res) => {
     }
 
     const consulta = await Consulta.findByPk(atendimento.consultaId);
-    if (req.user && req.user.id !== consulta.medicoId) {
-      return res.status(403).json({
-        error: "Apenas o médico responsável pode atualizar o atendimento.",
-      });
-    }
+    // if (req.user && req.user.id !== consulta.medicoId) {
+    //   return res.status(403).json({
+    //     error: "Apenas o médico responsável pode atualizar o atendimento.",
+    //   });
+    // }
 
     if (diagnostico !== undefined) atendimento.diagnostico = diagnostico;
     if (prescricao !== undefined) atendimento.prescricao = prescricao;

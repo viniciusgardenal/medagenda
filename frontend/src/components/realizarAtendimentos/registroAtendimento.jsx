@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import ConfirmationModal from "../util/confirmationModal";
 import {
   getConsultas,
@@ -77,10 +77,20 @@ const HeaderSection = () => (
 );
 
 const TableRow = ({ item, onRegister, onView, onEdit, onDelete }) => {
-  const isConsulta = !!item.status;
-  const dataHora = isConsulta
+  console.log(" Itemmmm", item);
+
+  // A verificação 'isConsulta' estava limitando a exibição correta.
+  // Vamos simplificar e acessar os dados diretamente, pois ambos os tipos de item (consulta e atendimento)
+  // terão uma estrutura de dados similar após o tratamento no useEffect.
+  const isPendingRegistration = item.status === "checkin_realizado";
+
+  const dataHora = isPendingRegistration
     ? formatarDataHoraBR(`${item.dataConsulta}T${item.horaConsulta}`)
     : formatarDataHoraBR(item.dataAtendimento);
+
+  const displayMotivoDiagnostico = isPendingRegistration
+    ? item.motivo
+    : item.diagnostico || "N/A";
 
   return (
     <tr className="hover:bg-blue-50 transition-colors">
@@ -91,14 +101,16 @@ const TableRow = ({ item, onRegister, onView, onEdit, onDelete }) => {
         {item.medico?.nome} (CRM: {item.medico?.crm})
       </td>
       <td className="px-6 py-3 text-sm text-gray-700">
-        {item.tipoConsulta?.nomeTipoConsulta || "N/A"}
+        {item.tipoConsulta?.nomeTipoConsulta ||
+          item.idTipoConsulta?.nome ||
+          "N/A"}
       </td>
       <td className="px-6 py-3 text-sm text-gray-700">{dataHora}</td>
       <td className="px-6 py-3 text-sm text-gray-700">
-        {isConsulta ? item.motivo : item.diagnostico || "N/A"}
+        {displayMotivoDiagnostico}
       </td>
       <td className="px-6 py-3 flex gap-3">
-        {isConsulta && item.status === "checkin_realizado" ? (
+        {isPendingRegistration ? (
           <button
             onClick={() => onRegister(item)}
             className="text-green-600 hover:text-green-700 transition-colors"
@@ -109,10 +121,7 @@ const TableRow = ({ item, onRegister, onView, onEdit, onDelete }) => {
         ) : (
           <>
             <button
-              onClick={() => {
-                console.log("Clicou em Visualizar:", item);
-                onView(item);
-              }}
+              onClick={() => onView(item)}
               className="text-blue-600 hover:text-blue-700 transition-colors"
               title="Visualizar Atendimento"
             >
@@ -319,6 +328,9 @@ const RegistroAtendimento = () => {
 
         // 5. Chamar a API com os parâmetros construídos
         const response = await getConsultas(params);
+        // export const getAtendimentos = async () => {
+        //   return await api.get(`${apiUrl}/atendimentos`);
+        // };
 
         console.log("Resposta da API (getConsultas):", response.data);
         setItems(response.data.data || response.data || []);
@@ -331,19 +343,6 @@ const RegistroAtendimento = () => {
     };
     fetchData();
   }, [filtros.filtroStatus, filtros.filtroNome]); // Dependências corretas
-
-  const itemsFiltrados = items.filter((item) => {
-    const termo = filtros.filtroNome.toLowerCase();
-    return (
-      item.paciente?.nome?.toLowerCase().includes(termo) ||
-      `${item.medico?.nome} ${item.medico?.sobrenome}`
-        .toLowerCase()
-        .includes(termo) ||
-      item.tipoConsulta?.nomeTipoConsulta?.toLowerCase().includes(termo) ||
-      formatarDataHoraBR(item.dataAtendimento).toLowerCase().includes(termo) ||
-      (item.diagnostico || "").toLowerCase().includes(termo)
-    );
-  });
 
   const handleSalvarAtendimento = async () => {
     console.log("Dados do atendimento:", dadosAtendimento);
@@ -482,7 +481,7 @@ const RegistroAtendimento = () => {
         )}
         <FilterSection filtros={filtros} setFiltros={setFiltros} />
         <AtendimentoTable
-          items={itemsFiltrados}
+          items={items}
           isLoading={isLoading}
           openRegisterModal={(i) => {
             setConsultaSelecionada(i);

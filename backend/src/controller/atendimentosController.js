@@ -4,9 +4,9 @@ const CheckIn = require("../model/checkin");
 const Paciente = require("../model/paciente");
 const Profissional = require("../model/profissionais");
 const TipoConsulta = require("../model/tipoConsulta");
-const Atestado = require("../model/gerarAtestados");
-const Receita = require("../model/receitas");
-const SolicitacaoExames = require("../model/solicitacaoExames");
+// const Atestado = require("../model/gerarAtestados");
+// const Receita = require("../model/receitas");
+// const SolicitacaoExames = require("../model/solicitacaoExames");
 const { Op } = require("sequelize");
 const ExcelJS = require("exceljs");
 

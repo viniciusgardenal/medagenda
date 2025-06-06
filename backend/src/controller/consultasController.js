@@ -1,4 +1,5 @@
 const Consulta = require("../model/consulta");
+const Atendimento = require("../model/atendimentos");
 const Paciente = require("../model/paciente");
 const Profissional = require("../model/profissionais");
 const CheckIn = require("../model/checkin");
@@ -220,6 +221,11 @@ const listarConsultas = async (req, res) => {
         {
           model: CheckIn,
           as: "checkin",
+        },
+        {
+          model: Atendimento,
+          as: "atendimento",
+          required: false, // Left join para incluir consultas sem atendimento
         },
       ],
       order: [

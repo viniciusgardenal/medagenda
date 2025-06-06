@@ -1,5 +1,5 @@
 // SuccessAlert.js
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 
 const SuccessAlert = ({ message, onClose }) => {
   useEffect(() => {

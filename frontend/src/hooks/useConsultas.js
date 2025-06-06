@@ -93,15 +93,27 @@ export const useConsultas = (initialFilters) => {
     setError(null);
     try {
       const motivo = motivoCancelamento ?? " ";
-      const response = await cancelarConsulta(id, motivo);
-      setConsultas((prev) =>
-        prev.map((c) => (c.id === id ? response.data.data : c))
-      );
+      const response = await cancelarConsulta(id, {
+        motivoCancelamento: motivo,
+      });
+
+      // Se o filtro é "agendada", remove a consulta cancelada da lista
+      if (filtros.filtroStatus === "agendada") {
+        setConsultas((prev) => prev.filter((c) => c.id !== id));
+      } else {
+        // Atualiza a consulta na lista com o novo status
+        setConsultas((prev) =>
+          prev.map((c) => (c.id === id ? response.data.data : c))
+        );
+      }
+
       return true;
     } catch (error) {
       console.error("Erro ao cancelar consulta:", error);
-      setError(error.response?.data?.error || "Erro ao cancelar consulta.");
-      return false;
+      const errorMsg =
+        error.response?.data?.error || "Erro ao cancelar consulta.";
+      setError(errorMsg);
+      throw new Error(errorMsg); // Relança o erro para tratamento no Modal
     }
   };
 

@@ -14,19 +14,27 @@ const ModalCancelConsulta = ({
 
   if (!isOpen || !consulta) return null;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError(null);
+
     if (!isJustificationDisabled && !motivoCancelamento.trim()) {
       setError("Por favor, forneça um motivo para o cancelamento.");
       return;
     }
-    console.log(
-      "Cancelando consulta ID:",
-      consulta.id,
-      "Motivo:",
-      isJustificationDisabled ? null : motivoCancelamento
-    );
-    onConfirm(consulta.id, isJustificationDisabled ? null : motivoCancelamento);
+
+    try {
+      await onConfirm(
+        consulta.id,
+        isJustificationDisabled ? null : motivoCancelamento
+      );
+      setMotivoCancelamento(""); // Reseta o motivo
+      setIsJustificationDisabled(false); // Reseta o checkbox
+      onClose(); // Fecha o modal após sucesso
+    } catch (err) {
+      setError("Erro ao cancelar consulta. Tente novamente.");
+      console.error("Erro ao cancelar:", err);
+    }
   };
 
   return (

@@ -86,7 +86,7 @@ const TableRow = ({ item, onRegister, onView, onEdit, onDelete }) => {
 
   const dataHora = isPendingRegistration
     ? formatarDataHoraBR(`${item.dataConsulta}T${item.horaConsulta}`)
-    : formatarDataHoraBR(item.atendimento.dataAtendimento);
+    : formatarDataHoraBR(item.atendimento?.dataAtendimento);
 
   return (
     <tr className="hover:bg-blue-50 transition-colors">

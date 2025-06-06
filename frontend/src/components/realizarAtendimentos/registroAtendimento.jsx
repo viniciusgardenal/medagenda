@@ -103,7 +103,7 @@ const TableRow = ({ item, onRegister, onView, onEdit, onDelete }) => {
       </td>
       <td className="px-6 py-3 text-sm text-gray-700">{dataHora}</td>
       <td className="px-6 py-3 text-sm text-gray-700">
-        {item.atendimento.diagnostico}
+        {item.atendimento?.diagnostico}
       </td>
       <td className="px-6 py-3 flex gap-3">
         {isPendingRegistration ? (

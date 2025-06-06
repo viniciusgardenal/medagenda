@@ -45,7 +45,7 @@ Atestado.init(
       type: DataTypes.STRING,
       allowNull: false,
       references: {
-        model: 'pacientes', // Nome da tabela
+        model: 'paciente', // Nome da tabela
         key: 'cpf',
       },
     },

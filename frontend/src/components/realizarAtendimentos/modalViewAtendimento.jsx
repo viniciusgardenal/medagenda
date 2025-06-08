@@ -102,7 +102,7 @@ const ModalViewAtendimento = ({
               </dt>
               <dd className="mt-1 text-sm text-gray-700 pl-6">
                 {/* CORRIGIDO: Chamando a função formatarDataHoraBR e passando o dado */}
-                {formatarDataHoraBR(atendimento.atendimento.dataAtendimento)}
+                {formatarDataHoraBR(atendimento.atendimento?.dataAtendimento)}
               </dd>
             </div>
 
@@ -113,7 +113,7 @@ const ModalViewAtendimento = ({
                 Diagnóstico
               </dt>
               <dd className="mt-1 text-sm text-gray-700 pl-6 whitespace-pre-wrap">
-                {atendimento.atendimento.diagnostico || "Não definido"}
+                {atendimento.atendimento?.diagnostico || "Não definido"}
               </dd>
             </div>
 
@@ -124,7 +124,7 @@ const ModalViewAtendimento = ({
                 Prescrição
               </dt>
               <dd className="mt-1 text-sm text-gray-700 pl-6 whitespace-pre-wrap">
-                {atendimento.atendimento.prescricao || "Não definida"}
+                {atendimento.atendimento?.prescricao || "Não definida"}
               </dd>
             </div>
 
@@ -135,7 +135,7 @@ const ModalViewAtendimento = ({
                 Observações
               </dt>
               <dd className="mt-1 text-sm text-gray-700 pl-6 whitespace-pre-wrap">
-                {atendimento.atendimento.observacoes || "Não definidas"}
+                {atendimento.atendimento?.observacoes || "Não definidas"}
               </dd>
             </div>
           </dl>

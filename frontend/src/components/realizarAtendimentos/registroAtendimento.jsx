@@ -77,7 +77,7 @@ const HeaderSection = () => (
 );
 
 const TableRow = ({ item, onRegister, onView, onEdit, onDelete }) => {
-  console.log(" Itemmmm", item);
+  // console.log(" Itemmmm", item);
 
   // A verificação 'isConsulta' estava limitando a exibição correta.
   // Vamos simplificar e acessar os dados diretamente, pois ambos os tipos de item (consulta e atendimento)
@@ -284,80 +284,100 @@ const RegistroAtendimento = () => {
   const [sortField, setSortField] = useState("horario");
   const [sortDirection, setSortDirection] = useState("asc");
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        console.log("Filtros atuais:", filtros); // Bom para depurar
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     setIsLoading(true);
+  //     setError(null);
+  //     try {
+  //       // console.log("Filtros atuais:", filtros); // Bom para depurar
 
-        // 1. Preparar o objeto de parâmetros para a API
-        const params = {};
+  //       // 1. Preparar o objeto de parâmetros para a API
+  //       const params = {};
 
-        // 2. Lógica para o filtro de status:
-        if (
-          filtros.filtroStatus &&
-          filtros.filtroStatus !== "todos_relevantes"
-        ) {
-          // Se um filtro específico de status foi selecionado (e não é uma opção "todos")
-          // Envia apenas esse status para a API.
-          // A API precisa estar preparada para receber um único status.
-          params.status = filtros.filtroStatus;
-        } else {
-          // Se filtros.filtroStatus for "" ou "todos_relevantes" (ou como você definir o valor padrão/inicial no select),
-          // então queremos buscar os status padrão para esta tela.
-          // A API precisa estar preparada para receber um array de status ou múltiplos parâmetros de status.
-          params.status = ["checkin_realizado", "realizada"];
-        }
+  //       // 2. Lógica para o filtro de status:
+  //       if (
+  //         filtros.filtroStatus &&
+  //         filtros.filtroStatus !== "todos_relevantes"
+  //       ) {
+  //         // Se um filtro específico de status foi selecionado (e não é uma opção "todos")
+  //         // Envia apenas esse status para a API.
+  //         // A API precisa estar preparada para receber um único status.
+  //         params.status = filtros.filtroStatus;
+  //       } else {
+  //         // Se filtros.filtroStatus for "" ou "todos_relevantes" (ou como você definir o valor padrão/inicial no select),
+  //         // então queremos buscar os status padrão para esta tela.
+  //         // A API precisa estar preparada para receber um array de status ou múltiplos parâmetros de status.
+  //         params.status = ["checkin_realizado", "realizada"];
+  //       }
 
-        // 3. Adicionar outros filtros, como o de nome (searchTerm)
-        if (filtros.filtroNome) {
-          params.searchTerm = filtros.filtroNome;
-        }
+  //       // 3. Adicionar outros filtros, como o de nome (searchTerm)
+  //       if (filtros.filtroNome) {
+  //         params.searchTerm = filtros.filtroNome;
+  //       }
 
-        // 4. Adicionar filtro de data, se aplicável a esta tela (você não o tem no FilterSection atual)
-        // if (filtros.filtroData) {
-        //   params.dataConsulta = filtros.filtroData;
-        // }
+  //       // 4. Adicionar filtro de data, se aplicável a esta tela (você não o tem no FilterSection atual)
+  //       // if (filtros.filtroData) {
+  //       //   params.dataConsulta = filtros.filtroData;
+  //       // }
 
-        console.log("Parâmetros enviados para API:", params); // Bom para depurar
+  //       // console.log("Parâmetros enviados para API:", params); // Bom para depurar
 
-        // 5. Chamar a API com os parâmetros construídos
-        const response = await getConsultas(params);
-        // export const getAtendimentos = async () => {
-        //   return await api.get(`${apiUrl}/atendimentos`);
-        // };
+  //       // 5. Chamar a API com os parâmetros construídos
+  //       const response = await getConsultas(params);
+  //       // export const getAtendimentos = async () => {
+  //       //   return await api.get(`${apiUrl}/atendimentos`);
+  //       // };
 
-        console.log("Resposta da API (getConsultas):", response.data);
-        setItems(response.data.data || response.data || []);
-      } catch (err) {
-        console.error("Erro ao carregar dados:", err);
-        setError("Erro ao carregar dados. Tente novamente mais tarde.");
-      } finally {
-        setIsLoading(false);
+  //       // console.log("Resposta da API (getConsultas):", response.data);
+  //       setItems(response.data.data || response.data || []);
+  //     } catch (err) {
+  //       console.error("Erro ao carregar dados:", err);
+  //       setError("Erro ao carregar dados. Tente novamente mais tarde.");
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+  //   };
+  //   fetchData();
+  // }, [filtros.filtroStatus, filtros.filtroNome]); // Dependências corretas
+
+  const fetchData = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const params = {};
+
+      if (filtros.filtroStatus && filtros.filtroStatus !== "todos_relevantes") {
+        params.status = filtros.filtroStatus;
+      } else {
+        params.status = ["checkin_realizado", "realizada"];
       }
-    };
+
+      if (filtros.filtroNome) {
+        params.searchTerm = filtros.filtroNome;
+      }
+
+      const response = await getConsultas(params);
+      setItems(response.data.data || response.data || []);
+    } catch (err) {
+      console.error("Erro ao carregar dados:", err);
+      setError("Erro ao carregar dados. Tente novamente mais tarde.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchData();
-  }, [filtros.filtroStatus, filtros.filtroNome]); // Dependências corretas
+  }, [filtros.filtroStatus, filtros.filtroNome]);
 
   const handleSalvarAtendimento = async () => {
     console.log("Dados do atendimento:", dadosAtendimento);
     console.log("Consulta selecionada:", consultaSelecionada.id);
 
     try {
-      const { data } = await registrarAtendimento(
-        consultaSelecionada.id,
-        dadosAtendimento
-      );
-
-      const novo = {
-        ...data,
-        paciente: consultaSelecionada.paciente,
-        medico: consultaSelecionada.medico,
-        tipoConsulta: consultaSelecionada.tipoConsulta,
-      };
-      setItems([...items.filter((i) => i.id !== consultaSelecionada.id), novo]);
+      await registrarAtendimento(consultaSelecionada.id, dadosAtendimento);
       closeModal();
+      fetchData(); // <-- Força o recarregamento
     } catch (err) {
       setError(err.response?.data?.error || "Erro ao registrar atendimento.");
     }
@@ -371,14 +391,8 @@ const RegistroAtendimento = () => {
         atendimentoSelecionado.atendimento.id,
         dadosAtendimento
       );
-      setItems(
-        items.map((item) =>
-          item.id === atendimentoSelecionado.id
-            ? { ...item, ...dadosAtendimento }
-            : item
-        )
-      );
       closeModal();
+      fetchData(); // <-- Força o recarregamento
     } catch (err) {
       setError(err.response?.data?.error || "Erro ao editar atendimento.");
     }

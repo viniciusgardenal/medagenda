@@ -64,8 +64,34 @@ const EmitirReceitas = () => {
     fetchData();
   }, [fetchData]);
 
-  const handleAddReceita = async (novaReceitaData) => { /* ... */ };
-  const handleDownloadReceita = async (batchId) => { /* ... */ };
+  const handleAddReceita = async (novaReceitaData) => {
+    try {
+      await criarReceita(novaReceitaData);
+      toast.success("Receita emitida com sucesso!");
+      await fetchReceitas();
+      return true;
+    } catch (error) {
+      toast.error(error.response?.data?.error || "Erro ao salvar a receita.");
+      return false;
+    }
+  };
+
+  const handleDownloadReceita = async (batchId) => {
+    try {
+      const response = await downloadReceita(batchId);
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `receita_${batchId.substring(0,8)}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      toast.error("Não foi possível baixar a receita em PDF.");
+    }
+  };
   const handleViewReceita = (receita) => { setSelectedReceita(receita); setIsViewModalOpen(true); };
 
   const handleSort = (field) => {

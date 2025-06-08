@@ -2,9 +2,18 @@ const planoDeSaude = require("../model/planoDeSaude"); // Importa o modelo de pl
 
 const criarPlanoDeSaude = async (req, res) => {
   try {
-    // Criação de um novo plano de saúde
-    const novoPlanoDeSaude = await planoDeSaude.create(req.body);
-    res.status(201).json(novoPlanoDeSaude);
+    const dados = req.body;
+
+    let resultado;
+    if (Array.isArray(dados)) {
+      // Cadastrar vários planos
+      resultado = await planoDeSaude.bulkCreate(dados);
+    } else {
+      // Cadastrar apenas um plano
+      resultado = await planoDeSaude.create(dados);
+    }
+
+    res.status(201).json(resultado);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -26,16 +35,17 @@ const lerPlanoDeSaudeId = async (req, res) => {
     const id = req.params.id; // Captura o ID da requisição
     const planoSaudeEncontrado = await planoDeSaude.findByPk(id); // Busca pelo plano de saúde com o ID
 
-    if (planoSaudeEncontrado) { // VERIFICAÇÃO PRIMEIRO
+    if (planoSaudeEncontrado) {
+      // VERIFICAÇÃO PRIMEIRO
       const planoData = {
         ...planoSaudeEncontrado.dataValues,
         // Formata as datas apenas se existirem, para evitar erros com datas nulas
-        dataInicio: planoSaudeEncontrado.dataInicio 
+        dataInicio: planoSaudeEncontrado.dataInicio
           ? moment
               .utc(planoSaudeEncontrado.dataInicio)
               .add(1, "day") // A lógica de adicionar 1 dia pode precisar de revisão dependendo do fuso horário e armazenamento
               .local()
-              .format("L") 
+              .format("L")
           : null, // Ou undefined, ou string vazia, conforme a necessidade do frontend
         dataFim: planoSaudeEncontrado.dataFim
           ? moment
@@ -51,7 +61,10 @@ const lerPlanoDeSaudeId = async (req, res) => {
     }
   } catch (error) {
     console.error("Erro em lerPlanoDeSaudeId:", error); // É bom logar o erro no servidor também
-    res.status(500).json({ error: error.message, detail: "Erro interno ao processar a solicitação do plano de saúde." });
+    res.status(500).json({
+      error: error.message,
+      detail: "Erro interno ao processar a solicitação do plano de saúde.",
+    });
   }
 };
 

@@ -3,8 +3,18 @@ const ExcelJS = require("exceljs"); // Import exceljs
 
 const cadastrarMedicamento = async (req, res) => {
   try {
-    const novoMedicamento = await Medicamento.create(req.body);
-    res.status(201).json(novoMedicamento);
+    const dados = req.body;
+
+    let resultado;
+    if (Array.isArray(dados)) {
+      // Cadastrar vários medicamentos de uma vez
+      resultado = await Medicamento.bulkCreate(dados);
+    } else {
+      // Cadastrar apenas um medicamento
+      resultado = await Medicamento.create(dados);
+    }
+
+    res.status(201).json(resultado);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -13,7 +23,10 @@ const cadastrarMedicamento = async (req, res) => {
 const lerMedicamentos = async (req, res) => {
   try {
     const medicamentos = await Medicamento.findAll({
-      order: [['nomeMedicamento', 'ASC'], ['descricao', 'ASC']],
+      order: [
+        ["nomeMedicamento", "ASC"],
+        ["descricao", "ASC"],
+      ],
     });
     res.status(200).json(medicamentos);
   } catch (error) {
@@ -70,7 +83,10 @@ const generateMedicamentosReport = async (req, res) => {
   try {
     // Fetch all medications, ordered by nomeMedicamento
     const medicamentos = await Medicamento.findAll({
-      order: [['nomeMedicamento', 'ASC'], ['descricao', 'ASC']],
+      order: [
+        ["nomeMedicamento", "ASC"],
+        ["descricao", "ASC"],
+      ],
     });
 
     // Create a new workbook and worksheet
@@ -127,7 +143,8 @@ const generateMedicamentosReport = async (req, res) => {
 
     // Apply borders to data cells
     worksheet.eachRow({ includeEmpty: false }, (row, rowNumber) => {
-      if (rowNumber > 1) { // Skip header row
+      if (rowNumber > 1) {
+        // Skip header row
         row.eachCell({ includeEmpty: true }, (cell) => {
           cell.border = {
             top: borderStyle,

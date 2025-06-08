@@ -118,69 +118,24 @@ const TableRow = ({ item, onRegister, onView, onEdit, onDelete }) => {
           <>
             <button
               onClick={() => onView(item)}
-              className="text-blue-500 hover:text-blue-700 transition-colors"
+              className="text-blue-600 hover:text-blue-700 transition-colors"
               title="Visualizar Atendimento"
             >
-              <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                      />
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M2.458 12C3.732 7.943 7.522 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.478 0-8.268-2.943-9.542-7z"
-                      />
-                    </svg>
+              <FaEye className="h-5 w-5" />
             </button>
             <button
               onClick={() => onEdit(item)}
-              className="text-yellow-500 hover:text-yellow-700 transition-colors"
+              className="text-blue-600 hover:text-blue-700 transition-colors"
               title="Editar Atendimento"
             >
-              <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                      />
-                    </svg>
+              <FaEdit className="h-5 w-5" />
             </button>
             <button
               onClick={() => onDelete(item)}
-              className="text-red-500 hover:text-red-700 transition-colors"
+              className="text-red-600 hover:text-red-700 transition-colors"
               title="Excluir Atendimento"
             >
-              <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5-4h4M9 7v12m6-12v12M3 7h18"
-                      />
-                    </svg>
+              <FaTrash className="h-5 w-5" />
             </button>
           </>
         )}
@@ -206,7 +161,7 @@ const AtendimentoTable = ({
   const sortItems = (items) => {
     const fieldMap = {
       nome: (i) => i.paciente?.nome?.toLowerCase() || "",
-      medicoufu: (i) =>
+      medico: (i) =>
         `${i.medico?.nome} ${i.medico?.sobrenome}`.toLowerCase() || "",
       tipo: (i) => i.tipoConsulta?.nomeTipoConsulta?.toLowerCase() || "z",
       horario: (i) => (i.status ? i.horaConsulta : i.dataAtendimento),
@@ -328,62 +283,6 @@ const RegistroAtendimento = () => {
   const [itemsPerPage] = useState(8);
   const [sortField, setSortField] = useState("horario");
   const [sortDirection, setSortDirection] = useState("asc");
-
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     setIsLoading(true);
-  //     setError(null);
-  //     try {
-  //       // console.log("Filtros atuais:", filtros); // Bom para depurar
-
-  //       // 1. Preparar o objeto de parâmetros para a API
-  //       const params = {};
-
-  //       // 2. Lógica para o filtro de status:
-  //       if (
-  //         filtros.filtroStatus &&
-  //         filtros.filtroStatus !== "todos_relevantes"
-  //       ) {
-  //         // Se um filtro específico de status foi selecionado (e não é uma opção "todos")
-  //         // Envia apenas esse status para a API.
-  //         // A API precisa estar preparada para receber um único status.
-  //         params.status = filtros.filtroStatus;
-  //       } else {
-  //         // Se filtros.filtroStatus for "" ou "todos_relevantes" (ou como você definir o valor padrão/inicial no select),
-  //         // então queremos buscar os status padrão para esta tela.
-  //         // A API precisa estar preparada para receber um array de status ou múltiplos parâmetros de status.
-  //         params.status = ["checkin_realizado", "realizada"];
-  //       }
-
-  //       // 3. Adicionar outros filtros, como o de nome (searchTerm)
-  //       if (filtros.filtroNome) {
-  //         params.searchTerm = filtros.filtroNome;
-  //       }
-
-  //       // 4. Adicionar filtro de data, se aplicável a esta tela (você não o tem no FilterSection atual)
-  //       // if (filtros.filtroData) {
-  //       //   params.dataConsulta = filtros.filtroData;
-  //       // }
-
-  //       // console.log("Parâmetros enviados para API:", params); // Bom para depurar
-
-  //       // 5. Chamar a API com os parâmetros construídos
-  //       const response = await getConsultas(params);
-  //       // export const getAtendimentos = async () => {
-  //       //   return await api.get(`${apiUrl}/atendimentos`);
-  //       // };
-
-  //       // console.log("Resposta da API (getConsultas):", response.data);
-  //       setItems(response.data.data || response.data || []);
-  //     } catch (err) {
-  //       console.error("Erro ao carregar dados:", err);
-  //       setError("Erro ao carregar dados. Tente novamente mais tarde.");
-  //     } finally {
-  //       setIsLoading(false);
-  //     }
-  //   };
-  //   fetchData();
-  // }, [filtros.filtroStatus, filtros.filtroNome]); // Dependências corretas
 
   const fetchData = async () => {
     setIsLoading(true);

@@ -101,7 +101,7 @@ const EmitirReceitas = () => {
     try {
       await criarReceita(novaReceitaData);
       toast.success("Receita emitida com sucesso!");
-      await fetchReceitas();
+      await fetchData();
       return true;
     } catch (error) {
       toast.error(error.response?.data?.error || "Erro ao salvar a receita.");

@@ -129,7 +129,7 @@ models.Profissional.hasMany(models.HorarioProfissional, {
 // Receita
 models.Receita.belongsTo(models.Profissional, {
   foreignKey: "matriculaProfissional",
-  as: "profissional",
+  as: "profissional", // Alias consistente com o controller
 });
 models.Profissional.hasMany(models.Receita, {
   foreignKey: "matriculaProfissional",
@@ -137,7 +137,7 @@ models.Profissional.hasMany(models.Receita, {
 });
 models.Receita.belongsTo(models.Paciente, {
   foreignKey: "cpfPaciente",
-  as: "paciente",
+  as: "paciente", // Alias consistente com o controller
 });
 models.Paciente.hasMany(models.Receita, {
   foreignKey: "cpfPaciente",
@@ -145,7 +145,7 @@ models.Paciente.hasMany(models.Receita, {
 });
 models.Receita.belongsTo(models.Medicamento, {
   foreignKey: "idMedicamento",
-  as: "medicamento",
+  as: "medicamento", // Alias consistente com o controller
 });
 models.Medicamento.hasMany(models.Receita, {
   foreignKey: "idMedicamento",

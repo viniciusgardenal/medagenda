@@ -1,305 +1,167 @@
+const { v4: uuidv4 } = require('uuid');
+const PDFDocument = require('pdfkit'); // Importa o PDFKit
 const Receita = require("../model/receitas");
-const Paciente = require("../model/paciente");
+const Paciente =require("../model/paciente");
 const Profissional = require("../model/profissionais");
 const Medicamento = require("../model/medicamentos");
-const fs = require("fs");
-const path = require("path");
-const PDFDocument = require("pdfkit");
+const sequelize = require('../config/db');
 
-// Função para criar uma nova receita
+// Função para criar a receita (sem alterações)
 const criarReceita = async (req, res) => {
+  const t = await sequelize.transaction();
   try {
-    const {
-      cpfPaciente,
-      matriculaProfissional,
-      idMedicamento,
-      dosagem,
-      instrucaoUso,
-    } = req.body;
+    const { cpfPaciente, matriculaProfissional, medicamentos } = req.body;
 
-    // Criação da receita
-    const novaReceita = await Receita.create({
-      cpfPaciente,
-      matriculaProfissional,
-      idMedicamento,
-      dosagem,
-      instrucaoUso,
+    if (!cpfPaciente || !matriculaProfissional || !Array.isArray(medicamentos) || medicamentos.length === 0) {
+      await t.rollback();
+      return res.status(400).json({ error: "Dados insuficientes para criar a receita." });
+    }
+
+    const batchId = uuidv4();
+
+    const receitasParaCriar = medicamentos.map(med => {
+      if (!med.idMedicamento || !med.dosagem || !med.instrucaoUso) {
+        throw new Error('Cada medicamento deve conter id, dosagem e instrução de uso.');
+      }
+      return {
+        cpfPaciente,
+        matriculaProfissional,
+        idMedicamento: med.idMedicamento,
+        dosagem: med.dosagem,
+        instrucaoUso: med.instrucaoUso,
+        batchId,
+      };
     });
 
-    // Gerar o PDF da receita
-    const doc = new PDFDocument();
+    await Receita.bulkCreate(receitasParaCriar, { transaction: t });
 
-    // Caminho temporário para salvar o PDF
-    const filePath = path.join(
-      __dirname,
-      "temp",
-      `${novaReceita.idReceita}.pdf`
-    );
+    await t.commit();
+    res.status(201).json({ message: "Receita criada com sucesso!", batchId });
 
-    // Salvar o PDF em disco
-    doc.pipe(fs.createWriteStream(filePath));
-
-    // Adicionar conteúdo ao PDF
-    doc.fontSize(18).text("Receita Médica", { align: "center" });
-    doc.fontSize(12).text(`Paciente: ${novaReceita.cpfPaciente}`);
-    doc.text(`Médico: ${novaReceita.matriculaProfissional}`);
-    doc.text(`Medicamento: ${novaReceita.idMedicamento}`);
-    doc.text(`Dosagem: ${novaReceita.dosagem}`);
-    doc.text(`Instruções de uso: ${novaReceita.instrucaoUso}`);
-
-    doc.end();
-
-    // Após o PDF ser gerado, envie como resposta
-    doc.on("finish", () => {
-      res.download(filePath, `${novaReceita.id}.pdf`, (err) => {
-        if (err) {
-          return res.status(500).json({ error: "Erro ao enviar o arquivo." });
-        }
-      });
-    });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    await t.rollback();
+    console.error("Erro ao criar receita:", error.message);
+    res.status(500).json({ error: "Ocorreu um erro inesperado ao criar a receita." });
   }
 };
 
-// Função para ler todas as receitas
+// Função para ler as receitas (sem alterações)
 const lerReceitas = async (req, res) => {
   try {
-    const receitas = await Receita.findAll({
+    const todosItens = await Receita.findAll({
       include: [
-        {
-          model: Paciente,
-          as: "paciente",
-          attributes: ["cpf", "nome", "sobrenome"],
-        },
-        {
-          model: Profissional,
-          as: "profissional",
-          attributes: ["matricula", "nome", "crm"],
-        },
-        {
-          model: Medicamento,
-          as: "medicamento",
-          attributes: ["idMedicamento", "nome", "controlado", "interacao"],
-        },
+        { model: Paciente, as: "paciente", attributes: ["cpf", "nome", "sobrenome"] },
+        { model: Profissional, as: "profissional", attributes: ["matricula", "nome", "crm"] },
+        { model: Medicamento, as: "medicamento", attributes: ["idMedicamento", "nomeMedicamento"] },
       ],
+      order: [['createdAt', 'DESC']],
     });
 
-    res.status(200).json(receitas);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-// Função para ler uma receita por ID
-const lerReceitaId = async (req, res) => {
-  try {
-    const id = req.params.id;
-    const receita = await Receita.findByPk(id, {
-      include: [
-        {
-          model: Paciente,
-          as: "paciente",
-          attributes: ["cpf", "nome", "sobrenome"],
-        },
-        {
-          model: Profissional,
-          as: "medico",
-          attributes: ["matricula", "nome"],
-        },
-        {
-          model: Medicamento,
-          as: "medicamento",
-          through: {
-            model: ReceitaMedicamentos,
-            attributes: ["dosagem", "instrucaoUso"],
-          },
-          attributes: ["idMedicamento", "nome", "controlado", "interacao"],
-        },
-      ],
-    });
-
-    if (!receita) {
-      return res.status(404).json({ message: "Receita não encontrada!" });
+    if (!todosItens.length) {
+      return res.status(200).json([]);
     }
 
-    res.status(200).json(receita);
+    const receitasAgrupadas = todosItens.reduce((acc, item) => {
+      if (!acc[item.batchId]) {
+        acc[item.batchId] = {
+          batchId: item.batchId,
+          paciente: item.paciente,
+          profissional: item.profissional,
+          createdAt: item.createdAt,
+          medicamentos: [],
+        };
+      }
+      acc[item.batchId].medicamentos.push({
+        idMedicamento: item.medicamento.idMedicamento,
+        nomeMedicamento: item.medicamento.nomeMedicamento,
+        dosagem: item.dosagem,
+        instrucaoUso: item.instrucaoUso,
+      });
+      return acc;
+    }, {});
+
+    res.status(200).json(Object.values(receitasAgrupadas));
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Erro ao ler receitas:", error.message);
+    res.status(500).json({ error: "Erro ao carregar receitas." });
   }
 };
 
-// // Função para atualizar uma receita
-// const atualizarReceita = async (req, res) => {
-//   try {
-//     const id = req.params.id;
-//     const { Paciente_matricula, Medico_matricula, medicamentos } = req.body;
-
-//     const receita = await Receita.findByPk(id);
-//     if (!receita) {
-//       return res.status(404).json({ message: "Receita não encontrada!" });
-//     }
-
-//     // Atualizar os dados da receita
-//     await receita.update({ Paciente_matricula, Medico_matricula });
-
-//     // Atualizar medicamentos
-//     if (medicamentos && Array.isArray(medicamentos)) {
-//       // Remover associações antigas
-//       await ReceitaMedicamentos.destroy({ where: { ReceitaId: id } });
-
-//       // Adicionar novas associações
-//       for (const med of medicamentos) {
-//         await ReceitaMedicamentos.create({
-//           ReceitaId: id,
-//           MedicamentoId: med.idMedicamento,
-//           dosagem: med.dosagem,
-//           instrucaoUso: med.instrucaoUso,
-//         });
-//       }
-//     }
-
-//     const receitaAtualizada = await Receita.findByPk(id, {
-//       include: [
-//         {
-//           model: Paciente,
-//           as: "paciente",
-//           attributes: ["cpf", "nome", "sobrenome"],
-//         },
-//         {
-//           model: Profissional,
-//           as: "medico",
-//           attributes: ["matricula", "nome"],
-//         },
-//         {
-//           model: Medicamento,
-//           as: "medicamento",
-//           through: {
-//             model: ReceitaMedicamentos,
-//             attributes: ["dosagem", "instrucaoUso"],
-//           },
-//           attributes: ["idMedicamento", "nome", "controlado", "interacao"],
-//         },
-//       ],
-//     });
-
-//     res.status(200).json({ message: "Receita atualizada com sucesso!", receitaAtualizada });
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// };
-
-// // Função para excluir uma receita
-// const excluirReceita = async (req, res) => {
-//   try {
-//     const id = req.params.id;
-//     const receita = await Receita.findByPk(id);
-
-//     if (!receita) {
-//       return res.status(404).json({ message: "Receita não encontrada!" });
-//     }
-
-//     await ReceitaMedicamentos.destroy({ where: { ReceitaId: id } });
-//     await receita.destroy();
-
-//     res.status(200).json({ message: "Receita excluída com sucesso!" });
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// };
-
-// Função para download da receita como arquivo de texto
+// **FUNÇÃO DE DOWNLOAD ATUALIZADA PARA GERAR PDF**
 const downloadReceita = async (req, res) => {
   try {
-    const id = req.params.id;
-
-    // Buscar a receita com os dados necessários
-    const receita = await Receita.findByPk(id, {
+    const { batchId } = req.params;
+    const itens = await Receita.findAll({
+      where: { batchId },
       include: [
-        {
-          model: Paciente,
-          attributes: ["cpf", "nome", "sobrenome"],
-        },
-        {
-          model: Profissional,
-          attributes: ["matricula", "nome", "crm"],
-        },
-        {
-          model: Medicamento,
-          attributes: [
-            "idMedicamento",
-            "nomeMedicamento",
-            "controlado",
-            "interacao",
-          ],
-        },
+        { model: Paciente, as: "paciente" },
+        { model: Profissional, as: "profissional" },
+        { model: Medicamento, as: "medicamento" },
       ],
     });
 
-    if (!receita) {
+    if (itens.length === 0) {
       return res.status(404).json({ message: "Receita não encontrada!" });
     }
 
-    // Formatar o conteúdo do arquivo
-    let conteudo = `
-      Receita Médica
-      -------------------------
-      Data de Emissão: ${new Date(receita.createdAt).toLocaleDateString()}
+    // Inicia a criação do documento PDF
+    const doc = new PDFDocument({ size: 'A5', margin: 40 });
 
-      Paciente:
-      CPF: ${receita.Paciente.cpf}
-      Nome: ${receita.Paciente.nome} ${receita.Paciente.sobrenome}
+    const { paciente, profissional, createdAt } = itens[0];
+    const fileName = `receita_${paciente.nome.split(' ')[0]}_${batchId.substring(0, 8)}.pdf`;
 
-      Médico:
-      CRM: ${receita.Profissional.crm}
-      Nome: ${receita.Profissional.nome}
+    // Configura os headers da resposta para indicar que é um arquivo PDF para download
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
 
-      Medicamentos:
-      Nome: ${receita.Medicamento.nomeMedicamento}
-      Dosagem: ${receita.dosagem}
-      Instrução de Uso: ${receita.instrucao}
-    `;
+    // Conecta o PDF diretamente à resposta. Não cria arquivo no servidor.
+    doc.pipe(res);
 
-    // Definir o caminho e nome do arquivo
-    const fileName = `receita_${receita.idReceita}.txt`;
-    const filePath = path.join(__dirname, "..", "downloads", fileName);
+    // --- Montagem do Conteúdo do PDF ---
 
-    // Criar a pasta downloads se não existir
-    const downloadsDir = path.join(__dirname, "..", "downloads");
-    if (!fs.existsSync(downloadsDir)) {
-      fs.mkdirSync(downloadsDir);
-    }
+    // Cabeçalho
+    doc.font('Helvetica-Bold').fontSize(16).text('RECEITUÁRIO MÉDICO', { align: 'center' });
+    doc.moveDown(2);
 
-    // Escrever o arquivo
-    fs.writeFileSync(filePath, conteudo, "utf8");
+    // Informações do Paciente
+    doc.fontSize(11).font('Helvetica-Bold').text('Paciente:');
+    doc.font('Helvetica').text(`${paciente.nome} ${paciente.sobrenome}`);
+    doc.font('Helvetica-Bold').text('CPF:').font('Helvetica').text(paciente.cpf);
+    doc.moveDown();
 
-    // Enviar o arquivo para download
-    res.download(filePath, fileName, (err) => {
-      if (err) {
-        console.error("Erro ao enviar o arquivo:", err.message);
-        return res
-          .status(500)
-          .json({ error: "Erro ao fazer download do arquivo." });
-      }
+    // Prescrição
+    doc.fontSize(12).font('Helvetica-Bold').text('Prescrição:', { underline: true });
+    doc.moveDown(0.5);
 
-      // Remover o arquivo após o download
-      fs.unlink(filePath, (unlinkErr) => {
-        if (unlinkErr) {
-          console.error("Erro ao remover o arquivo:", unlinkErr.message);
-        }
-      });
+    // Lista de medicamentos
+    itens.forEach((item, index) => {
+        doc.fontSize(11).font('Helvetica-Bold').text(`${index + 1}. ${item.medicamento.nomeMedicamento}`);
+        
+        doc.fontSize(10).font('Helvetica').text(`Dosagem: ${item.dosagem}`, { indent: 20 });
+        doc.fontSize(10).font('Helvetica').text(`Instruções: ${item.instrucaoUso}`, { indent: 20 });
+        doc.moveDown(1);
     });
+    
+    // Rodapé e Assinatura (posicionado mais abaixo na página)
+    const pageBottom = doc.page.height - 100;
+    doc.fontSize(10).font('Helvetica').text(`Data de Emissão: ${new Date(createdAt).toLocaleDateString('pt-BR')}`, 40, pageBottom - 20, { align: 'left' });
+
+    doc.fontSize(10).font('Helvetica').text('_________________________', { align: 'center' });
+    doc.font('Helvetica-Bold').text(profissional.nome, { align: 'center' });
+    doc.font('Helvetica').text(`CRM: ${profissional.crm}`, { align: 'center' });
+    
+    // Finaliza o PDF e o envio
+    doc.end();
+
   } catch (error) {
-    console.error("Erro no download da receita:", error.message);
-    res.status(500).json({ error: error.message });
+    console.error("Erro no download da receita em PDF:", error.message);
+    res.status(500).json({ error: "Erro interno ao gerar o PDF da receita." });
   }
 };
+
 
 module.exports = {
   criarReceita,
   lerReceitas,
-  lerReceitaId,
-  // atualizarReceita,
-  // excluirReceita,
   downloadReceita,
 };

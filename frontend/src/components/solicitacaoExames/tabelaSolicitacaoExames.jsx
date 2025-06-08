@@ -96,7 +96,7 @@ const TabelaSolicitacaoExames = ({
                   </button>
                   <button
                     onClick={() => onEditar(se?.idSolicitacaoExame)}
-                    className="text-green-500 hover:text-green-700"
+                    className="text-yellow-500 hover:text-yellow-700"
                     title="Editar"
                   >
                     <svg

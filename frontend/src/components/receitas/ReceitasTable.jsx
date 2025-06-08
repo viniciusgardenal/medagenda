@@ -1,98 +1,79 @@
 import React from "react";
-import { criarReceita } from "../../config/apiServices";
+import TableHeader from "./TableHeader";
 
-const ReceitasTable = ({ receitas, onVisualizar }) => {
-  const handleEmitirPDF = async (receita) => {
-    const dados = {
-      cpfPaciente: receita.cpfPaciente,
-      matriculaProfissional: receita.matriculaProfissional,
-      idMedicamento: receita.medicamentos.map((med) => med.idMedicamento),
-      dosagem: receita.dosagem,
-      instrucaoUso: receita.instrucaoUso,
-    };
+const ViewIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+    </svg>
+);
 
-    try {
-      const response = await criarReceita(dados);
-      if (response.headers["content-type"] === "application/pdf") {
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = "receita.pdf";
-        link.click();
-      }
-    } catch (error) {
-      console.error("Erro ao emitir receita", error);
-    }
-  };
+const DownloadIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+    </svg>
+);
 
+// O componente agora recebe 'sortField', 'sortDirection', e 'onSort'
+const ReceitasTable = ({ receitas, onVisualizar, onDownload, sortField, sortDirection, onSort }) => {
   return (
     <div className="overflow-x-auto rounded-lg shadow-md">
-      <table className="min-w-full divide-y divide-gray-200 bg-white">
+      <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-blue-600 text-white">
           <tr>
-            <th className="px-4 py-3 text-left text-sm font-semibold rounded-tl-lg">
-              Paciente
-            </th>
-            <th className="px-4 py-3 text-left text-sm font-semibold">
+            {/* Agora o onSort é conectado à função do componente pai */}
+            <TableHeader 
+              label="Data"
+              field="createdAt"
+              sortField={sortField}
+              sortDirection={sortDirection}
+              onSort={onSort}
+            />
+            <TableHeader 
+              label="Paciente"
+              field="paciente"
+              sortField={sortField}
+              sortDirection={sortDirection}
+              onSort={onSort}
+            />
+            
+            <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">
               Medicamentos
             </th>
-            <th className="px-4 py-3 text-left text-sm font-semibold">
-              Dosagem
-            </th>
-            <th className="px-4 py-3 text-left text-sm font-semibold">
-              Instrução de Uso
-            </th>
-            <th className="px-4 py-3 text-left text-sm font-semibold rounded-tr-lg">
+
+            <th className="px-6 py-3 text-center text-sm font-semibold uppercase tracking-wider">
               Ações
             </th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-200">
-          {receitas.length === 0 ? (
+        <tbody className="divide-y divide-gray-200 bg-white">
+          {!receitas || receitas.length === 0 ? (
             <tr>
-              <td
-                colSpan="5"
-                className="px-4 py-4 text-center text-gray-500"
-              >
-                Nenhuma receita registrada
+              <td colSpan="4" className="px-6 py-4 text-center text-gray-500 text-sm">
+                Nenhuma receita encontrada.
               </td>
             </tr>
           ) : (
-            receitas.map((receita, index) => (
-              <tr
-                key={index}
-                className="hover:bg-blue-50 transition-colors"
-              >
-                <td className="px-4 py-3 text-sm text-gray-700">
-                  {receita.pacienteNome} (CPF: {receita.cpfPaciente})
+            receitas.map((receita) => (
+              <tr key={receita.batchId} className="hover:bg-blue-50 transition-colors">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                  {new Date(receita.createdAt).toLocaleDateString("pt-BR")}
                 </td>
-                <td className="px-4 py-3 text-sm text-gray-700">
-                  {receita.medicamentos
-                    .map((med) => med.nomeMedicamento)
-                    .join(", ") || "—"}
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">
+                  {receita.paciente?.nome} {receita.paciente?.sobrenome}
                 </td>
-                <td className="px-4 py-3 text-sm text-gray-700">
-                  {receita.dosagem || "—"}
+                <td className="px-6 py-4 text-sm text-gray-700 max-w-xs truncate" title={receita.medicamentos.map(m => m.nomeMedicamento).join(', ')}>
+                  {receita.medicamentos.map(m => m.nomeMedicamento).join(', ')}
                 </td>
-                <td className="px-4 py-3 text-sm text-gray-700">
-                  {receita.instrucaoUso || "—"}
-                </td>
-                <td className="px-4 py-3 flex gap-3">
-                  <button
-                    onClick={() => onVisualizar(receita)}
-                    className="text-blue-500 hover:text-blue-700"
-                    title="Visualizar"
-                  >
-                    <EyeIcon />
-                  </button>
-                  <button
-                    onClick={() => handleEmitirPDF(receita)}
-                    className="text-green-500 hover:text-green-700"
-                    title="Emitir PDF"
-                  >
-                    <EmitIcon />
-                  </button>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                  <div className="flex items-center justify-center gap-4">
+                    <button onClick={() => onVisualizar(receita)} className="text-blue-600 hover:text-blue-800" title="Visualizar Detalhes">
+                      <ViewIcon />
+                    </button>
+                    <button onClick={() => onDownload(receita.batchId)} className="text-green-600 hover:text-green-800" title="Baixar Receita em PDF">
+                      <DownloadIcon />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))
@@ -102,45 +83,5 @@ const ReceitasTable = ({ receitas, onVisualizar }) => {
     </div>
   );
 };
-
-const EyeIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    className="h-5 w-5"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-    />
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M2.458 12C3.732 7.943 7.522 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.478 0-8.268-2.943-9.542-7z"
-    />
-  </svg>
-);
-
-const EmitIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    className="h-5 w-5"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"
-    />
-  </svg>
-);
 
 export default ReceitasTable;

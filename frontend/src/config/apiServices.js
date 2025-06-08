@@ -258,8 +258,20 @@ export const getSolicitacaoExamesId = async (id) => {
 };
 
 export const criarReceita = async (dadosReceita) => {
-  return await api.post(`/receitas`, dadosReceita);
+  // `dadosReceita` deve ser um objeto como: { cpfPaciente, matriculaProfissional, medicamentos: [...] }
+  return await api.post(`${apiUrl}/receitas`, dadosReceita);
 };
+
+export const lerReceitas = async () => {
+  return await api.get(`${apiUrl}/receitas`);
+};
+
+export const downloadReceita = async (batchId) => {
+  return await api.get(`${apiUrl}/receitas/download/${batchId}`, {
+    responseType: "blob", // Essencial para o download de arquivos
+  });
+};
+
 
 export const criarAtestado = (dadosAtestado) => {
   return api.post("/atestados", dadosAtestado, {

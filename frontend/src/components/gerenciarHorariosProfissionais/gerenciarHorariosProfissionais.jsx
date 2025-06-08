@@ -304,13 +304,13 @@ const GerenciarHorariosProfissionais = () => {
   };
   
   // const handleRefresh = () => { // Função não utilizada no JSX fornecido
-  //   fetchData();
+  //  fetchData();
   // };
 
   // const profissionaisAtivos = profissionais.filter((prof) => // Variável não utilizada
-  //   horarios.some(
-  //     (h) => h.matriculaProfissional.toString() === prof.matricula.toString()
-  //   )
+  //  horarios.some(
+  //    (h) => h.matriculaProfissional.toString() === prof.matricula.toString()
+  //  )
   // ).length;
 
   const tableHeaders = ["Matrícula", "Nome do Profissional", "Cargo"];
@@ -347,7 +347,7 @@ const GerenciarHorariosProfissionais = () => {
               type="text"
               value={filtroNome}
               onChange={(e) => setFiltroNome(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full px-3 py-3 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
               placeholder="Filtrar por nome"
             />
           </div>
@@ -360,7 +360,7 @@ const GerenciarHorariosProfissionais = () => {
               type="text"
               value={filtroMatricula}
               onChange={(e) => setFiltroMatricula(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full px-3 py-3 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
               placeholder="Filtrar por matrícula"
             />
           </div>
@@ -372,7 +372,7 @@ const GerenciarHorariosProfissionais = () => {
               id="filtroTipoProfissional"
               value={filtroTipoProfissional}
               onChange={(e) => setFiltroTipoProfissional(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full px-3 py-3 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
             >
               <option value="">Todos os Tipos</option>
               <option value="medico">Médico</option>
@@ -395,7 +395,8 @@ const GerenciarHorariosProfissionais = () => {
                       <th
                         key={header}
                         onClick={() => handleSort(sortableFields[index])}
-                        className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider cursor-pointer"
+                        // ALTERAÇÃO: Padding reduzido de px-6 py-3 para px-4 py-3
+                        className="px-4 py-3 text-left text-sm font-semibold uppercase tracking-wider cursor-pointer"
                       >
                         {header}
                         {sortField === sortableFields[index] && (
@@ -406,7 +407,8 @@ const GerenciarHorariosProfissionais = () => {
                       </th>
                     )
                   )}
-                  <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">
+                  {/* ALTERAÇÃO: Padding reduzido de px-6 py-3 para px-4 py-3 */}
+                  <th className="px-4 py-3 text-left text-sm font-semibold uppercase tracking-wider">
                     Ações
                   </th>
                 </tr>
@@ -416,7 +418,8 @@ const GerenciarHorariosProfissionais = () => {
                   <tr>
                     <td
                       colSpan={tableHeaders.length + 1}
-                      className="px-6 py-4 text-center text-gray-500 text-sm"
+                      // ALTERAÇÃO: Padding reduzido de px-6 py-4 para px-4 py-3
+                      className="px-4 py-3 text-center text-gray-500 text-sm"
                     >
                       {profissionaisFiltrados.length === 0 && (filtroNome || filtroMatricula || filtroTipoProfissional)
                         ? "Nenhum profissional encontrado após filtragem."
@@ -430,16 +433,20 @@ const GerenciarHorariosProfissionais = () => {
                       key={prof.matricula}
                       className="hover:bg-blue-50 transition-colors"
                     >
-                      <td className="px-6 py-4 text-sm text-gray-700 font-medium">
+                      {/* ALTERAÇÃO: Padding reduzido de px-6 py-4 para px-4 py-3 */}
+                      <td className="px-4 py-3 text-sm text-gray-700 font-medium">
                         {prof.matricula || "N/A"}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-700">{`${
+                      {/* ALTERAÇÃO: Padding reduzido de px-6 py-4 para px-4 py-3 */}
+                      <td className="px-4 py-3 text-sm text-gray-700">{`${
                         prof.nome
                       } ${prof.sobrenome || ""}`}</td>
-                      <td className="px-6 py-4 text-sm text-gray-700">
+                      {/* ALTERAÇÃO: Padding reduzido de px-6 py-4 para px-4 py-3 */}
+                      <td className="px-4 py-3 text-sm text-gray-700">
                         {prof.tipoProfissional || "N/A"}
                       </td>
-                      <td className="px-6 py-4 text-sm flex gap-3">
+                      {/* ALTERAÇÃO: Padding reduzido de px-6 py-4 para px-4 py-3 */}
+                      <td className="px-4 py-3 text-sm flex gap-3">
                         <button
                           onClick={() => openViewModal(prof)}
                           className="text-blue-600 hover:text-blue-700 transition-colors"
@@ -485,7 +492,8 @@ const GerenciarHorariosProfissionais = () => {
           onSave={handleSave}
           isSaving={isSaving}
           profissionais={profissionais} // Passando a lista de profissionais
-          selectedProfissional={selectedProfissional} // Passando o profissional selecionado
+          selectedProfissional={selectedProfissional}// Passando o profissional selecionado
+          horarios={horarios}  
         />
         <ModalEditHorario
           isOpen={modalEditOpen}

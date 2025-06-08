@@ -3,8 +3,18 @@ const tiposExames = models.TiposExames;
 
 const criarTiposExame = async (req, res) => {
   try {
-    const novoTipoExame = await tiposExames.create(req.body);
-    res.status(201).json(novoTipoExame);
+    const dados = req.body;
+
+    let resultado;
+    if (Array.isArray(dados)) {
+      // Se for um array, cria múltiplos tipos de exame
+      resultado = await tiposExames.bulkCreate(dados);
+    } else {
+      // Se for um único objeto, cria apenas um tipo de exame
+      resultado = await tiposExames.create(dados);
+    }
+
+    res.status(201).json(resultado);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }

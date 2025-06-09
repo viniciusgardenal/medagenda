@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import {
   getRegistrosInativosResultadoExames,
   atualizarRegistroResultadoExame,
+  getSolicitacaoExames,
 } from "../../config/apiServices";
 import ModalEditObservacao from "./ModalEditObservacao";
 import ModalAddObservacao from "./modalAddObservacao";
@@ -10,6 +11,7 @@ import FiltroRegistroResultadoExames from "./filtroRegistroResultadoExames";
 import Pagination from "../util/Pagination";
 // FaEdit e FaEye serão substituídos por SVGs. FaSyncAlt parece não utilizado.
 import { FaPlus, FaCheckCircle, /*FaEdit, FaEye, FaSyncAlt,*/ FaFileMedical } from "react-icons/fa";
+import { getRegistrosInativos } from "../../../../backend/src/controller/registroResultadoExamesController";
 
 // Componente SVG para o ícone de Visualizar
 const ViewIcon = () => (
@@ -103,8 +105,8 @@ const RegistroResultadoExames = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await getRegistrosInativosResultadoExames();
-      console.log("Aqui");
+      const response = await getSolicitacaoExames();
+      console.log("Aqui", response);
       
       setRegistros(response.data.data || []);
     } catch (error) {

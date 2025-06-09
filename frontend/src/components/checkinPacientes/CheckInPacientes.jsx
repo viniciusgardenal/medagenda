@@ -676,12 +676,12 @@ const CheckInPacientes = () => {
               <thead className="bg-blue-600 text-white">
                 <tr>
                   {[
-                    "Paciente",
-                    "Médico",
-                    "Horário",
-                    "Prioridade",
-                    "Status",
-                    "Ações",
+                    "PACIENTE",
+                    "MÉDICO",
+                    "HORÁRIO",
+                    "PRIORIDADE",
+                    "STATUS",
+                    "AÇÕES",
                   ].map((header, index) => (
                     <th
                       key={header}

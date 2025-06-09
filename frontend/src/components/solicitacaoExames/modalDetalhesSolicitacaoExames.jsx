@@ -1,157 +1,68 @@
-import React from "react";
-import html2canvas from "html2canvas";
-
-const handleDownload = () => {
-  const content = document.querySelector(".modal-detalhes");
-  if (!content) return;
-  const allElements = content.querySelectorAll("*");
-  allElements.forEach((el) => {
-    if (el.tagName === "BUTTON" || el.classList.contains("modal-close-button")) {
-      el.style.display = "none";
-    }
-  });
-  html2canvas(content, {
-    scrollX: 0,
-    scrollY: -window.scrollY,
-    x: 0,
-    y: 0,
-    scale: 2,
-  }).then((canvas) => {
-    const dataUrl = canvas.toDataURL("image/png");
-    const link = document.createElement("a");
-    link.href = dataUrl;
-    link.download = "detalhes_solicitacao.png";
-    link.click();
-    allElements.forEach((el) => {
-      el.style.display = "";
-    });
-  });
-};
+import React from 'react';
+import { FaVial, FaUserMd, FaUserInjured, FaCalendarDay, FaClock, FaInfoCircle, FaAlignLeft } from "react-icons/fa";
 
 const ModalDetalhesSolicitacaoExames = ({ isOpen, onClose, solicitacaoExames }) => {
+  const formatarData = (dataStr) => {
+    if (!dataStr) return "N/A";
+    const data = new Date(dataStr);
+    const dataCorrigida = new Date(data.valueOf() + data.getTimezoneOffset() * 60000);
+    return dataCorrigida.toLocaleDateString('pt-BR');
+  };
+
   if (!isOpen) return null;
 
-  if (!solicitacaoExames) {
-    return (
-      <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50">
-        <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-lg relative modal-detalhes">
-          <button
-            className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors duration-150 modal-close-button"
-            onClick={onClose}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="w-6 h-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-          <p className="text-gray-600">Nenhuma solicitação selecionada.</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Log para depuração
-  console.log("solicitacaoExames:", {
-    id: solicitacaoExames.idSolicitacaoExame,
-    nomeTipoExame: solicitacaoExames.nomeTipoExame,
-    tipoExame: solicitacaoExames.tipoExame,
-  });
-
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-lg relative modal-detalhes">
-        <button
-          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors duration-150 modal-close-button"
-          onClick={onClose}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="w-6 h-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-        <h2 className="text-2xl font-semibold text-blue-600 mb-6">Detalhes da Solicitação</h2>
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">ID</label>
-            <div className="bg-gray-100 p-2 rounded text-sm shadow-sm">
-              {solicitacaoExames.idSolicitacaoExame || "N/A"}
-            </div>
+    <div className="fixed inset-0 bg-gray-800 bg-opacity-60 flex items-center justify-center z-50">
+      <div className="bg-white w-full max-w-xl p-8 rounded-2xl shadow-2xl">
+        <div className="flex items-center gap-3 mb-6">
+          <FaVial className="h-8 w-8 text-blue-600" />
+          <h3 className="text-2xl font-bold text-gray-800">Detalhes da Solicitação de Exame</h3>
+        </div>
+        <button onClick={onClose} className="absolute top-4 right-4 text-gray-500 hover:text-gray-700">&times;</button>
+        {!solicitacaoExames ? <p>Carregando...</p> : (
+          <div className="space-y-6">
+            <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
+              <div className="sm:col-span-2 border-b border-gray-200 pb-4">
+                <dt className="text-sm font-semibold text-gray-900">Exame Solicitado</dt>
+                <dd className="mt-1 text-lg text-gray-700">{solicitacaoExames.tipoExame?.nomeTipoExame || "N/A"}</dd>
+              </div>
+              <div>
+                <dt className="flex items-center gap-2 text-sm font-semibold text-gray-900"><FaUserInjured className="h-4 w-4 text-blue-500" />Paciente</dt>
+                <dd className="mt-1 text-sm text-gray-700 pl-6">{`${solicitacaoExames.paciente?.nome || ''} ${solicitacaoExames.paciente?.sobrenome || ''}`.trim() || "N/A"}</dd>
+              </div>
+              <div>
+                <dt className="flex items-center gap-2 text-sm font-semibold text-gray-900"><FaUserMd className="h-4 w-4 text-blue-500" />Profissional Solicitante</dt>
+                <dd className="mt-1 text-sm text-gray-700 pl-6">{solicitacaoExames.profissional?.nome || "N/A"}</dd>
+              </div>
+              <div>
+                <dt className="flex items-center gap-2 text-sm font-semibold text-gray-900"><FaCalendarDay className="h-4 w-4 text-blue-500" />Data da Solicitação</dt>
+                <dd className="mt-1 text-sm text-gray-700 pl-6">{formatarData(solicitacaoExames.dataSolicitacao)}</dd>
+              </div>
+              <div>
+                <dt className="flex items-center gap-2 text-sm font-semibold text-gray-900"><FaCalendarDay className="h-4 w-4 text-red-500" />Data de Retorno</dt>
+                <dd className="mt-1 text-sm text-gray-700 pl-6">{formatarData(solicitacaoExames.dataRetorno)}</dd>
+              </div>
+              <div>
+                <dt className="flex items-center gap-2 text-sm font-semibold text-gray-900"><FaClock className="h-4 w-4 text-blue-500" />Período</dt>
+                <dd className="mt-1 text-sm text-gray-700 pl-6">{solicitacaoExames.periodo || "N/A"}</dd>
+              </div>
+              <div>
+                <dt className="flex items-center gap-2 text-sm font-semibold text-gray-900"><FaInfoCircle className="h-4 w-4 text-blue-500" />Status</dt>
+                <dd className="mt-1 text-sm text-gray-700 pl-6">
+                    <span className={`inline-block px-2 py-1 text-xs font-semibold rounded-full ${solicitacaoExames.status === "Ativo" ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"}`}>
+                      {solicitacaoExames.status === "Ativo" ? "Solicitado" : "Registrado"}
+                    </span>
+                </dd>
+              </div>
+              <div className="sm:col-span-2">
+                <dt className="flex items-center gap-2 text-sm font-semibold text-gray-900"><FaAlignLeft className="h-4 w-4 text-blue-500" />Justificativa</dt>
+                <dd className="mt-1 text-sm text-gray-700 pl-6 whitespace-pre-wrap">{solicitacaoExames.justificativa || "Nenhuma."}</dd>
+              </div>
+            </dl>
           </div>
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">Exame</label>
-            <div className="bg-gray-100 p-2 rounded text-sm shadow-sm">
-              {solicitacaoExames.tipoExame?.nome ||
-               solicitacaoExames.tipoExame?.nomeTipoExame ||
-               solicitacaoExames.nomeTipoExame ||
-               "N/A"}
-            </div>
-          </div>
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">Médico</label>
-            <div className="bg-gray-100 p-2 rounded text-sm shadow-sm">
-              {solicitacaoExames.profissional
-                ? `${solicitacaoExames.profissional.nome || "N/A"} ${solicitacaoExames.profissional.crm || ""}`
-                : "N/A"}
-            </div>
-          </div>
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">Paciente</label>
-            <div className="bg-gray-100 p-2 rounded text-sm shadow-sm">
-              {solicitacaoExames.paciente
-                ? `${solicitacaoExames.paciente.nome || "N/A"} ${solicitacaoExames.paciente.sobrenome || ""}`
-                : "N/A"}
-            </div>
-          </div>
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">Período</label>
-            <div className="bg-gray-100 p-2 rounded text-sm shadow-sm">
-              {solicitacaoExames.periodo || "N/A"}
-            </div>
-          </div>
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">Data de Solicitação</label>
-            <div className="bg-gray-100 p-2 rounded text-sm shadow-sm">
-              {solicitacaoExames.dataSolicitacao || "N/A"}
-            </div>
-          </div>
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">Data de Retorno</label>
-            <div className="bg-gray-100 p-2 rounded text-sm shadow-sm">
-              {solicitacaoExames.dataRetorno || "N/A"}
-            </div>
-          </div>
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">Status</label>
-            <div className="bg-gray-100 p-2 rounded text-sm shadow-sm">
-              {solicitacaoExames.status || "N/A"}
-            </div>
-          </div>
-          <div className="col-span-2 space-y-2">
-            <label className="block text-sm font-medium text-gray-700">Justificativa</label>
-            <textarea
-              value={solicitacaoExames.justificativa || ""}
-              readOnly
-              rows={10}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-sm text-gray-600 cursor-not-allowed shadow-sm resize-none"
-            />
-          </div>
-          <button
-            type="button"
-            onClick={handleDownload}
-            className="col-span-2 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-150 mt-2"
-          >
-            Download
-          </button>
+        )}
+        <div className="flex justify-end gap-4 mt-8">
+          <button onClick={onClose} className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">Fechar</button>
         </div>
       </div>
     </div>

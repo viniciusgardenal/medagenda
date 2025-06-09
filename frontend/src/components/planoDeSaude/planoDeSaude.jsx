@@ -14,7 +14,11 @@ import ModalDetalhesPlanoDeSaude from "./modalDetalhesPlanoDeSaude";
 
 const PlanoSaude = () => {
   const [planosSaude, setPlanosSaude] = useState([]);
-  const [filtro, setFiltro] = useState("");
+  const [filtros, setFiltros] = useState({
+    nomeOperadora: "",
+    tipoPlano: "",
+  });
+
   const [isModalOpenAdd, setIsModalOpenAdd] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [idToDelete, setIdToDelete] = useState(null);
@@ -22,21 +26,23 @@ const PlanoSaude = () => {
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const [showEditSuccessAlert, setShowEditSuccessAlert] = useState(false);
   const [isModalOpenEditar, setIsModalOpenEditar] = useState(false);
+  const [isModalOpenDetalhes, setIsModalDetalhesOpen] = useState(false);
   const [planoSaudeSelecionado, setPlanoSaudeSelecionado] = useState(null);
-  const [isModalDetalhesOpen, setIsModalDetalhesOpen] = useState(false);
-  const [planoParaDetalhes, setPlanoParaDetalhes] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(8);
   const [isLoading, setIsLoading] = useState(false);
+  const [sortField, setSortField] = useState("nomeOperadora");
+  const [sortDirection, setSortDirection] = useState("asc");
 
   const loadPlanosSaude = async () => {
     setIsLoading(true);
     try {
       const response = await getPlanoDeSaude();
-      setPlanosSaude(response.data);
-      setCurrentPage(1);
+      console.log("Planos recebidos:", response.data); // Log para diagnóstico
+      setPlanosSaude(response.data || []);
     } catch (error) {
       console.error("Erro ao carregar planos de saúde:", error);
+      alert("Erro ao carregar planos de saúde. Verifique o console para detalhes.");
     } finally {
       setIsLoading(false);
     }
@@ -46,27 +52,75 @@ const PlanoSaude = () => {
     loadPlanosSaude();
   }, []);
 
-  const handleFiltroChange = (e) => {
-    setFiltro(e.target.value);
+  const handleSort = (field) => {
+    if (field === sortField) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortField(field);
+      setSortDirection("asc");
+    }
     setCurrentPage(1);
   };
 
-  const planosSaudeFiltrados = planosSaude.filter((ps) =>
-    ps.nomeOperadora.toLowerCase().includes(filtro.toLowerCase())
-  );
+  const sortData = (data) => {
+    return [...data].sort((a, b) => {
+      if (!a || !b || !a.hasOwnProperty(sortField) || !b.hasOwnProperty(sortField)) {
+        console.warn(`Campo ${sortField} ausente em alguns planos`, a, b); // Log para diagnóstico
+        return 0;
+      }
+      const valueA = a[sortField];
+      const valueB = b[sortField];
+      const direction = sortDirection === "asc" ? 1 : -1;
 
+      if (valueA == null || valueA === "") return 1 * direction;
+      if (valueB == null || valueB === "") return -1 * direction;
+
+      if (["dataInicio", "dataFim"].includes(sortField)) {
+        const dateA = new Date(valueA);
+        const dateB = new Date(valueB);
+        return (dateA.getTime() - dateB.getTime()) * direction;
+      }
+
+      if (!isNaN(valueA) && !isNaN(valueB)) {
+        return (Number(valueA) - Number(valueB)) * direction;
+      }
+
+      return String(valueA)
+        .toLowerCase()
+        .localeCompare(String(valueB).toLowerCase()) * direction;
+    });
+  };
+
+  const handleFiltroChange = (e) => {
+    const { name, value } = e.target;
+    setFiltros((prevFiltros) => ({
+      ...prevFiltros,
+      [name]: value,
+    }));
+    setCurrentPage(1);
+  };
+
+  const planosSaudeFiltrados = planosSaude.filter((plano) => {
+    const nomeOperadoraMatch = (plano.nomeOperadora || "")
+      .toLowerCase()
+      .includes(filtros.nomeOperadora.toLowerCase());
+    const tipoPlanoMatch = (plano.tipoPlano || "")
+      .toLowerCase()
+      .includes(filtros.tipoPlano.toLowerCase());
+    return nomeOperadoraMatch && tipoPlanoMatch;
+  });
+
+  const planosSaudeOrdenados = sortData(planosSaudeFiltrados);
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = planosSaudeFiltrados.slice(
+  const currentItems = planosSaudeOrdenados.slice(
     indexOfFirstItem,
     indexOfLastItem
   );
-
-  const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
-  };
+  const handlePageChange = (pageNumber) => setCurrentPage(pageNumber);
 
   const handleDelete = (id) => {
+    console.log("Excluir plano com ID:", id); // Log para diagnóstico
     setIdToDelete(id);
     setIsModalOpen(true);
   };
@@ -74,143 +128,156 @@ const PlanoSaude = () => {
   const confirmDelete = async () => {
     try {
       await excluirPlanoDeSaude(idToDelete);
+      setPlanosSaude((planosAnteriores) =>
+        planosAnteriores.filter((p) => p.idPlanoSaude !== idToDelete)
+      );
       setShowAlert(true);
-      await loadPlanosSaude();
+      setTimeout(() => setShowAlert(false), 3000);
+      await loadPlanosSaude(); // Recarrega a lista após exclusão
     } catch (error) {
       console.error("Erro ao excluir plano de saúde:", error);
+      alert("Erro ao excluir plano de saúde. Verifique o console.");
     } finally {
       setIsModalOpen(false);
       setIdToDelete(null);
     }
   };
 
-  const handleSave = async () => {
-    await loadPlanosSaude();
+  const handleSave = async (novoPlano) => {
+    setPlanosSaude((planosAnteriores) => [...planosAnteriores, novoPlano]);
+    setFiltros({ nomeOperadora: "", tipoPlano: "" }); // Resetar filtros
     setShowSuccessAlert(true);
+    setTimeout(() => setShowSuccessAlert(false), 3000);
+    await loadPlanosSaude(); // Recarrega a lista após salvar
   };
 
-  const handleEditar = async (idPlanoSaude) => {
+  const openModalWithData = async (id, modalType) => {
+    console.log(`Abrindo modal ${modalType} para ID: ${id}`); // Log para diagnóstico
     try {
-      const response = await getPlanoDeSaudeId(idPlanoSaude);
+      const response = await getPlanoDeSaudeId(id);
+      console.log("Dados do plano:", response.data); // Log para diagnóstico
       setPlanoSaudeSelecionado(response.data);
-      setIsModalOpenEditar(true);
+      if (modalType === "editar") {
+        setIsModalOpenEditar(true);
+      } else if (modalType === "detalhes") {
+        setIsModalDetalhesOpen(true);
+      }
     } catch (error) {
-      console.error("Erro ao editar plano de saúde:", error);
+      console.error(`Erro ao carregar dados do plano para ${modalType}:`, error);
+      alert(`Erro ao abrir ${modalType}: ${error.message}`);
     }
   };
 
-  const handleDetalhes = (plano) => {
-    setPlanoParaDetalhes(plano);
-    setIsModalDetalhesOpen(true);
-  };
+  const handleEditar = (id) => openModalWithData(id, "editar");
+  const handleDetalhes = (id) => openModalWithData(id, "detalhes");
 
   const handleCloseModal = () => {
     setIsModalOpenEditar(false);
+    setIsModalDetalhesOpen(false);
     setPlanoSaudeSelecionado(null);
   };
 
-  const handleUpdatePlanoSaude = () => {
-    loadPlanosSaude();
+  const handleUpdatePlanoSaude = async (planoAtualizado) => {
+    if (!planoAtualizado || !planoAtualizado.idPlanoSaude) {
+      console.error(
+        "Falha ao receber os dados atualizados. Recarregando a lista completa como fallback."
+      );
+      await loadPlanosSaude();
+      handleCloseModal();
+      return;
+    }
+
+    setPlanosSaude((planosAnteriores) =>
+      planosAnteriores.map((plano) =>
+        plano.idPlanoSaude === planoAtualizado.idPlanoSaude
+          ? planoAtualizado
+          : plano
+      )
+    );
     setShowEditSuccessAlert(true);
+    setTimeout(() => setShowEditSuccessAlert(false), 3000);
     handleCloseModal();
+    await loadPlanosSaude(); // Recarrega a lista após atualização
   };
 
   return (
     <div className="min-h-screen bg-gray-200 p-6">
       <section className="max-w-6xl mx-auto bg-white rounded-2xl shadow-md p-6">
         <div className="border-b pb-4 flex justify-between items-center">
-          <h2 className="text-3xl font-bold text-blue-600 flex items-center gap-3">
+          <h2 className="text-3xl font-bold text-blue-600">
             Gerenciar Planos de Saúde
           </h2>
           <button
             onClick={() => setIsModalOpenAdd(true)}
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700 transition-colors"
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700"
           >
-            <FaPlus className="h-5 w-5" />
-            Adicionar Plano de Saúde
+            <FaPlus /> Adicionar Plano
           </button>
         </div>
 
-        {showAlert && (
-          <div className="mt-6 p-4 text-sm text-red-700 bg-red-100 rounded-lg border border-red-300">
-            Plano de saúde excluído com sucesso.
-          </div>
-        )}
-        {showSuccessAlert && (
-          <div className="mt-6 p-4 text-sm text-green-700 bg-green-100 rounded-lg border border-green-200">
-            Plano de saúde adicionado com sucesso!
-          </div>
-        )}
-        {showEditSuccessAlert && (
-          <div className="mt-6 p-4 text-sm text-green-700 bg-green-100 rounded-lg border border-green-200">
-            Plano de saúde editado com sucesso!
-          </div>
-        )}
-
-        <div className="flex flex-col md:flex-row gap-4 mt-6">
-          <div className="flex-1">
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+          <div>
+            <label
+              htmlFor="nomeOperadora"
+              className="block text-sm font-semibold text-gray-700 mb-1"
+            >
               Busca por Nome da Operadora
             </label>
-            <div className="relative">
-              <input
-                id="filtro"
-                type="text"
-                value={filtro}
-                onChange={handleFiltroChange}
-                className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-                placeholder="Filtrar por operadora"
-              />
-              {filtro && (
-                <button
-                  onClick={() => handleFiltroChange({ target: { value: "" } })}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </button>
-              )}
-            </div>
+            <input
+              id="nomeOperadora"
+              name="nomeOperadora"
+              type="text"
+              value={filtros.nomeOperadora}
+              onChange={handleFiltroChange}
+              className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+              placeholder="Filtrar por operadora..."
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="tipoPlano"
+              className="block text-sm font-semibold text-gray-700 mb-1"
+            >
+              Busca por Tipo do Plano
+            </label>
+            <select
+              id="tipoPlano"
+              name="tipoPlano"
+              value={filtros.tipoPlano}
+              onChange={handleFiltroChange}
+              className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
+            >
+              <option value="">Todos os Tipos</option>
+              <option value="Individual">Individual</option>
+              <option value="Familiar">Familiar</option>
+              <option value="Empresarial">Empresarial</option>
+            </select>
           </div>
         </div>
 
         <div className="mt-6 overflow-x-auto rounded-lg shadow-md">
           {isLoading ? (
-            <p className="text-center text-gray-500 py-4 text-sm bg-white">
-              Carregando registros...
-            </p>
-          ) : planosSaudeFiltrados.length === 0 ? (
-            <p className="text-center text-gray-500 py-4 text-sm bg-white">
-              Nenhum plano de saúde encontrado.
-            </p>
+            <p className="text-center text-gray-500 py-4">Carregando...</p>
           ) : (
             <TabelaPlanoSaude
               planos={currentItems}
               onExcluir={handleDelete}
               onEditar={handleEditar}
               onDetalhes={handleDetalhes}
+              onSort={handleSort}
+              sortField={sortField}
+              sortDirection={sortDirection}
             />
           )}
         </div>
 
-        {planosSaudeFiltrados.length > 0 && (
+        {planosSaudeOrdenados.length > itemsPerPage && (
           <div className="mt-6">
             <Pagination
-              totalItems={planosSaudeFiltrados.length}
+              totalItems={planosSaudeOrdenados.length}
               itemsPerPage={itemsPerPage}
               currentPage={currentPage}
               onPageChange={handlePageChange}
-              maxPageButtons={5}
             />
           </div>
         )}
@@ -222,25 +289,23 @@ const PlanoSaude = () => {
             onSave={handleSave}
           />
         )}
-        {isModalOpenEditar && planoSaudeSelecionado && (
-          <ModalEditarPlanoSaude
-            isOpen={isModalOpenEditar}
-            onClose={handleCloseModal}
-            plano={planoSaudeSelecionado}
-            onUpdate={handleUpdatePlanoSaude}
-          />
+
+        {planoSaudeSelecionado && (
+          <>
+            <ModalEditarPlanoSaude
+              isOpen={isModalOpenEditar}
+              onClose={handleCloseModal}
+              plano={planoSaudeSelecionado}
+              onUpdate={handleUpdatePlanoSaude}
+            />
+            <ModalDetalhesPlanoDeSaude
+              isOpen={isModalOpenDetalhes}
+              onClose={handleCloseModal}
+              planoDeSaude={planoSaudeSelecionado}
+            />
+          </>
         )}
-        {isModalDetalhesOpen && planoParaDetalhes && (
-          <ModalDetalhesPlanoDeSaude
-            isOpen={isModalDetalhesOpen}
-            onClose={() => {
-              setIsModalDetalhesOpen(false);
-              setPlanoParaDetalhes(null);
-            }}
-            planoDeSaude={planoParaDetalhes}
-            onEditar={handleEditar}
-          />
-        )}
+
         {isModalOpen && (
           <ConfirmationModal
             isOpen={isModalOpen}

@@ -1,28 +1,74 @@
 import React from "react";
+import TableHeader from "../util/TableHeader";
 
-const TabelaPlanoDeSaude = ({ planos, onEditar, onExcluir, onDetalhes }) => {
+const TabelaPlanoDeSaude = ({
+  planos,
+  onEditar,
+  onExcluir,
+  onDetalhes,
+  sortField,
+  sortDirection,
+  onSort,
+}) => {
   return (
     <table className="min-w-full divide-y divide-gray-200">
       <thead className="bg-blue-600 text-white">
         <tr>
-          <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">Nome da Operadora</th>
-          <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">Código do Plano</th>
-          <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">Tipo do Plano</th>
-          <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">Status</th>
-          <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">Ações</th>
+          <TableHeader
+            label="Nome da Operadora"
+            field="nomeOperadora"
+            sortField={sortField}
+            sortDirection={sortDirection}
+            onSort={onSort}
+          />
+          <TableHeader
+            label="Código do Plano"
+            field="codigoPlano"
+            sortField={sortField}
+            sortDirection={sortDirection}
+            onSort={onSort}
+          />
+          <TableHeader
+            label="Tipo do Plano"
+            field="tipoPlano"
+            sortField={sortField}
+            sortDirection={sortDirection}
+            onSort={onSort}
+          />
+          <TableHeader
+            label="Status"
+            field="status"
+            sortField={sortField}
+            sortDirection={sortDirection}
+            onSort={onSort}
+          />
+          <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">
+            Ações
+          </th>
         </tr>
       </thead>
       <tbody className="divide-y divide-gray-200">
         {planos && planos.length > 0 ? (
           planos.map((plano) => (
-            <tr key={plano.idPlanoSaude} className="hover:bg-blue-50 transition-colors">
-              <td className="px-6 py-4 text-sm text-gray-700">{plano.nomeOperadora || "N/A"}</td>
-              <td className="px-6 py-4 text-sm text-gray-700">{plano.codigoPlano || "N/A"}</td>
-              <td className="px-6 py-4 text-sm text-gray-700">{plano.tipoPlano || "N/A"}</td>
-              <td className="px-6 py-4 text-sm text-gray-700">
+            <tr
+              key={plano.idPlanoSaude}
+              className="hover:bg-blue-50 transition-colors"
+            >
+              <td className="px-6 py-3 text-sm text-gray-700">
+                {plano.nomeOperadora || "N/A"}
+              </td>
+              <td className="px-6 py-3 text-sm text-gray-700">
+                {plano.codigoPlano || "N/A"}
+              </td>
+              <td className="px-6 py-3 text-sm text-gray-700">
+                {plano.tipoPlano || "N/A"}
+              </td>
+              <td className="px-6 py-3 text-sm text-gray-700">
                 <span
                   className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                    plano.status === "Ativo" ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"
+                    plano.status === "Ativo"
+                      ? "bg-green-100 text-green-800"
+                      : "bg-gray-100 text-gray-800"
                   }`}
                 >
                   {plano.status || "N/A"}
@@ -30,7 +76,10 @@ const TabelaPlanoDeSaude = ({ planos, onEditar, onExcluir, onDetalhes }) => {
               </td>
               <td className="px-6 py-4 text-sm flex gap-3">
                 <button
-                  onClick={() => onDetalhes(plano)}
+                  onClick={() => {
+                    console.log("Visualizar ID:", plano.idPlanoSaude); // Log para diagnóstico
+                    onDetalhes(plano.idPlanoSaude);
+                  }}
                   className="text-blue-600 hover:text-blue-700 transition-colors"
                   title="Visualizar"
                 >
@@ -56,7 +105,10 @@ const TabelaPlanoDeSaude = ({ planos, onEditar, onExcluir, onDetalhes }) => {
                   </svg>
                 </button>
                 <button
-                  onClick={() => onEditar(plano.idPlanoSaude)}
+                  onClick={() => {
+                    console.log("Editar ID:", plano.idPlanoSaude); // Log para diagnóstico
+                    onEditar(plano.idPlanoSaude);
+                  }}
                   className="text-yellow-500 hover:text-yellow-700 transition-colors"
                   title="Editar"
                 >
@@ -76,7 +128,10 @@ const TabelaPlanoDeSaude = ({ planos, onEditar, onExcluir, onDetalhes }) => {
                   </svg>
                 </button>
                 <button
-                  onClick={() => onExcluir(plano.idPlanoSaude)}
+                  onClick={() => {
+                    console.log("Excluir ID:", plano.idPlanoSaude); // Log para diagnóstico
+                    onExcluir(plano.idPlanoSaude);
+                  }}
                   className="text-red-600 hover:text-red-700 transition-colors"
                   title="Excluir"
                 >
@@ -100,8 +155,11 @@ const TabelaPlanoDeSaude = ({ planos, onEditar, onExcluir, onDetalhes }) => {
           ))
         ) : (
           <tr>
-            <td colSpan="5" className="px-6 py-4 text-center text-gray-500 text-sm">
-              Nenhum plano de saúde encontrado após filtragem.
+            <td
+              colSpan="5"
+              className="px-6 py-4 text-center text-gray-500 text-sm"
+            >
+              Nenhum plano de saúde encontrado.
             </td>
           </tr>
         )}

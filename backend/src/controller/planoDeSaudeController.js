@@ -1,66 +1,52 @@
-const planoDeSaude = require("../model/planoDeSaude"); // Importa o modelo de plano de saúde
+const planoDeSaude = require("../model/planoDeSaude");
+
+// Recomendação: Adicionar índices no modelo para melhorar performance
+// Exemplo:
+// const planoDeSaude = sequelize.define('PlanoDeSaude', {
+//   // ... campos ...
+// }, {
+//   indexes: [
+//     { fields: ['nomeOperadora'] },
+//     { fields: ['tipoPlano'] },
+//     { fields: ['idPlanoSaude'] }
+//   ]
+// });
 
 const criarPlanoDeSaude = async (req, res) => {
   try {
     const dados = req.body;
-
-    let resultado;
-    if (Array.isArray(dados)) {
-      // Cadastrar vários planos
-      resultado = await planoDeSaude.bulkCreate(dados);
-    } else {
-      // Cadastrar apenas um plano
-      resultado = await planoDeSaude.create(dados);
-    }
-
+    const resultado = Array.isArray(dados)
+      ? await planoDeSaude.bulkCreate(dados)
+      : await planoDeSaude.create(dados);
     res.status(201).json(resultado);
   } catch (error) {
+    console.error("Erro ao criar plano de saúde:", error); // Log para diagnóstico
     res.status(400).json({ error: error.message });
   }
 };
 
 const lerPlanoDeSaude = async (req, res) => {
   try {
-    // Obter todos os planos de saúde
     const plano = await planoDeSaude.findAll();
-
-    res.status(200).json(plano); // Retorna a lista de planos de saúde
+    res.status(200).json(plano);
   } catch (error) {
+    console.error("Erro ao ler planos de saúde:", error); // Log para diagnóstico
     res.status(500).json({ error: error.message });
   }
 };
 
 const lerPlanoDeSaudeId = async (req, res) => {
   try {
-    const id = req.params.id; // Captura o ID da requisição
-    const planoSaudeEncontrado = await planoDeSaude.findByPk(id); // Busca pelo plano de saúde com o ID
+    const id = req.params.id;
+    const planoSaudeEncontrado = await planoDeSaude.findByPk(id);
 
     if (planoSaudeEncontrado) {
-      // VERIFICAÇÃO PRIMEIRO
-      const planoData = {
-        ...planoSaudeEncontrado.dataValues,
-        // Formata as datas apenas se existirem, para evitar erros com datas nulas
-        dataInicio: planoSaudeEncontrado.dataInicio
-          ? moment
-              .utc(planoSaudeEncontrado.dataInicio)
-              .add(1, "day") // A lógica de adicionar 1 dia pode precisar de revisão dependendo do fuso horário e armazenamento
-              .local()
-              .format("L")
-          : null, // Ou undefined, ou string vazia, conforme a necessidade do frontend
-        dataFim: planoSaudeEncontrado.dataFim
-          ? moment
-              .utc(planoSaudeEncontrado.dataFim)
-              .add(1, "day") // A lógica de adicionar 1 dia pode precisar de revisão
-              .local()
-              .format("L")
-          : null,
-      };
-      res.status(200).json(planoData); // Retorna o plano de saúde encontrado
+      res.status(200).json(planoSaudeEncontrado);
     } else {
-      res.status(404).json({ message: "Plano de Saúde não encontrado!" }); // Caso não encontre o plano
+      res.status(404).json({ message: "Plano de Saúde não encontrado!" });
     }
   } catch (error) {
-    console.error("Erro em lerPlanoDeSaudeId:", error); // É bom logar o erro no servidor também
+    console.error("Erro em lerPlanoDeSaudeId:", error);
     res.status(500).json({
       error: error.message,
       detail: "Erro interno ao processar a solicitação do plano de saúde.",
@@ -70,41 +56,44 @@ const lerPlanoDeSaudeId = async (req, res) => {
 
 const atualizarPlanoDeSaude = async (req, res) => {
   try {
-    const idPlanoDeSaude = req.params.id; // Captura o ID da requisição
-    const dadosAtualizados = req.body; // Obtém os dados paa atualização
+    const idPlanoDeSaude = req.params.id;
+    const dadosAtualizados = req.body;
 
-    const plano = await planoDeSaude.findByPk(idPlanoDeSaude); // Busca o plano de saúde pelo ID
+    const plano = await planoDeSaude.findByPk(idPlanoDeSaude);
     if (!plano) {
       return res
         .status(404)
-        .json({ message: "Plano de Saúde não encontrado!" }); // Caso não encontre o plano
+        .json({ message: "Plano de Saúde não encontrado!" });
     }
 
     await planoDeSaude.update(dadosAtualizados, {
-      where: { idPlanoDeSaude },
-    }); // Atualiza o plano de saúde
+      where: { idPlanoSaude: idPlanoDeSaude },
+    });
+
+    const planoAtualizado = await planoDeSaude.findByPk(idPlanoDeSaude);
     res.status(200).json({
       message: "Plano de Saúde atualizado com sucesso!",
-      plano,
+      plano: planoAtualizado,
     });
   } catch (error) {
+    console.error("Erro ao atualizar plano de saúde:", error); // Log para diagnóstico
     res.status(500).json({ error: error.message });
   }
 };
 
 const excluirPlanoDeSaude = async (req, res) => {
   try {
-    const idPlanoDeSaude = req.params.id; // Captura o ID da requisição
-    const plano = await planoDeSaude.findByPk(idPlanoDeSaude); // Busca o plano de saúde pelo ID
+    const idPlanoDeSaude = req.params.id;
+    const plano = await planoDeSaude.findByPk(idPlanoDeSaude);
     if (!plano) {
       return res
         .status(404)
-        .json({ message: "Plano de Saúde não encontrado!" }); // Caso não encontre o plano
+        .json({ message: "Plano de Saúde não encontrado!" });
     }
-
-    await plano.destroy(); // Exclui o plano de saúde
+    await plano.destroy();
     res.status(200).json({ message: "Plano de Saúde excluído com sucesso!" });
   } catch (error) {
+    console.error("Erro ao excluir plano de saúde:", error); // Log para diagnóstico
     res.status(500).json({ error: error.message });
   }
 };

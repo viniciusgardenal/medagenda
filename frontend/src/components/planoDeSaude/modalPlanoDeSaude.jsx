@@ -7,10 +7,14 @@ const ModalPlanoDeSaude = ({ isOpen, onClose, onSave }) => {
     nomeOperadora: "",
     codigoPlano: "",
     tipoPlano: "Individual",
+    descricao: "",
+    dataInicio: "",
+    dataFim: "",
     status: "Ativo",
   });
   const [erros, setErros] = useState({});
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+  const [isLoading, setIsLoading] = useState(false); // Adicionado estado isLoading
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -26,6 +30,12 @@ const ModalPlanoDeSaude = ({ isOpen, onClose, onSave }) => {
     if (!formData.codigoPlano.trim()) {
       newErros.codigoPlano = "O código do plano é obrigatório.";
     }
+    if (!formData.dataInicio) {
+      newErros.dataInicio = "A data de início é obrigatória.";
+    }
+    if (formData.dataInicio && formData.dataFim && formData.dataFim < formData.dataInicio) {
+      newErros.dataFim = "A data de fim não pode ser anterior à data de início.";
+    }
     setErros(newErros);
     return Object.keys(newErros).length === 0;
   };
@@ -35,33 +45,28 @@ const ModalPlanoDeSaude = ({ isOpen, onClose, onSave }) => {
     if (!validarCampos()) return;
 
     try {
-      await criarPlanoDeSaude(formData);
+      setIsLoading(true);
+      const novoPlano = await criarPlanoDeSaude(formData);
       setShowSuccessAlert(true);
-      onSave();
-      onClose();
-      setFormData({
-        nomeOperadora: "",
-        codigoPlano: "",
-        tipoPlano: "Individual",
-        status: "Ativo",
-      });
-      setErros({});
+      setTimeout(() => {
+        onSave(novoPlano);
+        onClose();
+      }, 250); // Reduzido de 1500ms para 1000ms
     } catch (error) {
       console.error("Erro ao criar plano de saúde:", error);
       setErros({ geral: "Erro ao salvar o plano de saúde. Tente novamente." });
+    } finally {
+      setIsLoading(false);
     }
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
+    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
         {showSuccessAlert && (
-          <SuccessAlert
-            message="Plano de saúde criado com sucesso!"
-            onClose={() => setShowSuccessAlert(false)}
-          />
+          <SuccessAlert message="Plano de saúde criado com sucesso!" />
         )}
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold text-blue-600">
@@ -71,90 +76,130 @@ const ModalPlanoDeSaude = ({ isOpen, onClose, onSave }) => {
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                clipRule="evenodd"
-              />
-            </svg>
+            &times;
           </button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">
+                Nome da Operadora
+              </label>
+              <input
+                type="text"
+                name="nomeOperadora"
+                value={formData.nomeOperadora}
+                onChange={handleChange}
+                className="w-full px-3 py-2 text-sm border rounded-md"
+              />
+              {erros.nomeOperadora && (
+                <span className="text-red-500 text-xs mt-1">
+                  {erros.nomeOperadora}
+                </span>
+              )}
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">
+                Código do Plano
+              </label>
+              <input
+                type="text"
+                name="codigoPlano"
+                value={formData.codigoPlano}
+                onChange={handleChange}
+                className="w-full px-3 py-2 text-sm border rounded-md"
+              />
+              {erros.codigoPlano && (
+                <span className="text-red-500 text-xs mt-1">
+                  {erros.codigoPlano}
+                </span>
+              )}
+            </div>
+          </div>
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1">
-              Nome da Operadora
+              Descrição
             </label>
-            <input
-              type="text"
-              name="nomeOperadora"
-              value={formData.nomeOperadora}
+            <textarea
+              name="descricao"
+              value={formData.descricao}
               onChange={handleChange}
-              className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full px-3 py-2 text-sm border rounded-md"
+              rows="3"
             />
-            {erros.nomeOperadora && (
-              <span className="text-red-500 text-xs mt-1">
-                {erros.nomeOperadora}
-              </span>
-            )}
           </div>
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
-              Código do Plano
-            </label>
-            <input
-              type="text"
-              name="codigoPlano"
-              value={formData.codigoPlano}
-              onChange={handleChange}
-              className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-            />
-            {erros.codigoPlano && (
-              <span className="text-red-500 text-xs mt-1">
-                {erros.codigoPlano}
-              </span>
-            )}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">
+                Data de Início
+              </label>
+              <input
+                type="date"
+                name="dataInicio"
+                value={formData.dataInicio}
+                onChange={handleChange}
+                className="w-full px-3 py-2 text-sm border rounded-md"
+              />
+              {erros.dataInicio && (
+                <span className="text-red-500 text-xs mt-1">
+                  {erros.dataInicio}
+                </span>
+              )}
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">
+                Data de Fim
+              </label>
+              <input
+                type="date"
+                name="dataFim"
+                value={formData.dataFim}
+                onChange={handleChange}
+                min={formData.dataInicio}
+                className="w-full px-3 py-2 text-sm border rounded-md"
+              />
+              {erros.dataFim && (
+                <span className="text-red-500 text-xs mt-1">{erros.dataFim}</span>
+              )}
+            </div>
           </div>
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
-              Tipo de Plano
-            </label>
-            <select
-              name="tipoPlano"
-              value={formData.tipoPlano}
-              onChange={handleChange}
-              className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-            >
-              <option value="Individual">Individual</option>
-              <option value="Familiar">Familiar</option>
-              <option value="Empresarial">Empresarial</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
-              Status
-            </label>
-            <select
-              name="status"
-              value={formData.status}
-              onChange={handleChange}
-              className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-            >
-              <option value="Ativo">Ativo</option>
-              <option value="Inativo">Inativo</option>
-            </select>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">
+                Tipo de Plano
+              </label>
+              <select
+                name="tipoPlano"
+                value={formData.tipoPlano}
+                onChange={handleChange}
+                className="w-full px-3 py-2 text-sm border rounded-md bg-white"
+              >
+                <option value="Individual">Individual</option>
+                <option value="Familiar">Familiar</option>
+                <option value="Empresarial">Empresarial</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">
+                Status
+              </label>
+              <select
+                name="status"
+                value={formData.status}
+                onChange={handleChange}
+                className="w-full px-3 py-2 text-sm border rounded-md bg-white"
+              >
+                <option value="Ativo">Ativo</option>
+                <option value="Inativo">Inativo</option>
+              </select>
+            </div>
           </div>
           {erros.geral && (
-            <span className="text-red-500 text-xs mt-1 block">
+            <span className="text-red-500 text-xs mt-1 block text-center">
               {erros.geral}
             </span>
           )}
-          <div className="flex justify-end gap-2">
+          <div className="flex justify-end gap-2 pt-4">
             <button
               type="button"
               onClick={onClose}
@@ -164,9 +209,10 @@ const ModalPlanoDeSaude = ({ isOpen, onClose, onSave }) => {
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              disabled={isLoading}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-blue-400"
             >
-              Salvar
+              {isLoading ? "Salvando..." : "Salvar"}
             </button>
           </div>
         </form>

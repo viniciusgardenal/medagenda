@@ -10,6 +10,7 @@ import ModalExame from './modalTipoExame';
 import TabelaTiposExames from './tabelaTipoExame';
 import ModalEditarTipoExame from './modalEditarTipoExame';
 import ModalDetalhesTipoExame from './modalDetalhesTipoExame';
+import Pagination from '../util/Pagination'; // Certifique-se que o caminho está correto
 
 const TiposExames = () => {
   const [tiposExames, setTiposExames] = useState([]);
@@ -23,10 +24,24 @@ const TiposExames = () => {
   const [isModalOpenEditar, setIsModalOpenEditar] = useState(false);
   const [tipoExameSelecionado, setTipoExameSelecionado] = useState(null);
   const [isModalOpenDetalhes, setIsModalOpenDetalhes] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Estados para Paginação e Ordenação
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(8);
+  const [sortField, setSortField] = useState("nomeTipoExame");
+  const [sortDirection, setSortDirection] = useState("asc");
 
   const loadTiposExames = async () => {
-    const response = await getTiposExames();
-    setTiposExames(response.data);
+    setIsLoading(true);
+    try {
+      const response = await getTiposExames();
+      setTiposExames(Array.isArray(response.data) ? response.data : []);
+    } catch (error) {
+      console.error("Erro ao carregar tipos de exames:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -35,16 +50,29 @@ const TiposExames = () => {
 
   const handleFiltroChange = (e) => {
     setFiltro(e.target.value);
+    setCurrentPage(1); // Reseta para a primeira página ao filtrar
   };
 
-  const tiposExamesFiltrados = tiposExames.filter((tipoExame) => {
-    const pesquisa = filtro.toLowerCase();
-    return (
-      tipoExame.nomeTipoExame.toLowerCase().includes(pesquisa) ||
-      tipoExame.materialColetado.toLowerCase().includes(pesquisa) ||
-      tipoExame.categoria.toLowerCase().includes(pesquisa)
-    );
-  });
+  // Lógica de Ordenação
+  const sortData = (data) => {
+    return [...data].sort((a, b) => {
+      const valueA = a[sortField] || '';
+      const valueB = b[sortField] || '';
+      const direction = sortDirection === "asc" ? 1 : -1;
+      return String(valueA).toLowerCase().localeCompare(String(valueB).toLowerCase()) * direction;
+    });
+  };
+
+  // Manipulador para alterar a ordenação
+  const handleSort = (field) => {
+    if (field === sortField) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortField(field);
+      setSortDirection("asc");
+    }
+    setCurrentPage(1);
+  };
 
   const handleDelete = (id) => {
     setIdToDelete(id);
@@ -63,7 +91,7 @@ const TiposExames = () => {
       setIdToDelete(null);
     }
   };
-
+  
   const handleSave = async () => {
     await loadTiposExames();
     setShowSuccessAlert(true);
@@ -78,7 +106,7 @@ const TiposExames = () => {
       console.error('Erro ao editar tipo de exame:', error);
     }
   };
-
+  
   const handleDetalhes = async (idTipoExame) => {
     try {
       const response = await getTiposExamesId(idTipoExame);
@@ -100,6 +128,28 @@ const TiposExames = () => {
     handleCloseModal();
   };
 
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  // 1. Filtrar
+  const tiposExamesFiltrados = tiposExames.filter((tipoExame) => {
+    const pesquisa = filtro.toLowerCase();
+    return (
+      (tipoExame.nomeTipoExame || '').toLowerCase().includes(pesquisa) ||
+      (tipoExame.materialColetado || '').toLowerCase().includes(pesquisa) ||
+      (tipoExame.categoria || '').toLowerCase().includes(pesquisa)
+    );
+  });
+  
+  // 2. Ordenar
+  const tiposExamesOrdenados = sortData(tiposExamesFiltrados);
+
+  // 3. Paginar
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentTiposExames = tiposExamesOrdenados.slice(indexOfFirstItem, indexOfLastItem);
+
   return (
     <div className="min-h-screen bg-gray-200 p-6">
       <section className="max-w-6xl mx-auto bg-white rounded-2xl shadow-md p-6">
@@ -116,18 +166,19 @@ const TiposExames = () => {
           </button>
         </div>
 
+        {/* Alertas */}
         {showAlert && (
           <div className="mt-6 p-4 text-sm text-red-700 bg-red-100 rounded-lg border border-red-300">
             Item excluído com sucesso.
           </div>
         )}
         {showSuccessAlert && (
-          <div className="mt-6 p-4 text-sm text-green-700 bg-green-100 rounded-lg border border-red-300">
+          <div className="mt-6 p-4 text-sm text-green-700 bg-green-100 rounded-lg border border-green-300">
             Tipo de exame adicionado com sucesso!
           </div>
         )}
         {showEditSuccessAlert && (
-          <div className="mt-6 p-4 text-sm text-green-700 bg-green-100 rounded-lg border border-red-300">
+          <div className="mt-6 p-4 text-sm text-green-700 bg-green-100 rounded-lg border border-green-300">
             Tipo de exame editado com sucesso!
           </div>
         )}
@@ -137,53 +188,49 @@ const TiposExames = () => {
             <label className="block text-sm font-semibold text-gray-700 mb-1">
               Busca por Nome, Material Coletado ou Categoria
             </label>
-            <div className="relative">
-              <input
-                id="filtro"
-                type="text"
-                value={filtro}
-                onChange={handleFiltroChange}
-                className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-                placeholder="Filtrar por nome, material coletado ou categoria"
-              />
-              {filtro && (
-                <button
-                  onClick={() => handleFiltroChange({ target: { value: "" } })}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </button>
-              )}
-            </div>
+            <input
+              id="filtro"
+              type="text"
+              value={filtro}
+              onChange={handleFiltroChange}
+              className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+              placeholder="Filtrar por nome, material coletado ou categoria"
+            />
           </div>
         </div>
 
         <div className="mt-6 overflow-x-auto rounded-lg shadow-md">
-          {tiposExamesFiltrados.length === 0 ? (
+          {isLoading ? (
             <p className="text-center text-gray-500 py-4 text-sm bg-white">
-              Nenhum tipo de exame encontrado.
+              Carregando tipos de exames...
             </p>
           ) : (
             <TabelaTiposExames
-              tiposExames={tiposExamesFiltrados}
+              tiposExames={currentTiposExames}
               onExcluir={handleDelete}
               onEditar={handleEditar}
               onDetalhes={handleDetalhes}
+              sortField={sortField}
+              sortDirection={sortDirection}
+              onSort={handleSort}
+              isFiltered={filtro.length > 0}
             />
           )}
         </div>
 
+        {tiposExamesOrdenados.length > itemsPerPage && (
+          <div className="mt-6">
+            <Pagination
+              totalItems={tiposExamesOrdenados.length}
+              itemsPerPage={itemsPerPage}
+              currentPage={currentPage}
+              onPageChange={handlePageChange}
+              maxPageButtons={5}
+            />
+          </div>
+        )}
+
+        {/* Modais */}
         {isModalOpenAdd && (
           <ModalExame
             isOpen={isModalOpenAdd}

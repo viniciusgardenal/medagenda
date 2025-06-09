@@ -26,14 +26,21 @@ const TipoConsulta = () => {
   const [isModalOpenDetalhes, setIsModalOpenDetalhes] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(8);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Estados para ordenação
+  const [sortField, setSortField] = useState("nomeTipoConsulta");
+  const [sortDirection, setSortDirection] = useState("asc");
 
   const loadTipoConsulta = async () => {
+    setIsLoading(true);
     try {
       const response = await getTipoConsulta();
-      setTipoConsulta(response.data);
-      setCurrentPage(1);
+      setTipoConsulta(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
       console.error("Erro ao carregar tipos de consulta:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -46,13 +53,55 @@ const TipoConsulta = () => {
     setCurrentPage(1);
   };
 
+  // Função para lidar com a ordenação
+  const handleSort = (field) => {
+    if (field === sortField) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortField(field);
+      setSortDirection("asc");
+    }
+    setCurrentPage(1);
+  };
+
+  // Função de ordenação mais robusta (CORRIGIDA)
+  const sortData = (data) => {
+    return [...data].sort((a, b) => {
+      // Garante que o campo de ordenação existe em ambos os objetos
+      if (!a.hasOwnProperty(sortField) || !b.hasOwnProperty(sortField)) {
+        return 0;
+      }
+
+      const valueA = a[sortField];
+      const valueB = b[sortField];
+      const direction = sortDirection === 'asc' ? 1 : -1;
+
+      // Trata valores nulos ou vazios para que fiquem no final
+      if (valueA === null || valueA === undefined || valueA === '') return 1 * direction;
+      if (valueB === null || valueB === undefined || valueB === '') return -1 * direction;
+
+      // Se ambos os valores forem numéricos, faz a ordenação numérica
+      if (!isNaN(valueA) && !isNaN(valueB)) {
+        return (Number(valueA) - Number(valueB)) * direction;
+      }
+
+      // Caso contrário, usa a ordenação de texto (padrão)
+      return String(valueA).toLowerCase().localeCompare(String(valueB).toLowerCase()) * direction;
+    });
+  };
+
+  // 1. Filtrar
   const tipoConsultaFiltrados = tipoConsulta.filter((tpc) =>
-    tpc.nomeTipoConsulta.toLowerCase().includes(filtro.toLowerCase())
+    (tpc.nomeTipoConsulta || '').toLowerCase().includes(filtro.toLowerCase())
   );
 
+  // 2. Ordenar
+  const tipoConsultaOrdenados = sortData(tipoConsultaFiltrados);
+
+  // 3. Paginar
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = tipoConsultaFiltrados.slice(
+  const currentItems = tipoConsultaOrdenados.slice(
     indexOfFirstItem,
     indexOfLastItem
   );
@@ -131,22 +180,24 @@ const TipoConsulta = () => {
           </button>
         </div>
 
+        {/* Alertas de Feedback */}
         {showAlert && (
           <div className="mt-6 p-4 text-sm text-red-700 bg-red-100 rounded-lg border border-red-300">
             Item excluído com sucesso.
           </div>
         )}
         {showSuccessAlert && (
-          <div className="mt-6 p-4 text-sm text-green-700 bg-green-100 rounded-lg border border-red-300">
+          <div className="mt-6 p-4 text-sm text-green-700 bg-green-100 rounded-lg border-green-300">
             Tipo de consulta adicionado com sucesso!
           </div>
         )}
         {showEditSuccessAlert && (
-          <div className="mt-6 p-4 text-sm text-green-700 bg-green-100 rounded-lg border border-red-300">
+          <div className="mt-6 p-4 text-sm text-green-700 bg-green-100 rounded-lg border-green-300">
             Tipo de consulta editado com sucesso!
           </div>
         )}
 
+        {/* Filtro */}
         <div className="flex flex-col md:flex-row gap-4 mt-6">
           <div className="flex-1">
             <label className="block text-sm font-semibold text-gray-700 mb-1">
@@ -184,25 +235,28 @@ const TipoConsulta = () => {
           </div>
         </div>
 
+        {/* Tabela */}
         <div className="mt-6 overflow-x-auto rounded-lg shadow-md">
-          {tipoConsultaFiltrados.length === 0 ? (
-            <p className="text-center text-gray-500 py-4 text-sm bg-white">
-              Nenhum tipo de consulta encontrado.
-            </p>
-          ) : (
+           {isLoading ? (
+             <p className="text-center text-gray-500 py-4">Carregando...</p>
+           ) : (
             <TabelaTipoConsulta
               tpc={currentItems}
               onExcluir={handleDelete}
               onEditar={handleEditar}
               onDetalhes={handleDetalhes}
+              onSort={handleSort}
+              sortField={sortField}
+              sortDirection={sortDirection}
             />
           )}
         </div>
 
-        {tipoConsultaFiltrados.length > 0 && (
+        {/* Paginação */}
+        {tipoConsultaOrdenados.length > itemsPerPage && (
           <div className="mt-6">
             <Pagination
-              totalItems={tipoConsultaFiltrados.length}
+              totalItems={tipoConsultaOrdenados.length}
               itemsPerPage={itemsPerPage}
               currentPage={currentPage}
               onPageChange={handlePageChange}
@@ -211,6 +265,7 @@ const TipoConsulta = () => {
           </div>
         )}
 
+        {/* Modais */}
         {isModalOpenAdd && (
           <ModalTipoConsulta
             isOpen={isModalOpenAdd}

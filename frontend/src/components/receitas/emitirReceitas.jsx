@@ -9,7 +9,8 @@ import {
 import ReceitaModal from "./ReceitaModal";
 import ViewReceitas from "./ViewReceitas";
 import Pagination from "../util/Pagination";
-import TableHeader from "./TableHeader";
+// AJUSTE: Corrigindo o caminho da importação
+import TableHeader from "../util/TableHeader";
 import { FaPlus, FaBookMedical, FaFilter } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -167,23 +168,33 @@ const EmitirReceitas = () => {
       );
     }
 
-    // 2. Ordenação
+    // 2. Ordenação (LÓGICA ATUALIZADA)
     items.sort((a, b) => {
-      let valA, valB;
+      let valueA, valueB;
+      // Lógica para obter o valor a ser comparado
       if (sortField === "paciente") {
-        valA = `${a.paciente?.nome ?? ""} ${a.paciente?.sobrenome ?? ""}`
-          .trim()
-          .toLowerCase();
-        valB = `${b.paciente?.nome ?? ""} ${b.paciente?.sobrenome ?? ""}`
-          .trim()
-          .toLowerCase();
+        valueA = `${a.paciente?.nome ?? ""} ${a.paciente?.sobrenome ?? ""}`.trim();
+        valueB = `${b.paciente?.nome ?? ""} ${b.paciente?.sobrenome ?? ""}`.trim();
       } else {
-        valA = a[sortField];
-        valB = b[sortField];
+        valueA = a[sortField];
+        valueB = b[sortField];
       }
-      if (valA < valB) return sortDirection === "asc" ? -1 : 1;
-      if (valA > valB) return sortDirection === "asc" ? 1 : -1;
-      return 0;
+
+      const direction = sortDirection === 'asc' ? 1 : -1;
+
+      // Tratar valores nulos ou vazios
+      if (valueA == null || valueA === '') return 1 * direction;
+      if (valueB == null || valueB === '') return -1 * direction;
+
+      // Lógica específica para datas
+      if (sortField === 'createdAt') {
+        const dateA = new Date(valueA);
+        const dateB = new Date(valueB);
+        return (dateA.getTime() - dateB.getTime()) * direction;
+      }
+      
+      // Lógica padrão para texto
+      return String(valueA).toLowerCase().localeCompare(String(valueB).toLowerCase()) * direction;
     });
 
     return items;
@@ -312,9 +323,13 @@ const EmitirReceitas = () => {
                     sortDirection={sortDirection}
                     onSort={handleSort}
                   />
-                  <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">
-                    Medicamentos
-                  </th>
+                  <TableHeader
+                    label="Medicamentos"
+                    field="medicamentos"
+                    sortField={sortField}
+                    sortDirection={sortDirection}
+                    onSort={handleSort}
+                  />
                   <th className="px-6 py-3 text-center text-sm font-semibold uppercase tracking-wider">
                     Ações
                   </th>

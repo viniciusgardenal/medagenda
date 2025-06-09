@@ -1,101 +1,140 @@
-import React from 'react';
-import moment from 'moment';
+import React, { useEffect, useRef } from 'react';
+import {
+  FaNotesMedical,
+  FaUserMd,
+  FaExclamationCircle,
+  FaClock,
+  FaAlignLeft,
+  FaCalendarAlt,
+  FaInfoCircle,
+} from "react-icons/fa";
 
 const ModalDetalhesTipoConsulta = ({ isOpen, onClose, tipoConsulta }) => {
-  if (!isOpen) return null;
+  const modalRef = useRef(null);
+
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, [isOpen, onClose]);
+
+  // Função para formatar datas sem 'moment'
+  const formatarDataParaExibicao = (dataStr) => {
+    if (!dataStr) return "N/A";
+    // Tenta tratar formatos YYYY-MM-DD ou DD/MM/YYYY
+    if (dataStr.includes('-')) {
+        const parts = dataStr.split('T')[0].split('-'); // Pega apenas a parte da data e divide
+        return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
+    // Retorna como está se não for um formato reconhecido
+    return dataStr;
+  };
+
+  if (!isOpen || !tipoConsulta) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-4 max-w-2xl w-full border border-gray-200 shadow-sm">
-        <div className="flex justify-between items-center mb-2">
-          <h2 className="text-lg font-semibold text-blue-700">Detalhes do Tipo de Consulta</h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700 transition-colors">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </button>
+    <div className="fixed inset-0 bg-gray-800 bg-opacity-60 flex items-center justify-center z-50">
+      <div
+        ref={modalRef}
+        className="bg-white w-full max-w-xl p-8 rounded-2xl shadow-2xl"
+      >
+        <div className="flex items-center gap-3 mb-6">
+          <FaNotesMedical className="h-8 w-8 text-blue-600" />
+          <h3 className="text-2xl font-bold text-gray-800">
+            Detalhes do Tipo de Consulta
+          </h3>
         </div>
-        {tipoConsulta ? (
-          <div className="bg-gray-50 p-4 rounded-md border border-gray-200 space-y-2 text-gray-800">
-            <div className="flex items-center py-1 border-b border-gray-200">
-              <p className="text-sm font-semibold">ID:</p>
-              <p className="text-base ml-1">{tipoConsulta.idTipoConsulta}</p>
+
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+          aria-label="Fechar modal"
+        >
+          &times;
+        </button>
+
+        <div className="space-y-6">
+          <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
+            {/* --- Bloco Principal --- */}
+            <div className="sm:col-span-2 border-b border-gray-200 pb-4">
+              <dt className="text-sm font-semibold text-gray-900">
+                Nome da Consulta
+              </dt>
+              <dd className="mt-1 text-lg text-gray-700">
+                {tipoConsulta.nomeTipoConsulta || "N/A"}
+              </dd>
             </div>
-            <div className="flex items-center py-1 border-b border-gray-200">
-              <p className="text-sm font-semibold">Nome:</p>
-              <p className="text-base ml-1">{tipoConsulta.nomeTipoConsulta}</p>
+
+            {/* --- Atributos Gerais --- */}
+            <div>
+              <dt className="flex items-center gap-2 text-sm font-semibold text-gray-900">
+                <FaUserMd className="h-4 w-4 text-blue-500" /> Especialidade
+              </dt>
+              <dd className="mt-1 text-sm text-gray-700 pl-6">{tipoConsulta.especialidade || "N/A"}</dd>
             </div>
-            <div className="flex items-center py-1 border-b border-gray-200">
-              <p className="text-sm font-semibold">Descrição:</p>
-              <p className="text-base ml-1">{tipoConsulta.descricao}</p>
+
+            <div>
+              <dt className="flex items-center gap-2 text-sm font-semibold text-gray-900">
+                <FaClock className="h-4 w-4 text-blue-500" /> Duração Estimada
+              </dt>
+              <dd className="mt-1 text-sm text-gray-700 pl-6">{tipoConsulta.duracaoEstimada ? `${tipoConsulta.duracaoEstimada} min` : "N/A"}</dd>
             </div>
-            <div className="flex items-center py-1 border-b border-gray-200">
-              <p className="text-sm font-semibold">Especialidade:</p>
-              <p className="text-base ml-1">{tipoConsulta.especialidade}</p>
+            
+            <div>
+              <dt className="flex items-center gap-2 text-sm font-semibold text-gray-900">
+                <FaExclamationCircle className="h-4 w-4 text-blue-500" /> Prioridade
+              </dt>
+              <dd className="mt-1 text-sm text-gray-700 pl-6">{tipoConsulta.prioridade || "N/A"}</dd>
             </div>
-            <div className="flex items-center py-1 border-b border-gray-200">
-              <p className="text-sm font-semibold">Duração Estimada (min):</p>
-              <p className="text-base ml-1">{tipoConsulta.duracaoEstimada}</p>
+
+            <div>
+              <dt className="flex items-center gap-2 text-sm font-semibold text-gray-900">
+                <FaInfoCircle className="h-4 w-4 text-blue-500" /> Status
+              </dt>
+              <dd className="mt-1 text-sm text-gray-700 pl-6">
+                <span className={`inline-block px-2 py-1 text-xs font-semibold rounded-full ${tipoConsulta.status === "Ativo" ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}`}>
+                  {tipoConsulta.status || "N/A"}
+                </span>
+              </dd>
             </div>
-            <div className="flex items-center py-1 border-b border-gray-200">
-              <p className="text-sm font-semibold">Requisitos Específicos:</p>
-              <p className="text-base ml-1">{tipoConsulta.requisitosEspecificos}</p>
+
+            {/* --- Detalhes Descritivos --- */}
+            <div className="sm:col-span-2">
+              <dt className="flex items-center gap-2 text-sm font-semibold text-gray-900">
+                <FaAlignLeft className="h-4 w-4 text-blue-500" /> Descrição
+              </dt>
+              <dd className="mt-1 text-sm text-gray-700 pl-6 whitespace-pre-wrap">
+                {tipoConsulta.descricao || "Nenhuma descrição."}
+              </dd>
             </div>
-            <div className="flex items-center py-1 border-b border-gray-200">
-              <p className="text-sm font-semibold">Prioridade:</p>
-              <p className="text-base ml-1">{tipoConsulta.prioridade}</p>
+
+            <div className="sm:col-span-2">
+              <dt className="flex items-center gap-2 text-sm font-semibold text-gray-900">
+                <FaAlignLeft className="h-4 w-4 text-blue-500" /> Requisitos Específicos
+              </dt>
+              <dd className="mt-1 text-sm text-gray-700 pl-6 whitespace-pre-wrap">
+                {tipoConsulta.requisitosEspecificos || "Nenhum requisito."}
+              </dd>
             </div>
-            <div className="flex items-center py-1 border-b border-gray-200">
-              <p className="text-sm font-semibold">Data de Criação:</p>
-              <p className="text-base ml-1">
-                {tipoConsulta.dataCriacao
-                  ? moment(tipoConsulta.dataCriacao, 'DD/MM/YYYY').format('DD/MM/YYYY')
-                  : 'N/A'}
-              </p>
+            
+            {/* --- Metadados --- */}
+            <div className="sm:col-span-2 pt-2 border-t border-gray-200">
+              <dt className="flex items-center gap-2 text-sm font-semibold text-gray-900">
+                <FaCalendarAlt className="h-4 w-4 text-blue-500" /> Data de Criação
+              </dt>
+              <dd className="mt-1 text-sm text-gray-700 pl-6">
+                {formatarDataParaExibicao(tipoConsulta.dataCriacao)}
+              </dd>
             </div>
-            <div className="flex items-center py-1 border-b border-gray-200">
-              <p className="text-sm font-semibold">Status:</p>
-              <p className="text-base ml-1">{tipoConsulta.status}</p>
-            </div>
-          </div>
-        ) : (
-          <div className="flex items-center justify-center space-x-2 text-gray-500 text-sm italic">
-            <svg
-              className="animate-spin h-5 w-5 text-gray-400"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              ></circle>
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8v8H4z"
-              ></path>
-            </svg>
-            <p>Carregando...</p>
-          </div>
-        )}
-        <div className="mt-4 flex justify-end">
+          </dl>
+        </div>
+
+        <div className="flex justify-end gap-4 mt-8">
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm"
+            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
           >
             Fechar
           </button>

@@ -24,16 +24,23 @@ const Pacientes = () => {
   const [isModalOpenEditar, setIsModalOpenEditar] = useState(false);
   const [pacientesSelecionado, setPacientesSelecionado] = useState(null);
   const [isModalOpenDetalhes, setIsModalOpenDetalhes] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  
+  // Estados de Paginação e Ordenação
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(8);
+  const [sortField, setSortField] = useState("nome");
+  const [sortDirection, setSortDirection] = useState("asc");
 
   const loadPacientes = async () => {
+    setIsLoading(true);
     try {
       const response = await getPacientes();
-      setPacientes(response.data);
-      setCurrentPage(1);
+      setPacientes(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
       console.error("Erro ao carregar pacientes:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -46,22 +53,70 @@ const Pacientes = () => {
     setCurrentPage(1);
   };
 
+  // Função para controlar a ordenação
+  const handleSort = (field) => {
+    if (field === sortField) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortField(field);
+      setSortDirection("asc");
+    }
+    setCurrentPage(1);
+  };
+
+  // Função robusta para ordenar dados (incluindo datas)
+  const sortData = (data) => {
+    return [...data].sort((a, b) => {
+      if (!a.hasOwnProperty(sortField) || !b.hasOwnProperty(sortField)) {
+        return 0;
+      }
+
+      const valueA = a[sortField];
+      const valueB = b[sortField];
+      const direction = sortDirection === 'asc' ? 1 : -1;
+
+      if (valueA === null || valueA === undefined || valueA === '') return 1 * direction;
+      if (valueB === null || valueB === undefined || valueB === '') return -1 * direction;
+
+      // Ordenação especial para Data de Nascimento
+      if (sortField === 'dataNascimento') {
+        const partsA = String(valueA).split('/'); // [DD, MM, YYYY]
+        const dateA = new Date(`${partsA[2]}-${partsA[1]}-${partsA[0]}`);
+        
+        const partsB = String(valueB).split('/'); // [DD, MM, YYYY]
+        const dateB = new Date(`${partsB[2]}-${partsB[1]}-${partsB[0]}`);
+        
+        return (dateA.getTime() - dateB.getTime()) * direction;
+      }
+
+      // Ordenação para números (caso haja algum campo numérico no futuro)
+      if (!isNaN(valueA) && !isNaN(valueB)) {
+        return (Number(valueA) - Number(valueB)) * direction;
+      }
+
+      // Ordenação padrão para texto
+      return String(valueA).toLowerCase().localeCompare(String(valueB).toLowerCase()) * direction;
+    });
+  };
+
+  // 1. Filtrar
   const pacientesFiltrados = pacientes.filter((paciente) => {
     const pesquisa = filtro.toLowerCase();
+    const nomeCompleto = `${paciente.nome || ''} ${paciente.sobrenome || ''}`.toLowerCase();
     return (
-      paciente.cpf.toString().includes(pesquisa) ||
-      paciente.nome?.toLowerCase().includes(pesquisa) ||
-      paciente.sobrenome?.toLowerCase().includes(pesquisa) ||
-      paciente.dataNascimento?.includes(pesquisa)
+      (paciente.cpf || '').toString().includes(pesquisa) ||
+      nomeCompleto.includes(pesquisa) ||
+      (paciente.dataNascimento || '').includes(pesquisa)
     );
   });
 
+  // 2. Ordenar
+  const pacientesOrdenados = sortData(pacientesFiltrados);
+
+  // 3. Paginar
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentPacientes = pacientesFiltrados.slice(
-    indexOfFirstItem,
-    indexOfLastItem
-  );
+  const currentPacientes = pacientesOrdenados.slice(indexOfFirstItem, indexOfLastItem);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -137,26 +192,28 @@ const Pacientes = () => {
           </button>
         </div>
 
+        {/* Alertas */}
         {showAlert && (
           <div className="mt-6 p-4 text-sm text-red-700 bg-red-100 rounded-lg border border-red-300">
             Item excluído com sucesso.
           </div>
         )}
         {showSuccessAlert && (
-          <div className="mt-6 p-4 text-sm text-green-700 bg-green-100 rounded-lg border border-red-300">
+          <div className="mt-6 p-4 text-sm text-green-700 bg-green-100 rounded-lg border-green-300">
             Paciente adicionado com sucesso!
           </div>
         )}
         {showEditSuccessAlert && (
-          <div className="mt-6 p-4 text-sm text-green-700 bg-green-100 rounded-lg border border-red-300">
+          <div className="mt-6 p-4 text-sm text-green-700 bg-green-100 rounded-lg border-green-300">
             Paciente editado com sucesso!
           </div>
         )}
 
+        {/* Filtro */}
         <div className="flex flex-col md:flex-row gap-4 mt-6">
           <div className="flex-1">
             <label className="block text-sm font-semibold text-gray-700 mb-1">
-              Busca por CPF, Nome, Sobrenome ou Data de Nascimento
+              Busca por CPF ou Nome
             </label>
             <div className="relative">
               <input
@@ -165,7 +222,7 @@ const Pacientes = () => {
                 value={filtro}
                 onChange={handleFiltroChange}
                 className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-                placeholder="Filtrar por CPF, nome, sobrenome ou data de nascimento"
+                placeholder="Filtrar por CPF ou nome do paciente"
               />
               {filtro && (
                 <button
@@ -190,19 +247,28 @@ const Pacientes = () => {
           </div>
         </div>
 
+        {/* Tabela */}
         <div className="mt-6 overflow-x-auto rounded-lg shadow-md">
-          <TabelaPacientes
-            pacientes={currentPacientes}
-            onExcluir={handleDelete}
-            onEditar={handleEditar}
-            onDetalhes={handleDetalhes}
-          />
+          {isLoading ? (
+            <p className="text-center py-4 text-gray-500">Carregando pacientes...</p>
+          ) : (
+            <TabelaPacientes
+              pacientes={currentPacientes}
+              onExcluir={handleDelete}
+              onEditar={handleEditar}
+              onDetalhes={handleDetalhes}
+              onSort={handleSort}
+              sortField={sortField}
+              sortDirection={sortDirection}
+            />
+          )}
         </div>
 
-        {pacientesFiltrados.length > 0 && (
+        {/* Paginação */}
+        {pacientesOrdenados.length > itemsPerPage && (
           <div className="mt-6">
             <Pagination
-              totalItems={pacientesFiltrados.length}
+              totalItems={pacientesOrdenados.length}
               itemsPerPage={itemsPerPage}
               currentPage={currentPage}
               onPageChange={handlePageChange}
@@ -211,6 +277,7 @@ const Pacientes = () => {
           </div>
         )}
 
+        {/* Modais */}
         {isModalOpenAdd && (
           <ModalPacientes
             isOpen={isModalOpenAdd}

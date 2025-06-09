@@ -1,515 +1,186 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import ConfirmationModal from "../util/confirmationModal";
-import AlertMessage from "../util/alertMessage";
-import SuccessAlert from "../util/successAlert";
 import {
   getSolicitacaoExames,
-  getSolicitacaoExamesId,
+  criarSolicitacaoExames,
   excluirSolicitacaoExames,
+  updateSolicitacaoExames,
 } from "../../config/apiServices";
+// AJUSTE: Corrigindo nomes dos arquivos para minúsculas
 import ModalSolicitacaoExames from "./modalSolicitacaoExames";
 import TabelaSolicitacaoExames from "./tabelaSolicitacaoExames";
 import ModalEditarSolicitacaoExames from "./modalEditarSolicitacaoExames";
 import ModalDetalhesSolicitacaoExames from "./modalDetalhesSolicitacaoExames";
-
-// Função para normalizar strings (remover acentos e espaços extras)
-const normalizarString = (str) => {
-  if (!str) return "";
-  return str
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "") // Remove acentos
-    .replace(/\s+/g, " ") // Normaliza espaços
-    .trim();
-};
+import Pagination from "../util/Pagination";
+import { FaPlus, FaVial, FaFilter } from "react-icons/fa";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const SolicitacaoExames = () => {
   const [solicitacaoExames, setSolicitacaoExames] = useState([]);
-  const [filtros, setFiltros] = useState({
-    paciente: "",
-    tipoExame: "",
-    periodo: "",
-    dataRetorno: "",
-  });
-  const [isModalOpenAdd, setIsModalOpenAdd] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  
+  const [selectedSolicitacao, setSelectedSolicitacao] = useState(null);
   const [idToDelete, setIdToDelete] = useState(null);
-  const [showAlert, setShowAlert] = useState(false);
-  const [showSuccessAlert, setShowSuccessAlert] = useState(false);
-  const [showEditSuccessAlert, setShowEditSuccessAlert] = useState(false);
-  const [isModalOpenEditar, setIsModalOpenEditar] = useState(false);
-  const [solicitacaoExamesSelecionado, setSolicitacaoExamesSelecionado] =
-    useState(null);
-  const [isModalOpenDetalhes, setIsModalOpenDetalhes] = useState(false);
-  const [error, setError] = useState(null);
+
+  const [filtros, setFiltros] = useState({ paciente: "", tipoExame: "", dataSolicitacao: "" });
+  const [sortField, setSortField] = useState("dataSolicitacao");
+  const [sortDirection, setSortDirection] = useState("desc");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(8);
 
-  const loadSolicitacaoExames = async () => {
+  const loadSolicitacaoExames = useCallback(async () => {
+    setIsLoading(true);
     try {
       const response = await getSolicitacaoExames();
-      if (Array.isArray(response.data)) {
-        setSolicitacaoExames(response.data);
-        console.log("Dados de solicitações carregados:", response.data);
-        response.data.forEach((tse, index) => {
-          console.log(`Solicitação ${index}:`, {
-            id: tse.idSolicitacaoExame,
-            paciente: tse.paciente,
-            tipoExame: tse.tipoExame,
-            nomeTipoExame: tse.nomeTipoExame,
-            periodo: tse.periodo,
-            dataRetorno: tse.dataRetorno,
-            profissional: tse.profissional,
-          });
-        });
-      } else {
-        console.warn("Dados retornados não são um array:", response.data);
-        setError("Formato de dados inválido retornado pela API.");
-      }
+      const data = Array.isArray(response.data) ? response.data : [];
+      const cleanData = data.filter(item => item && item.idSolicitacaoExame);
+      setSolicitacaoExames(cleanData);
     } catch (error) {
-      console.error("Erro ao carregar solicitações:", error);
-      setError(
-        error.error ||
-          "Não foi possível carregar as solicitações. Verifique a conexão com a API."
-      );
+      toast.error("Erro ao carregar solicitações.");
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadSolicitacaoExames();
-  }, []);
-
+  }, [loadSolicitacaoExames]);
+  
   const handleFiltroChange = (e) => {
     const { name, value } = e.target;
     setFiltros((prev) => ({ ...prev, [name]: value }));
     setCurrentPage(1);
   };
-
-  const handleClearFiltro = (field) => {
-    setFiltros((prev) => ({ ...prev, [field]: "" }));
+  
+  const handleSort = (field) => {
+    const newDirection = sortField === field && sortDirection === 'desc' ? 'asc' : 'desc';
+    setSortField(field);
+    setSortDirection(newDirection);
     setCurrentPage(1);
   };
+  
+  const handlePageChange = (page) => setCurrentPage(page);
 
-  const solicitacaoExamesFiltrados = solicitacaoExames.filter((tse) => {
-    const pacienteNome = normalizarString(tse.paciente?.nome || "");
-    const tipoExame = normalizarString(
-      tse.tipoExame?.nomeTipoExame || tse.nomeTipoExame || ""
-    );
-    const periodo = normalizarString(tse.periodo || "");
-    const dataRetorno = normalizarString(tse.dataRetorno || "");
-
-    const filtroPaciente = normalizarString(filtros.paciente);
-    const filtroTipoExame = normalizarString(filtros.tipoExame);
-    const filtroPeriodo = normalizarString(filtros.periodo);
-    const filtroDataRetorno = normalizarString(filtros.dataRetorno);
-
-    console.log("Filtrando solicitação:", {
-      id: tse.idSolicitacaoExame,
-      pacienteNome,
-      tipoExame,
-      periodo,
-      dataRetorno,
-      filtros: { filtroPaciente, filtroTipoExame, filtroPeriodo, filtroDataRetorno },
+  const processedData = useMemo(() => {
+    let items = [...solicitacaoExames];
+    items = items.filter(item => {
+        const nomePaciente = `${item.paciente?.nome ?? ''} ${item.paciente?.sobrenome ?? ''}`.toLowerCase();
+        const nomeExame = (item.tipoExame?.nomeTipoExame || '').toLowerCase();
+        const dataItem = item.dataSolicitacao ? new Date(item.dataSolicitacao).toISOString().split('T')[0] : '';
+        const pacienteMatch = filtros.paciente ? nomePaciente.includes(filtros.paciente.toLowerCase()) : true;
+        const exameMatch = filtros.tipoExame ? nomeExame.includes(filtros.tipoExame.toLowerCase()) : true;
+        const dataMatch = filtros.dataSolicitacao ? dataItem === filtros.dataSolicitacao : true;
+        return pacienteMatch && exameMatch && dataMatch;
     });
 
-    return (
-      (filtroPaciente === "" || pacienteNome.includes(filtroPaciente)) &&
-      (filtroTipoExame === "" || tipoExame.includes(filtroTipoExame)) &&
-      (filtroPeriodo === "" || periodo.includes(filtroPeriodo)) &&
-      (filtroDataRetorno === "" || dataRetorno.includes(filtroDataRetorno))
-    );
-  });
+    items.sort((a, b) => {
+      let vA, vB;
+      if (sortField === "paciente") vA = `${a.paciente?.nome ?? ''} ${a.paciente?.sobrenome ?? ''}`.trim();
+      else if (sortField === "tipoExame") vA = a.tipoExame?.nomeTipoExame || '';
+      else vA = a[sortField];
+      
+      if (sortField === "paciente") vB = `${b.paciente?.nome ?? ''} ${b.paciente?.sobrenome ?? ''}`.trim();
+      else if (sortField === "tipoExame") vB = b.tipoExame?.nomeTipoExame || '';
+      else vB = b[sortField];
 
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentSolicitacoes = solicitacaoExamesFiltrados.slice(
-    indexOfFirstItem,
-    indexOfLastItem
-  );
+      const dir = sortDirection === 'asc' ? 1 : -1;
+      if (vA == null || vA === '') return 1 * dir;
+      if (vB == null || vB === '') return -1 * dir;
+      if (['dataSolicitacao', 'dataRetorno'].includes(sortField)) return (new Date(vA) - new Date(vB)) * dir;
+      return String(vA).toLowerCase().localeCompare(String(vB).toLowerCase()) * dir;
+    });
 
-  const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
+    return items;
+  }, [solicitacaoExames, filtros, sortField, sortDirection]);
+
+  const currentItems = processedData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  const handleSave = (novaSolicitacao) => {
+    setSolicitacaoExames(prev => [...prev, novaSolicitacao]);
+    toast.success("Solicitação criada com sucesso!");
+    setIsAddModalOpen(false);
   };
 
-  const renderPagination = () => {
-    const totalPages = Math.ceil(solicitacaoExamesFiltrados.length / itemsPerPage);
-    const pageNumbers = [];
-    for (let i = 1; i <= totalPages; i++) {
-      pageNumbers.push(i);
-    }
-
-    return (
-      <div className="mt-6">
-        <nav className="inline-flex rounded-lg shadow-md">
-          <button
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-            className="px-4 py-2 bg-white border border-gray-200 rounded-l-lg text-sm font-semibold text-gray-700 hover:bg-blue-50 disabled:opacity-50 transition-colors"
-          >
-            Anterior
-          </button>
-          {pageNumbers.map((number) => (
-            <button
-              key={number}
-              onClick={() => handlePageChange(number)}
-              className={`px-4 py-2 border border-gray-200 text-sm font-semibold ${
-                currentPage === number
-                  ? "bg-blue-600 text-white"
-                  : "bg-white text-gray-700 hover:bg-blue-50 transition-colors"
-              }`}
-            >
-              {number}
-            </button>
-          ))}
-          <button
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            className="px-4 py-2 bg-white border border-gray-200 rounded-r-lg text-sm font-semibold text-gray-700 hover:bg-blue-50 disabled:opacity-50 transition-colors"
-          >
-            Próximo
-          </button>
-        </nav>
-      </div>
-    );
+  const handleUpdate = (solicitacaoAtualizada) => {
+    setSolicitacaoExames(prev => prev.map(item => item.idSolicitacaoExame === solicitacaoAtualizada.idSolicitacaoExame ? solicitacaoAtualizada : item));
+    toast.success("Solicitação atualizada com sucesso!");
+    setIsEditModalOpen(false);
   };
 
   const handleDelete = (id) => {
-    console.log("Iniciando exclusão do ID:", id);
     setIdToDelete(id);
-    setIsModalOpen(true);
+    setIsConfirmModalOpen(true);
   };
-
+  
   const confirmDelete = async () => {
-    if (!idToDelete) {
-      console.error("Nenhum ID para exclusão definido");
-      setError("Erro: Nenhum registro selecionado para exclusão.");
-      setIsModalOpen(false);
-      return;
-    }
-
     try {
-      console.log("Enviando solicitação de exclusão para ID:", idToDelete);
       await excluirSolicitacaoExames(idToDelete);
-      setShowAlert(true);
-      await loadSolicitacaoExames();
-    } catch (error) {
-      console.error("Erro ao excluir solicitação ID:", idToDelete, error);
-      setError(
-        error.error === "Solicitação não encontrada"
-          ? "Registro não encontrado. Pode já ter sido excluído."
-          : `Erro ao excluir solicitação: ${
-              error.error || error.message || "Tente novamente."
-            }`
-      );
+      setSolicitacaoExames(prev => prev.filter(item => item.idSolicitacaoExame !== idToDelete));
+      toast.success("Solicitação excluída com sucesso!");
+    } catch (err) {
+      toast.error(err.response?.data?.error || "Erro ao excluir.");
     } finally {
-      setIsModalOpen(false);
+      setIsConfirmModalOpen(false);
       setIdToDelete(null);
     }
   };
 
-  const handleSave = async () => {
-    await loadSolicitacaoExames();
-    setShowSuccessAlert(true);
+  const openModal = (type, item) => {
+    setSelectedSolicitacao(item);
+    if (type === 'details') setIsDetailsModalOpen(true);
+    if (type === 'edit') setIsEditModalOpen(true);
   };
-
-  const handleEditar = async (id) => {
-    try {
-      const response = await getSolicitacaoExamesId(id);
-      console.log("Dados para edição:", response.data);
-      setSolicitacaoExamesSelecionado(response.data);
-      setIsModalOpenEditar(true);
-    } catch (error) {
-      console.error("Erro ao carregar solicitação para edição:", error);
-      setError(error.error || "Erro ao carregar dados para edição.");
-    }
-  };
-
-  const handleDetalhes = async (id) => {
-    try {
-      const response = await getSolicitacaoExamesId(id);
-      console.log("Dados para detalhes:", response.data);
-      setSolicitacaoExamesSelecionado(response.data);
-      setIsModalOpenDetalhes(true);
-    } catch (error) {
-      console.error("Erro ao carregar detalhes da solicitação:", error);
-      setError(error.error || "Erro ao carregar detalhes da solicitação.");
-    }
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpenEditar(false);
-    setIsModalOpenDetalhes(false);
-    setSolicitacaoExamesSelecionado(null);
-  };
-
-  const handleUpdateSolicitacaoExames = () => {
-    loadSolicitacaoExames();
-    setShowEditSuccessAlert(true);
-    handleCloseModal();
-  };
+  
+  const closeModal = () => {
+      setIsAddModalOpen(false);
+      setIsEditModalOpen(false);
+      setIsDetailsModalOpen(false);
+      setSelectedSolicitacao(null);
+  }
 
   return (
     <div className="min-h-screen bg-gray-200 p-6">
       <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-md p-6">
+        <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
         <div className="border-b pb-4 flex justify-between items-center">
-          <h2 className="text-3xl font-bold text-blue-600 flex items-center gap-3">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-8 w-8"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
-              />
-            </svg>
-            Solicitações de Exames
-          </h2>
-          <button
-            onClick={() => setIsModalOpenAdd(true)}
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700 transition-colors"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 4v16m8-8H4"
-              />
-            </svg>
-            Nova Solicitação
-          </button>
+            <h2 className="text-3xl font-bold text-blue-600 flex items-center gap-3"><FaVial /> Solicitações de Exames</h2>
+            <button onClick={() => setIsAddModalOpen(true)} className="inline-flex items-center justify-center gap-2 rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700">
+                <FaPlus /> Nova Solicitação
+            </button>
         </div>
 
-        {error && (
-          <div className="mt-6 p-4 text-sm text-red-700 bg-red-100 rounded-lg border border-red-300">
-            {error}
-          </div>
-        )}
-
-        {showAlert && (
-          <AlertMessage
-            message="Excluído com sucesso."
-            onClose={() => setShowAlert(false)}
-          />
-        )}
-        {showSuccessAlert && (
-          <SuccessAlert
-            message="Adicionado com sucesso!"
-            onClose={() => setShowSuccessAlert(false)}
-          />
-        )}
-        {showEditSuccessAlert && (
-          <SuccessAlert
-            message="Editado com sucesso!"
-            onClose={() => setShowEditSuccessAlert(false)}
-          />
-        )}
-
-        <div className="flex flex-col md:flex-row gap-4 mt-6">
-          <div className="flex-1">
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
-              Nome do Paciente
-            </label>
-            <div className="relative">
-              <input
-                type="text"
-                name="paciente"
-                value={filtros.paciente}
-                onChange={handleFiltroChange}
-                className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-                placeholder="Filtrar por paciente"
-              />
-              {filtros.paciente && (
-                <button
-                  onClick={() => handleClearFiltro("paciente")}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </button>
-              )}
-            </div>
-          </div>
-          <div className="flex-1">
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
-              Tipo de Exame
-            </label>
-            <div className="relative">
-              <input
-                type="text"
-                name="tipoExame"
-                value={filtros.tipoExame}
-                onChange={handleFiltroChange}
-                className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-                placeholder="Filtrar por tipo de exame"
-              />
-              {filtros.tipoExame && (
-                <button
-                  onClick={() => handleClearFiltro("tipoExame")}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </button>
-              )}
-            </div>
-          </div>
-          <div className="flex-1">
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
-              Período
-            </label>
-            <div className="relative">
-              <input
-                type="text"
-                name="periodo"
-                value={filtros.periodo}
-                onChange={handleFiltroChange}
-                className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-                placeholder="Filtrar por período"
-              />
-              {filtros.periodo && (
-                <button
-                  onClick={() => handleClearFiltro("periodo")}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </button>
-              )}
-            </div>
-          </div>
-          <div className="flex-1">
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
-              Data de Retorno
-            </label>
-            <div className="relative">
-              <input
-                type="text"
-                name="dataRetorno"
-                value={filtros.dataRetorno}
-                onChange={handleFiltroChange}
-                className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-                placeholder="Filtrar por data de retorno"
-              />
-              {filtros.dataRetorno && (
-                <button
-                  onClick={() => handleClearFiltro("dataRetorno")}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </button>
-              )}
-            </div>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6 p-4 bg-gray-50 rounded-lg border">
+            <div><label htmlFor="paciente" className="block text-sm font-semibold text-gray-700 mb-1"><FaFilter className="inline-block mr-2 h-3 w-3" />Paciente</label><input type="text" name="paciente" value={filtros.paciente} onChange={handleFiltroChange} placeholder="Filtrar por paciente..." className="w-full px-3 py-2 text-sm border rounded-md" /></div>
+            <div><label htmlFor="tipoExame" className="block text-sm font-semibold text-gray-700 mb-1"><FaFilter className="inline-block mr-2 h-3 w-3" />Tipo de Exame</label><input type="text" name="tipoExame" value={filtros.tipoExame} onChange={handleFiltroChange} placeholder="Filtrar por exame..." className="w-full px-3 py-2 text-sm border rounded-md" /></div>
+            <div><label htmlFor="dataSolicitacao" className="block text-sm font-semibold text-gray-700 mb-1"><FaFilter className="inline-block mr-2 h-3 w-3" />Data da Solicitação</label><input type="date" name="dataSolicitacao" value={filtros.dataSolicitacao} onChange={handleFiltroChange} className="w-full px-3 py-2 text-sm border rounded-md" /></div>
         </div>
 
         <div className="mt-6 overflow-x-auto rounded-lg shadow-md">
-          {solicitacaoExames.length === 0 ? (
-            <p className="text-center text-gray-500 py-4 text-sm bg-white">
-              Nenhuma solicitação de exame encontrada.
-            </p>
-          ) : currentSolicitacoes.length === 0 ? (
-            <p className="text-center text-gray-500 py-4 text-sm bg-white">
-              Nenhuma solicitação encontrada com os filtros aplicados.
-            </p>
-          ) : (
+          {isLoading ? <p className="p-4 text-center">Carregando...</p> : 
             <TabelaSolicitacaoExames
-              tse={currentSolicitacoes}
+              tse={currentItems}
               onExcluir={handleDelete}
-              onEditar={handleEditar}
-              onDetalhes={handleDetalhes}
+              onEditar={(item) => openModal('edit', item)}
+              onDetalhes={(item) => openModal('details', item)}
+              onSort={handleSort}
+              sortField={sortField}
+              sortDirection={sortDirection}
             />
-          )}
+          }
         </div>
 
-        {solicitacaoExamesFiltrados.length > 0 && renderPagination()}
+        {processedData.length > itemsPerPage && <div className="mt-4 flex justify-center"><Pagination totalItems={processedData.length} itemsPerPage={itemsPerPage} currentPage={currentPage} onPageChange={handlePageChange} /></div>}
 
-        {isModalOpenAdd && (
-          <ModalSolicitacaoExames
-            isOpen={isModalOpenAdd}
-            onClose={() => setIsModalOpenAdd(false)}
-            onSave={handleSave}
-          />
-        )}
-        {isModalOpenEditar && solicitacaoExamesSelecionado && (
-          <ModalEditarSolicitacaoExames
-            isOpen={isModalOpenEditar}
-            onClose={handleCloseModal}
-            solicitacaoExames={solicitacaoExamesSelecionado}
-            onUpdate={handleUpdateSolicitacaoExames}
-          />
-        )}
-        {isModalOpen && (
-          <ConfirmationModal
-            isOpen={isModalOpen}
-            onConfirm={confirmDelete}
-            onCancel={() => {
-              console.log("Cancelando exclusão, ID:", idToDelete);
-              setIsModalOpen(false);
-              setIdToDelete(null);
-            }}
-            message="Deseja excluir esta solicitação de exame?"
-          />
-        )}
-        {isModalOpenDetalhes && solicitacaoExamesSelecionado && (
-          <ModalDetalhesSolicitacaoExames
-            isOpen={isModalOpenDetalhes}
-            onClose={handleCloseModal}
-            solicitacaoExames={solicitacaoExamesSelecionado}
-          />
-        )}
+        {isAddModalOpen && <ModalSolicitacaoExames isOpen={isAddModalOpen} onClose={closeModal} onSave={handleSave} />}
+        {selectedSolicitacao && isEditModalOpen && <ModalEditarSolicitacaoExames isOpen={isEditModalOpen} onClose={closeModal} solicitacaoExames={selectedSolicitacao} onUpdate={handleUpdate} />}
+        {selectedSolicitacao && isDetailsModalOpen && <ModalDetalhesSolicitacaoExames isOpen={isDetailsModalOpen} onClose={closeModal} solicitacaoExames={selectedSolicitacao} />}
+        {isConfirmModalOpen && <ConfirmationModal isOpen={isConfirmModalOpen} onConfirm={confirmDelete} onCancel={() => setIsConfirmModalOpen(false)} message="Deseja excluir esta solicitação de exame?" />}
       </div>
     </div>
   );

@@ -85,13 +85,13 @@ const ConsultaTable = ({
             <thead className="bg-blue-600 text-white">
               <tr>
                 {[
-                  "Paciente",
-                  "Médico",
-                  "Tipo de Consulta",
-                  "Data - Hora",
-                  "Motivo",
-                  "Status",
-                  "Ações",
+                  "PACIENTE",
+                  "MÉDICO",
+                  "TIPO DE CONSULTA",
+                  "DATA - HORA",
+                  "MOTIVO",
+                  "STATUS",
+                  "AÇÕES",
                 ].map((header, index) => (
                   <th
                     key={header}

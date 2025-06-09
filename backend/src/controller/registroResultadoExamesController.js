@@ -5,7 +5,7 @@ const Profissional = models.Profissional;
 const RegistroResultadoExames = models.RegistroResultadoExames;
 const SolicitacaoExames = models.SolicitacaoExames;
 const TiposExames = models.TiposExames;
-// **Criar um novo RegistroResultadoExame**
+
 const createRegistroResultadoExame = async (req, res) => {
   const {
     idSolicitacaoExame,

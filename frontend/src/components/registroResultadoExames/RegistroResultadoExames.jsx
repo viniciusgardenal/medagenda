@@ -104,6 +104,8 @@ const RegistroResultadoExames = () => {
     setError(null);
     try {
       const response = await getRegistrosInativosResultadoExames();
+      console.log("Aqui");
+      
       setRegistros(response.data.data || []);
     } catch (error) {
       console.error("Erro ao carregar registros:", error);
@@ -267,23 +269,23 @@ const RegistroResultadoExames = () => {
 
         {/* Cards de Estatísticas */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-          <div className="bg-slate-50 p-4 rounded-lg shadow">
-            <h3 className="text-sm font-semibold text-gray-600 mb-1">
+          <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg flex items-center justify-between">
+            <h3 className="text-sm font-semibold text-blue-800">
               Total de Registros
             </h3>
-            <p className="text-2xl font-bold text-blue-600">{registros.length}</p>
+            <p className="text-2xl font-bold text-blue-600 bg-white px-2.5 py-0.5 rounded-full">{registros.length}</p>
           </div>
-          <div className="bg-slate-50 p-4 rounded-lg shadow">
-            <h3 className="text-sm font-semibold text-gray-600 mb-1">
+          <div className="bg-orange-50 border border-orange-200 p-3 rounded-lg flex items-center justify-between">
+            <h3 className="text-sm font-semibold text-orange-800">
               Exames Pendentes
             </h3>
-            <p className="text-2xl font-bold text-orange-500">{examesPendentes}</p>
+            <p className="text-2xl font-bold text-orange-600 bg-white px-2.5 py-0.5 rounded-full">{examesPendentes}</p>
           </div>
-          <div className="bg-slate-50 p-4 rounded-lg shadow">
-            <h3 className="text-sm font-semibold text-gray-600 mb-1">
+          <div className="bg-green-50 border border-green-200 p-3 rounded-lg flex items-center justify-between">
+            <h3 className="text-sm font-semibold text-green-800">
               Exames Registrados
             </h3>
-            <p className="text-2xl font-bold text-green-600">{examesRegistrados}</p>
+            <p className="text-2xl font-bold text-green-600 bg-white px-2.5 py-0.5 rounded-full">{examesRegistrados}</p>
           </div>
         </div>
 

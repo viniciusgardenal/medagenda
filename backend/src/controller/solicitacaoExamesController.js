@@ -2,6 +2,8 @@ const solicitacaoExames = require("../model/solicitacaoExames");
 const tiposExames = require("../model/tiposExames");
 const Profissional = require("../model/profissional"); // Adjust path as needed
 const Paciente = require("../model/paciente"); // Adjust path as needed
+const { models } = require("../model/index");
+const RegistroResultadoExames = models.RegistroResultadoExames;
 
 const criarSolicitacaoExames = async (req, res) => {
   try {
@@ -130,6 +132,7 @@ const atualizarSolicitacaoExames = async (req, res) => {
     const id = req.params.id;
     const dadosAtualizados = req.body;
     const exame = await solicitacaoExames.findByPk(id);
+
     if (!exame) {
       return res.status(404).json({ message: "Exame não encontrado!" });
     }
@@ -139,7 +142,29 @@ const atualizarSolicitacaoExames = async (req, res) => {
       return res.status(400).json({ error: "Nome do tipo de exame não pode ser vazio!" });
     }
 
+    // Atualiza o exame com os novos dados
     await exame.update(dadosAtualizados);
+
+    // *** INÍCIO DA LÓGICA ADICIONADA ***
+    // Se o status for atualizado para "Inativo", cria um registro de resultado
+    if (dadosAtualizados.status === "Inativo") {
+      // Verifica se já não existe um resultado para evitar duplicatas
+      const resultadoExistente = await RegistroResultadoExames.findOne({
+        where: { idSolicitacaoExame: exame.idSolicitacaoExame },
+      });
+
+      if (!resultadoExistente) {
+        await RegistroResultadoExames.create({
+          idSolicitacaoExame: exame.idSolicitacaoExame,
+          matriculaProfissional: exame.matriculaProfissional,
+          cpfPaciente: exame.cpfPaciente,
+          status: "Inativo", // O resultado também inicia como "Inativo"
+          observacoes: "", // Inicia com observações vazias
+        });
+      }
+    }
+    // *** FIM DA LÓGICA ADICIONADA ***
+
     const exameAtualizado = await solicitacaoExames.findByPk(id, {
       include: [
         {

@@ -29,7 +29,7 @@ const TabelaSolicitacaoExames = ({
             <TableHeader label="Solicitação" field="dataSolicitacao" sortField={sortField} sortDirection={sortDirection} onSort={onSort} />
             <TableHeader label="Retorno" field="dataRetorno" sortField={sortField} sortDirection={sortDirection} onSort={onSort} />
             <TableHeader label="Status" field="status" sortField={sortField} sortDirection={sortDirection} onSort={onSort} />
-            <th className="px-4 py-3 text-left text-sm font-semibold rounded-tr-lg">Ações</th>
+            <th className="px-4 py-3 text-left text-sm font-semibold rounded-tr-lg">AÇÕES</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-200">
@@ -47,16 +47,18 @@ const TabelaSolicitacaoExames = ({
                 <td className="px-4 py-3 text-sm text-gray-700">{formatarData(se.dataRetorno)}</td>
                 <td className="px-4 py-3 text-sm text-gray-700">{se.status || "—"}</td>
                 <td className="px-4 py-3 flex gap-3">
-                  <button onClick={() => onDetalhes('details', se)} className="text-blue-500 hover:text-blue-700" title="Detalhes">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.522 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.478 0-8.268-2.943-9.542-7z" /></svg>
-                  </button>
-                  <button onClick={() => onEditar('edit', se)} className="text-yellow-500 hover:text-yellow-700" title="Editar">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-                  </button>
-                  <button onClick={() => onExcluir(se.idSolicitacaoExame)} className="text-red-500 hover:text-red-700" title="Excluir">
-                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4h4M9 7v12m6-12v12M3 7h18" /></svg>
-                  </button>
-                </td>
+  {/* CORREÇÃO: Chame a função passando apenas o objeto da solicitação 'se'. */}
+  <button onClick={() => onDetalhes(se)} className="text-blue-500 hover:text-blue-700" title="Detalhes">
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.522 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.478 0-8.268-2.943-9.542-7z" /></svg>
+  </button>
+  {/* CORREÇÃO: Chame a função passando apenas o objeto da solicitação 'se'. */}
+  <button onClick={() => onEditar(se)} className="text-yellow-500 hover:text-yellow-700" title="Editar">
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+  </button>
+  <button onClick={() => onExcluir(se.idSolicitacaoExame)} className="text-red-500 hover:text-red-700" title="Excluir">
+     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4h4M9 7v12m6-12v12M3 7h18" /></svg>
+  </button>
+</td>
               </tr>
             ))
           )}

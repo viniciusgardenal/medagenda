@@ -73,7 +73,9 @@ const ModalEditarSolicitacaoExames = ({
         solicitacaoExames.idSolicitacaoExame,
         dadosParaEnviar
       );
-      onUpdate(response.exame);
+      // CORREÇÃO: Acesse a propriedade 'data' da resposta do Axios
+      // e depois a propriedade 'exame' que vem do seu backend.
+      onUpdate(response.data.exame); 
       onClose();
     } catch (error) {
       toast.error(error.response?.data?.error || "Falha ao atualizar. Tente novamente.");

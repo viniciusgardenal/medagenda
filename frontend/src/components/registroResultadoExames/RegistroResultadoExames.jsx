@@ -11,7 +11,7 @@ import FiltroRegistroResultadoExames from "./filtroRegistroResultadoExames";
 import Pagination from "../util/Pagination";
 // FaEdit e FaEye serão substituídos por SVGs. FaSyncAlt parece não utilizado.
 import { FaPlus, FaCheckCircle, /*FaEdit, FaEye, FaSyncAlt,*/ FaFileMedical } from "react-icons/fa";
-import { getRegistrosInativos } from "../../../../backend/src/controller/registroResultadoExamesController";
+
 
 // Componente SVG para o ícone de Visualizar
 const ViewIcon = () => (

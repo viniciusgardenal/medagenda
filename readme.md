@@ -35,14 +35,7 @@ Este projeto foi construído com um stack moderno e amplamente utilizado no dese
 
 ## Status do Projeto
 
-O sistema está em **andamento**, com as principais funcionalidades de cadastro de pacientes, agendamento e interface básica já implementadas. O foco atual é a integração de lembretes automáticos e a finalização do módulo de receitas digitais.
-
-## Próximos Passos
-
-- Implementar o sistema de notificações (e-mail/SMS) para lembretes de consultas.
-- Adicionar autenticação de usuários (login para médicos e recepcionistas).
-- Finalizar o módulo de receitas digitais com exportação em PDF.
-- Realizar testes de usabilidade e otimizar a performance.
+O sistema está **finalizado**, com as principais funcionalidades de cadastro de pacientes, agendamento e interface básica já implementadas.
 
 ## Instalação
 

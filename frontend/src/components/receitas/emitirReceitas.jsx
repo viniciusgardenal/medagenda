@@ -11,49 +11,9 @@ import ViewReceitas from "./ViewReceitas";
 import Pagination from "../util/Pagination";
 import TableHeader from "./TableHeader";
 import { FaPlus, FaBookMedical, FaFilter } from "react-icons/fa";
+import { Eye, Download } from "lucide-react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
-// Ícones SVG para as ações
-const ViewIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    className="h-5 w-5"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-    />
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-    />
-  </svg>
-);
-
-const DownloadIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    className="h-5 w-5"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-    />
-  </svg>
-);
 
 const EmitirReceitas = () => {
   // Estados de dados e UI
@@ -197,22 +157,22 @@ const EmitirReceitas = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-200 p-6">
-      <section className="max-w-6xl mx-auto bg-white rounded-2xl shadow-md p-6">
+    <div className="min-h-screen bg-slate-50 p-6">
+      <section className="max-w-6xl mx-auto bg-white rounded-lg border border-slate-200 shadow-sm p-6">
         <ToastContainer
           position="top-right"
           autoClose={3000}
           hideProgressBar={false}
         />
 
-        <div className="border-b pb-4 flex justify-between items-center">
-          <h2 className="text-3xl font-bold text-blue-600 flex items-center gap-3">
-            <FaBookMedical />
-            Emissão de Receitas
-          </h2>
+        <div className="border-b border-slate-200 pb-4 flex justify-between items-center">
+          <div>
+            <h2 className="text-xl font-bold text-slate-800">Emitir Receitas</h2>
+            <p className="text-sm text-slate-500 mt-0.5">Prescrições e receituários médicos</p>
+          </div>
           <button
             onClick={() => setIsReceitaModalOpen(true)}
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-blue-700 transition-colors"
+            className="inline-flex items-center justify-center gap-2 rounded-md bg-blue-700 px-4 py-2 text-sm font-medium text-white hover:bg-blue-800 transition-colors"
           >
             <FaPlus />
             Nova Receita
@@ -250,7 +210,7 @@ const EmitirReceitas = () => {
           <div className="flex-1">
             <label
               htmlFor="filtroPaciente"
-              className="block text-sm font-semibold text-gray-700 mb-1"
+              className="block text-sm font-medium text-slate-700 mb-1.5"
             >
               <FaFilter className="inline-block mr-2 h-3 w-3" />
               Filtrar por Paciente
@@ -263,14 +223,14 @@ const EmitirReceitas = () => {
                 setFiltroPaciente(e.target.value);
                 setCurrentPage(1);
               }}
-              className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-md bg-white text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:border-blue-700 transition-colors"
               placeholder="Digite o nome do paciente..."
             />
           </div>
           <div className="flex-1">
             <label
               htmlFor="filtroMedicamento"
-              className="block text-sm font-semibold text-gray-700 mb-1"
+              className="block text-sm font-medium text-slate-700 mb-1.5"
             >
               <FaFilter className="inline-block mr-2 h-3 w-3" />
               Filtrar por Medicamento
@@ -283,20 +243,20 @@ const EmitirReceitas = () => {
                 setFiltroMedicamento(e.target.value);
                 setCurrentPage(1);
               }}
-              className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-md bg-white text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:border-blue-700 transition-colors"
               placeholder="Digite o nome do medicamento..."
             />
           </div>
         </div>
 
-        <div className="mt-6 overflow-x-auto rounded-lg shadow-md">
+        <div className="mt-6 overflow-x-auto rounded-md border border-slate-200">
           {isLoading ? (
             <p className="text-center text-gray-500 py-8">
               Carregando receitas...
             </p>
           ) : (
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-blue-600 text-white">
+            <table className="min-w-full bg-white">
+              <thead>
                 <tr>
                   <TableHeader
                     label="Data"
@@ -312,20 +272,20 @@ const EmitirReceitas = () => {
                     sortDirection={sortDirection}
                     onSort={handleSort}
                   />
-                  <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider bg-slate-800 text-slate-200">
                     Medicamentos
                   </th>
-                  <th className="px-6 py-3 text-center text-sm font-semibold uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider bg-slate-800 text-slate-200 w-28">
                     Ações
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200 bg-white">
+              <tbody className="bg-white divide-y divide-slate-100">
                 {currentReceitas.length === 0 ? (
                   <tr>
                     <td
                       colSpan="4"
-                      className="px-6 py-4 text-center text-gray-500 text-sm"
+                      className="px-4 py-8 text-center text-slate-400 text-sm"
                     >
                       {receitas.length > 0
                         ? "Nenhum resultado para o filtro aplicado."
@@ -336,18 +296,18 @@ const EmitirReceitas = () => {
                   currentReceitas.map((receita) => (
                     <tr
                       key={receita.batchId}
-                      className="hover:bg-blue-50 transition-colors"
+                      className="hover:bg-slate-50 transition-colors"
                     >
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                      <td className="px-4 py-3.5 text-sm text-slate-600">
                         {new Date(receita.createdAt).toLocaleDateString(
                           "pt-BR"
                         )}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">
+                      <td className="px-4 py-3.5 text-sm font-medium text-slate-700">
                         {receita.paciente?.nome} {receita.paciente?.sobrenome}
                       </td>
                       <td
-                        className="px-6 py-4 text-sm text-gray-700 max-w-xs truncate"
+                        className="px-4 py-3.5 text-sm text-slate-600 max-w-xs truncate"
                         title={receita.medicamentos
                           .map((m) => m.nomeMedicamento)
                           .join(", ")}
@@ -356,23 +316,23 @@ const EmitirReceitas = () => {
                           .map((m) => m.nomeMedicamento)
                           .join(", ")}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
-                        <div className="flex items-center justify-center gap-4">
+                      <td className="px-4 py-3.5">
+                        <div className="flex items-center gap-2">
                           <button
                             onClick={() => handleViewReceita(receita)}
-                            className="text-blue-600 hover:text-blue-800"
+                            className="p-1.5 rounded-md text-slate-500 hover:text-blue-700 hover:bg-blue-50 transition-colors"
                             title="Visualizar Detalhes"
                           >
-                            <ViewIcon />
+                            <Eye size={15} />
                           </button>
                           <button
                             onClick={() =>
                               handleDownloadReceita(receita.batchId)
                             }
-                            className="text-green-600 hover:text-green-800"
+                            className="p-1.5 rounded-md text-slate-500 hover:text-blue-700 hover:bg-blue-50 transition-colors"
                             title="Baixar Receita em PDF"
                           >
-                            <DownloadIcon />
+                            <Download size={15} />
                           </button>
                         </div>
                       </td>

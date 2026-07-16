@@ -205,47 +205,51 @@ const Medicamentos = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-200 p-6">
-      <section className="max-w-6xl mx-auto bg-white rounded-2xl shadow-md p-6">
-        <div className="border-b pb-4 flex justify-between items-center">
-          <h2 className="text-3xl font-bold text-blue-600 flex items-center gap-3">
-            Gerenciar Medicamentos
-          </h2>
+    <div className="min-h-screen bg-slate-50 p-6">
+      <section className="max-w-6xl mx-auto bg-white rounded-lg border border-slate-200 shadow-sm p-6">
+        <div className="border-b border-slate-200 pb-4 flex justify-between items-center">
+          <div>
+            <h2 className="text-xl font-bold text-slate-800">Gerenciar Medicamentos</h2>
+            <p className="text-sm text-slate-500 mt-0.5">Cadastro e controle do estoque de medicamentos</p>
+          </div>
           <button
             onClick={() => setIsModalOpenAdd(true)}
             disabled={isSaving}
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700 transition-colors disabled:opacity-50"
+            className="inline-flex items-center justify-center gap-2 rounded-md bg-blue-700 px-4 py-2 text-sm font-medium text-white hover:bg-blue-800 transition-colors disabled:opacity-50"
           >
-            <FaPlus className="h-5 w-5" />
+            <FaPlus className="h-4 w-4" />
             Novo Medicamento
           </button>
         </div>
 
         {error && (
-          <div className="mt-6 p-4 text-sm text-red-700 bg-red-100 rounded-lg border border-red-300">
-            {error}
+          <div className="mt-5 flex items-start gap-2.5 p-3.5 bg-red-50 border border-red-200 rounded-md">
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-red-500 shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" /></svg>
+            <p className="text-sm text-red-700">{error}</p>
           </div>
         )}
-
         {showAlert && (
-          <div className="mt-6 p-4 text-sm text-red-700 bg-red-100 rounded-lg border border-red-300">
-            Medicamento excluído com sucesso.
+          <div className="mt-5 flex items-start gap-2.5 p-3.5 bg-amber-50 border border-amber-200 rounded-md">
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v4a1 1 0 002 0V7zm-1 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" /></svg>
+            <p className="text-sm text-amber-700">Medicamento excluído com sucesso.</p>
           </div>
         )}
         {showSuccessAlert && (
-          <div className="mt-6 p-4 text-sm text-green-700 bg-green-100 rounded-lg border border-red-300">
-            Medicamento adicionado com sucesso!
+          <div className="mt-5 flex items-start gap-2.5 p-3.5 bg-emerald-50 border border-emerald-200 rounded-md">
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
+            <p className="text-sm text-emerald-700">Medicamento adicionado com sucesso!</p>
           </div>
         )}
         {showEditSuccessAlert && (
-          <div className="mt-6 p-4 text-sm text-green-700 bg-green-100 rounded-lg border border-red-300">
-            Medicamento editado com sucesso!
+          <div className="mt-5 flex items-start gap-2.5 p-3.5 bg-emerald-50 border border-emerald-200 rounded-md">
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
+            <p className="text-sm text-emerald-700">Medicamento editado com sucesso!</p>
           </div>
         )}
 
-        <div className="flex flex-col md:flex-row gap-4 mt-6">
+        <div className="flex flex-col md:flex-row gap-3 mt-6">
           <div className="flex-1">
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">
               Pesquisar Medicamento
             </label>
             <div className="relative">
@@ -254,7 +258,7 @@ const Medicamentos = () => {
                 type="text"
                 value={filtro}
                 onChange={handleFiltroChange}
-                className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-md bg-white text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:border-blue-700 transition-colors"
                 placeholder="Filtrar por nome, fabricante ou descrição"
               />
               {filtro && (
@@ -279,13 +283,13 @@ const Medicamentos = () => {
             </div>
           </div>
           <div className="flex-1">
-            <label className="block text-sm font-semibold text-gray-700 mb-1 invisible">
+            <label className="block text-sm font-medium text-slate-700 mb-1.5 invisible">
               Placeholder
             </label>
             <button
               onClick={handleExportExcel}
               disabled={isSaving}
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-green-700 transition-colors disabled:opacity-50"
+              className="inline-flex items-center justify-center gap-2 rounded-md bg-emerald-700 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-800 transition-colors disabled:opacity-50"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -306,15 +310,14 @@ const Medicamentos = () => {
           </div>
         </div>
 
-        <div className="mt-6 overflow-x-auto rounded-lg shadow-md">
+        <div className="mt-6 overflow-x-auto rounded-md border border-slate-200">
           {isLoading ? (
-            <p className="text-center text-gray-500 py-4 text-sm bg-white">
-              Carregando registros...
-            </p>
+            <div className="flex items-center justify-center py-12 text-slate-400">
+              <svg className="animate-spin h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+              <span className="text-sm">Carregando registros...</span>
+            </div>
           ) : medicamentosOrdenados.length === 0 ? (
-            <p className="text-center text-gray-500 py-4 text-sm bg-white">
-              Nenhum medicamento encontrado.
-            </p>
+            <p className="text-center text-slate-400 py-10 text-sm">Nenhum medicamento encontrado.</p>
           ) : (
             <TabelaMedicamentos
               medicamentos={currentMedicamentos}

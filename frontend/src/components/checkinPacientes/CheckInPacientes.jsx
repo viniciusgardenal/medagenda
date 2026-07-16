@@ -10,6 +10,8 @@ import ModalAddCheckIn from "./ModalAddCheckIn";
 import ModalEditCheckIn from "./ModalEditCheckIn";
 import ModalViewCheckIn from "./ModalViewCheckIn";
 import Pagination from "../util/Pagination";
+import TableHeader from "../util/TableHeader";
+import { Eye, Pencil, Check, Plus } from "lucide-react";
 
 const SearchFilter = ({
   filtroNome,
@@ -21,24 +23,24 @@ const SearchFilter = ({
     // Added mt-6 for spacing above this component
     <div className="flex gap-4 mt-6">
       <div className="flex-1">
-        <label className="block text-sm font-semibold text-gray-700 mb-1">
+        <label className="block text-sm font-medium text-slate-700 mb-1.5">
           Busca Geral
         </label>
         <input
           type="text"
           placeholder="Digite nome, médico, horário, prioridade ou status..."
-          className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+          className="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-md bg-white text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:border-blue-700 transition-colors"
           value={filtroNome}
           onChange={(e) => onFiltroNomeChange(e.target.value)}
         />
       </div>
       <div className="flex-1">
-        <label className="block text-sm font-semibold text-gray-700 mb-1">
+        <label className="block text-sm font-medium text-slate-700 mb-1.5">
           Data da Consulta
         </label>
         <input
           type="date"
-          className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+          className="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-md bg-white text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:border-blue-700 transition-colors"
           value={filtroData}
           onChange={(e) => onFiltroDataChange(e.target.value)}
         />
@@ -58,119 +60,63 @@ const TableRow = ({
   const checkInRealizado =
     consulta.status === "checkin_realizado" || consulta.status === "realizada";
   return (
-    <tr className="hover:bg-blue-50 transition-colors">
-      <td className="px-4 py-3 text-sm text-gray-700">
+    <tr className="hover:bg-slate-50 transition-colors">
+      <td className="px-4 py-3 text-sm font-medium text-slate-700">
         {consulta.paciente.nome} {consulta.paciente.sobrenome}
       </td>
-      <td className="px-4 py-3 text-sm text-gray-700">
+      <td className="px-4 py-3 text-sm text-slate-600">
         {consulta.medico.nome} {consulta.medico.crm}
       </td>
-      <td className="px-4 py-3 text-sm text-gray-700">
+      <td className="px-4 py-3 text-sm text-slate-600">
         {formatarDataHoraBR(
           consulta.dataConsulta + "T" + consulta.horaConsulta
         )}
       </td>
-      <td className="px-4 py-3 text-sm text-gray-700">
+      <td className="px-4 py-3 text-sm text-slate-600">
         {getPrioridadeLegenda(
           consulta.checkin
             ? consulta.checkin.prioridade
             : consulta.prioridade || 0
         )}
       </td>
-      <td className="px-4 py-3">
+      <td className="px-4 py-3 text-sm">
         {checkInRealizado ? (
-          <span className="inline-flex items-center gap-1 rounded-full bg-green-600 px-3 py-1.5 text-sm font-semibold text-white shadow">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-4 w-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-xs font-semibold bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200">
+            <Check size={12} />
             Chegada Confirmada
           </span>
         ) : (
           <button
             onClick={() => onAdd(consulta)}
-            className="inline-flex items-center gap-2 rounded-full bg-orange-600 px-3 py-1.5 text-sm font-semibold text-white shadow hover:bg-orange-700 transition"
+            className="inline-flex items-center gap-1 rounded-md bg-amber-700 px-2.5 py-1 text-xs font-medium text-white hover:bg-amber-800 transition-colors"
             title="Registrar Chegada"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-4 w-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 4v16m8-8H4"
-              />
-            </svg>
+            <Plus size={12} />
             Registrar Chegada
           </button>
         )}
       </td>
-      <td className="px-4 py-3 flex justify-start gap-3">
-        {checkInRealizado && (
-          <>
-            <button
-              onClick={() => onEdit(consulta.checkin)}
-              className="text-yellow-500 hover:text-yellow-700"
-              title="Editar Check-In"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
+      <td className="px-4 py-3.5">
+        <div className="flex items-center gap-2">
+          {checkInRealizado && (
+            <>
+              <button
+                onClick={() => onEdit(consulta.checkin)}
+                className="p-1.5 rounded-md text-slate-500 hover:text-amber-600 hover:bg-amber-50 transition-colors"
+                title="Editar Check-In"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                />
-              </svg>
-            </button>
-            <button
-              onClick={() => onView(consulta.checkin)}
-              className="text-blue-500 hover:text-blue-700"
-              title="Visualizar Check-In"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
+                <Pencil size={15} />
+              </button>
+              <button
+                onClick={() => onView(consulta.checkin)}
+                className="p-1.5 rounded-md text-slate-500 hover:text-blue-700 hover:bg-blue-50 transition-colors"
+                title="Visualizar Check-In"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M2.458 12C3.732 7.943 7.522 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.478 0-8.268-2.943-9.542-7z"
-                />
-              </svg>
-            </button>
-          </>
-        )}
+                <Eye size={15} />
+              </button>
+            </>
+          )}
+        </div>
       </td>
     </tr>
   );
@@ -535,12 +481,13 @@ const CheckInPacientes = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-200 p-6">
-      <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-md p-6">
-        <div className="border-b pb-4">
-          <h2 className="text-3xl font-bold text-blue-600">
-            Check-In de Pacientes
-          </h2>
+    <div className="min-h-screen bg-slate-50 p-6">
+      <div className="max-w-6xl mx-auto bg-white rounded-lg border border-slate-200 shadow-sm p-6">
+        <div className="border-b border-slate-200 pb-4">
+          <div>
+            <h2 className="text-xl font-bold text-slate-800">Check-In de Pacientes</h2>
+            <p className="text-sm text-slate-500 mt-0.5">Registrar chegada e triagem dos pacientes</p>
+          </div>
         </div>
 
         {/* Seção para Download do Relatório - Added mt-6 */}
@@ -559,7 +506,7 @@ const CheckInPacientes = () => {
               </label>
               <select
                 id="tipoFiltroRelatorio"
-                className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-md bg-white text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:border-blue-700 transition-colors"
                 value={tipoFiltroRelatorio}
                 onChange={(e) => {
                   setTipoFiltroRelatorio(e.target.value);
@@ -584,7 +531,7 @@ const CheckInPacientes = () => {
                 <input
                   type="date"
                   id="dataRelatorio"
-                  className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-md bg-white text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:border-blue-700 transition-colors"
                   value={dataRelatorio}
                   onChange={(e) => setDataRelatorio(e.target.value)}
                 />
@@ -600,7 +547,7 @@ const CheckInPacientes = () => {
                   <input
                     type="date"
                     id="dataInicioRelatorio"
-                    className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    className="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-md bg-white text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:border-blue-700 transition-colors"
                     value={dataInicioRelatorio}
                     onChange={(e) => setDataInicioRelatorio(e.target.value)}
                   />
@@ -614,7 +561,7 @@ const CheckInPacientes = () => {
                   <input
                     type="date"
                     id="dataFimRelatorio"
-                    className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    className="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-md bg-white text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:border-blue-700 transition-colors"
                     value={dataFimRelatorio}
                     onChange={(e) => setDataFimRelatorio(e.target.value)}
                   />
@@ -624,11 +571,11 @@ const CheckInPacientes = () => {
 
             <button
               onClick={handleDownloadRelatorio}
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-green-700 transition w-full md:w-auto"
+              className="inline-flex items-center justify-center gap-2 rounded-md bg-green-700 px-4 py-2 text-sm font-medium text-white hover:bg-green-800 transition w-full md:w-auto"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
+                className="h-4 w-4"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -647,7 +594,7 @@ const CheckInPacientes = () => {
 
         {error && (
           // Added mt-6 for spacing above error message
-          <div className="mt-6 p-4 text-sm text-red-700 bg-red-100 rounded-lg border border-red-300">
+          <div className="mt-6 flex items-start gap-2.5 p-3.5 bg-red-50 border border-red-200 rounded-md text-sm text-red-700">
             {error}
           </div>
         )}
@@ -671,62 +618,21 @@ const CheckInPacientes = () => {
           </div>
         ) : (
           // Added mt-6 for spacing above table container
-          <div className="mt-6 overflow-x-auto rounded-lg shadow-md">
-            <table className="min-w-full divide-y divide-gray-200 bg-white">
-              <thead className="bg-blue-600 text-white">
+          <div className="mt-6 overflow-x-auto rounded-md border border-slate-200">
+            <table className="min-w-full bg-white">
+              <thead>
                 <tr>
-                  {[
-                    "Paciente",
-                    "Médico",
-                    "Horário",
-                    "Prioridade",
-                    "Status",
-                    "Ações",
-                  ].map((header, index) => (
-                    <th
-                      key={header}
-                      onClick={() =>
-                        ["nome", "medico", "horario", "prioridade", "status"][
-                          index
-                        ] &&
-                        handleSort(
-                          ["nome", "medico", "horario", "prioridade", "status"][
-                            index
-                          ]
-                        )
-                      }
-                      className={`px-4 py-3 text-left text-sm font-semibold cursor-pointer ${
-                        index === 0 ? "rounded-tl-lg" : ""
-                      } ${index === 5 ? "rounded-tr-lg" : ""} ${
-                        [
-                          "nome",
-                          "medico",
-                          "horario",
-                          "prioridade",
-                          "status",
-                        ].includes(sortField) &&
-                        sortField ===
-                          ["nome", "medico", "horario", "prioridade", "status"][
-                            index
-                          ]
-                          ? "bg-blue-700"
-                          : ""
-                      }`}
-                    >
-                      {header}
-                      {sortField ===
-                        ["nome", "medico", "horario", "prioridade", "status"][
-                          index
-                        ] && (
-                        <span className="ml-1">
-                          {sortDirection === "asc" ? "↑" : "↓"}
-                        </span>
-                      )}
-                    </th>
-                  ))}
+                  <TableHeader label="Paciente" field="nome" sortField={sortField} sortDirection={sortDirection} onSort={handleSort} />
+                  <TableHeader label="Médico" field="medico" sortField={sortField} sortDirection={sortDirection} onSort={handleSort} />
+                  <TableHeader label="Horário" field="horario" sortField={sortField} sortDirection={sortDirection} onSort={handleSort} />
+                  <TableHeader label="Prioridade" field="prioridade" sortField={sortField} sortDirection={sortDirection} onSort={handleSort} />
+                  <TableHeader label="Status" field="status" sortField={sortField} sortDirection={sortDirection} onSort={handleSort} />
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider bg-slate-800 text-slate-200 w-28">
+                    Ações
+                  </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
+              <tbody className="bg-white divide-y divide-slate-100">
                 {currentConsultas.length === 0 ? (
                   <tr>
                     <td

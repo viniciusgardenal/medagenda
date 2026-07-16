@@ -1,83 +1,174 @@
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;700&family=Roboto:wght@100;300;400;500;700;900&family=Source+Sans+Pro:wght@200;300;400;600;700;900&display=swap");
 @import url('https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap');
 
 @tailwind utilities;
 @tailwind components;
 @tailwind base;
 
-*, body, input, button, select, textarea, span, p, div, h1, h2, h3, h4, h5, h6, table, th, td {
+/* =============================================
+   FUNDAÇÃO TIPOGRÁFICA
+   ============================================= */
+*, body, input, button, select, textarea,
+span, p, div, h1, h2, h3, h4, h5, h6,
+table, th, td, label, li, a {
   font-family: "Ubuntu", sans-serif !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
+/* =============================================
+   LAYOUT ESTRUTURAL
+   ============================================= */
 .app-container {
   display: flex;
-  min-height: 100vh; /* Garante que ocupe a tela inteira */
+  min-height: 100vh;
 }
 
 .content-container {
-  @apply bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-100;
   flex-grow: 1;
-  background-attachment: fixed;
+  background-color: #f8fafc; /* slate-50 */
+  min-height: 100vh;
 }
 
 .sidebar-container {
-  min-width: 250px; /* Define uma largura fixa para a sidebar */
-  /* Ajuste a cor da sidebar conforme necessário */
+  min-width: 260px;
 }
 
-/* ==========================================
-   Modo Escuro Global (Estilos de Fallback)
-   ========================================== */
-
-.dark body {
-  background-color: #0f172a !important; /* gray-900 */
-  color: #f1f5f9 !important; /* gray-100 */
+/* =============================================
+   SISTEMA DE SCROLLBAR PROFISSIONAL
+   ============================================= */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
 }
 
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1; /* slate-300 */
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8; /* slate-400 */
+}
+
+/* =============================================
+   SISTEMA DE FOCO — ACESSIBILIDADE
+   ============================================= */
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none !important;
+  border-color: #1d4ed8 !important; /* blue-700 */
+  box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.12) !important;
+}
+
+/* =============================================
+   ANIMAÇÃO DE MODAL — ENTRADA SUAVE
+   ============================================= */
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modal-content,
+div[role="dialog"] {
+  animation: modalFadeIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* =============================================
+   TRANSIÇÕES GLOBAIS
+   ============================================= */
+input, select, textarea, button, a {
+  transition: all 0.15s ease-in-out;
+}
+
+/* =============================================
+   TABELAS — ESTRUTURA LIMPA
+   ============================================= */
+table {
+  border-collapse: collapse !important;
+  border-spacing: 0 !important;
+  width: 100%;
+}
+
+tbody tr {
+  transition: background-color 0.12s ease;
+  border-bottom: 1px solid #f1f5f9; /* slate-100 */
+}
+
+tbody tr:hover {
+  background-color: #f8fafc !important; /* slate-50 */
+}
+
+tbody tr:last-child {
+  border-bottom: none;
+}
+
+/* =============================================
+   SELEÇÃO DE TEXTO — IDENTIDADE DE MARCA
+   ============================================= */
+::selection {
+  background-color: #bfdbfe; /* blue-200 */
+  color: #1e3a8a; /* blue-900 */
+}
+
+/* =============================================
+   DARK MODE — MODO ESCURO REFINADO
+   ============================================= */
+.dark body,
 .dark .content-container {
   background-color: #0f172a !important; /* slate-900 */
+  color: #e2e8f0 !important; /* slate-200 */
 }
 
-/* Modificar bg-white, bg-gray-50, etc em containers */
 .dark .bg-white,
 .dark .modal-content,
-.dark .card,
 .dark div.bg-white {
   background-color: #1e293b !important; /* slate-800 */
   color: #f1f5f9 !important;
   border-color: #334155 !important; /* slate-700 */
 }
 
+.dark .bg-slate-50,
 .dark .bg-gray-50,
-.dark .bg-gray-100,
-.dark .bg-gray-200 {
-  background-color: #0f172a !important; /* slate-900 */
+.dark .bg-gray-100 {
+  background-color: #0f172a !important;
   border-color: #334155 !important;
 }
 
-/* Textos */
+/* Textos no dark mode */
+.dark .text-slate-800,
+.dark .text-slate-700,
+.dark .text-slate-600,
 .dark .text-gray-800,
 .dark .text-gray-700,
-.dark .text-gray-600,
-.dark .text-gray-500 {
+.dark .text-gray-600 {
   color: #cbd5e1 !important; /* slate-300 */
 }
 
-.dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6,
-.dark .text-gray-900,
-.dark .font-bold {
+.dark h1, .dark h2, .dark h3, .dark h4,
+.dark .text-slate-900, .dark .text-gray-900 {
   color: #f8fafc !important; /* slate-50 */
 }
 
-/* Tabelas */
+/* Tabelas no dark mode */
 .dark table,
-.dark .table {
-  border-color: #334155 !important;
+.dark thead {
   background-color: #1e293b !important;
+  border-color: #334155 !important;
 }
 
 .dark thead {
-  background-color: #1e3a8a !important; /* azul escuro */
+  background-color: #0f172a !important;
 }
 
 .dark th {
@@ -90,29 +181,35 @@
   border-color: #334155 !important;
 }
 
-.dark tr:hover,
-.dark tr.hover\:bg-blue-50:hover {
+.dark tbody tr {
+  border-bottom-color: #334155 !important;
+}
+
+.dark tbody tr:hover {
   background-color: #334155 !important; /* slate-700 */
 }
 
-.dark .divide-y > * + * {
-  border-color: #334155 !important;
-}
-
-/* Inputs, Selects e Textareas */
+/* Inputs no dark mode */
 .dark input,
 .dark select,
 .dark textarea {
-  background-color: #0f172a !important;
-  color: #f8fafc !important;
-  border-color: #475569 !important;
+  background-color: #1e293b !important;
+  color: #f1f5f9 !important;
+  border-color: #475569 !important; /* slate-600 */
 }
 
 .dark input::placeholder {
-  color: #64748b !important;
+  color: #64748b !important; /* slate-500 */
 }
 
-/* Modais do Bootstrap (se houver) */
+.dark input:focus,
+.dark select:focus,
+.dark textarea:focus {
+  border-color: #60a5fa !important; /* blue-400 */
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.15) !important;
+}
+
+/* Modais no dark mode */
 .dark .modal-header,
 .dark .modal-footer {
   border-color: #334155 !important;
@@ -123,43 +220,16 @@
   background-color: #1e293b !important;
 }
 
-.dark .close,
-.dark button.close {
-  color: #f8fafc !important;
+/* Links e botões no dark mode */
+.dark .text-blue-700 {
+  color: #60a5fa !important;
 }
 
-/* Ajustes finos para links e botões */
-.dark .text-blue-600 {
-  color: #60a5fa !important; /* azul claro */
-}
-
-.dark .hover\:text-blue-700:hover {
+.dark .hover\:text-blue-800:hover {
   color: #93c5fd !important;
 }
 
-/* ==========================================
-   Melhorias Visuais e Micro-Interações Refinadas
-   ========================================== */
-
-/* Barra de rolagem customizada e elegante */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 8px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
-}
-
+/* Scrollbar no dark mode */
 .dark ::-webkit-scrollbar-thumb {
   background: #334155;
 }
@@ -167,75 +237,3 @@
 .dark ::-webkit-scrollbar-thumb:hover {
   background: #475569;
 }
-
-/* Animação suave de entrada para Modais/Popups (Fade-in e Escala) */
-@keyframes modalScaleIn {
-  from {
-    opacity: 0;
-    transform: scale(0.97);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-.modal-content,
-div[role="dialog"] {
-  animation: modalScaleIn 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1) !important;
-}
-
-.dark .modal-content,
-.dark div[role="dialog"] {
-  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.3), 0 8px 10px -6px rgb(0 0 0 / 0.3) !important;
-}
-
-/* Transições suaves e anéis de foco profissionais nos Inputs */
-input, select, textarea, button {
-  transition: all 0.15s ease-in-out;
-}
-
-input:focus,
-select:focus,
-textarea:focus {
-  outline: none !important;
-  border-color: #3b82f6 !important;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15) !important;
-}
-
-.dark input:focus,
-.dark select:focus,
-.dark textarea:focus {
-  border-color: #60a5fa !important;
-  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.15) !important;
-}
-
-/* Efeito de destaque ao pairar sobre linhas de tabelas */
-tbody tr {
-  transition: background-color 0.15s ease;
-}
-
-tbody tr:hover {
-  background-color: rgba(59, 130, 246, 0.03) !important;
-}
-
-.dark tbody tr:hover {
-  background-color: rgba(255, 255, 255, 0.02) !important;
-}
-
-/* Bordas de tabelas arredondadas e limpas */
-table {
-  border-collapse: separate !important;
-  border-spacing: 0 !important;
-}
-
-table th:first-child {
-  border-top-left-radius: 8px;
-}
-
-table th:last-child {
-  border-top-right-radius: 8px;
-}
-
-

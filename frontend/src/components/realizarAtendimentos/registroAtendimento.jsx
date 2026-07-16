@@ -12,7 +12,8 @@ import ModalAddAtendimento from "./modalAddAtendimento";
 import ModalViewAtendimento from "./modalViewAtendimento";
 import ModalEditAtendimento from "./modalEditAtendimento";
 import Pagination from "../util/Pagination";
-import { FaPlus, FaEye, FaEdit, FaTrash } from "react-icons/fa";
+import TableHeader from "../util/TableHeader";
+import { Eye, Pencil, Trash2, Plus } from "lucide-react";
 
 const formatarDataHoraBR = (dataHora) => {
   if (!dataHora || !dataHora.includes("T")) return "";
@@ -25,23 +26,23 @@ const formatarDataHoraBR = (dataHora) => {
 const FilterSection = ({ filtros, setFiltros }) => (
   <div className="flex flex-col md:flex-row gap-4 mt-6">
     <div className="flex-1">
-      <label className="block text-sm font-semibold text-gray-700 mb-1">
+      <label className="block text-sm font-medium text-slate-700 mb-1.5">
         Buscar
       </label>
       <input
         type="text"
         placeholder="Paciente, Médico, Tipo de Consulta, Data - Hora, Diagnóstico/Motivo"
-        className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+        className="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-md bg-white text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:border-blue-700 transition-colors"
         value={filtros.filtroNome}
         onChange={(e) => setFiltros({ ...filtros, filtroNome: e.target.value })}
       />
     </div>
     <div className="flex-1">
-      <label className="block text-sm font-semibold text-gray-700 mb-1">
+      <label className="block text-sm font-medium text-slate-700 mb-1.5">
         Status
       </label>
       <select
-        className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+        className="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-md bg-white text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:border-blue-700 transition-colors"
         value={filtros.filtroStatus}
         onChange={(e) =>
           setFiltros({ ...filtros, filtroStatus: e.target.value })
@@ -55,33 +56,15 @@ const FilterSection = ({ filtros, setFiltros }) => (
 );
 
 const HeaderSection = () => (
-  <div className="border-b pb-4 flex justify-between items-center">
-    <h2 className="text-3xl font-bold text-blue-600 flex items-center gap-3">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        className="h-8 w-8"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-        strokeWidth="2"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
-        />
-      </svg>
-      Registro de Atendimentos
-    </h2>
+  <div className="border-b border-slate-200 pb-4 flex justify-between items-center">
+    <div>
+      <h2 className="text-xl font-bold text-slate-800">Registrar Atendimentos</h2>
+      <p className="text-sm text-slate-500 mt-0.5">Prontuários e registros clínicos de atendimento</p>
+    </div>
   </div>
 );
 
 const TableRow = ({ item, onRegister, onView, onEdit, onDelete }) => {
-  // console.log(" Itemmmm", item);
-
-  // A verificação 'isConsulta' estava limitando a exibição correta.
-  // Vamos simplificar e acessar os dados diretamente, pois ambos os tipos de item (consulta e atendimento)
-  // terão uma estrutura de dados similar após o tratamento no useEffect.
   const isPendingRegistration = item.status === "checkin_realizado";
 
   const dataHora = isPendingRegistration
@@ -89,100 +72,56 @@ const TableRow = ({ item, onRegister, onView, onEdit, onDelete }) => {
     : formatarDataHoraBR(item.atendimento?.dataAtendimento);
 
   return (
-    <tr className="hover:bg-blue-50 transition-colors">
-      <td className="px-6 py-3 text-sm text-gray-700 font-medium">
+    <tr className="hover:bg-slate-50 transition-colors">
+      <td className="px-6 py-3 text-sm font-medium text-slate-700">
         {item.paciente?.nome} {item.paciente?.sobrenome}
       </td>
-      <td className="px-6 py-3 text-sm text-gray-700">
+      <td className="px-6 py-3 text-sm text-slate-600">
         {item.medico?.nome} (CRM: {item.medico?.crm})
       </td>
-      <td className="px-6 py-3 text-sm text-gray-700">
+      <td className="px-6 py-3 text-sm text-slate-600">
         {item.tipoConsulta?.nomeTipoConsulta ||
           item.idTipoConsulta?.nome ||
           "N/A"}
       </td>
-      <td className="px-6 py-3 text-sm text-gray-700">{dataHora}</td>
-      <td className="px-6 py-3 text-sm text-gray-700">
+      <td className="px-6 py-3 text-sm text-slate-600">{dataHora}</td>
+      <td className="px-6 py-3 text-sm text-slate-600">
         {item.atendimento?.diagnostico}
       </td>
-      <td className="px-6 py-3 flex gap-3">
+      <td className="px-6 py-3.5">
         {isPendingRegistration ? (
           <button
             onClick={() => onRegister(item)}
-            className="text-green-600 hover:text-green-700 transition-colors"
+            className="inline-flex items-center gap-1 rounded-md bg-amber-700 px-2.5 py-1 text-xs font-medium text-white hover:bg-amber-800 transition-colors"
             title="Registrar Atendimento"
           >
-            <FaPlus className="h-5 w-5" />
+            <Plus size={12} />
+            Registrar
           </button>
         ) : (
-          <>
+          <div className="flex items-center gap-2">
             <button
               onClick={() => onView(item)}
-              className="text-blue-600 hover:text-blue-700 transition-colors"
+              className="p-1.5 rounded-md text-slate-500 hover:text-blue-700 hover:bg-blue-50 transition-colors"
               title="Visualizar Atendimento"
             >
-              <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                    />
-                  </svg>
+              <Eye size={15} />
             </button>
             <button
               onClick={() => onEdit(item)}
-              className="text-yellow-500 hover:text-yellow-700 transition-colors"
+              className="p-1.5 rounded-md text-slate-500 hover:text-amber-600 hover:bg-amber-50 transition-colors"
               title="Editar Atendimento"
             >
-              <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                    />
-                  </svg>
+              <Pencil size={15} />
             </button>
             <button
               onClick={() => onDelete(item)}
-              className="text-red-500 hover:text-red-700 transition-colors"
+              className="p-1.5 rounded-md text-slate-500 hover:text-red-600 hover:bg-red-50 transition-colors"
               title="Excluir Atendimento"
             >
-              <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5-4h4m-4 4v12m4-12v12"
-                    />
-                  </svg>
+              <Trash2 size={15} />
             </button>
-          </>
+          </div>
         )}
       </td>
     </tr>
@@ -233,38 +172,21 @@ const AtendimentoTable = ({
     </div>
   ) : (
     <>
-      <div className="mt-3 overflow-x-auto rounded-lg shadow-md">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-blue-600 text-white">
+      <div className="mt-3 overflow-x-auto rounded-md border border-slate-200">
+        <table className="min-w-full bg-white">
+          <thead>
             <tr>
-              {[
-                "Paciente",
-                "Médico",
-                "Tipo de Consulta",
-                "Data - Hora",
-                "Diagnóstico/Motivo",
-                "Ações",
-              ].map((header, idx) => {
-                const fields = ["nome", "medico", "tipo", "horario", "motivo"];
-                return (
-                  <th
-                    key={header}
-                    onClick={() => fields[idx] && handleSort(fields[idx])}
-                    className={`px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider cursor-pointer ${
-                      idx === 0 ? "rounded-tl-lg" : ""
-                    } ${idx === 5 ? "rounded-tr-lg" : ""} ${
-                      sortField === fields[idx] ? "bg-blue-700" : ""
-                    }`}
-                  >
-                    {header}{" "}
-                    {sortField === fields[idx] &&
-                      (sortDirection === "asc" ? "↑" : "↓")}
-                  </th>
-                );
-              })}
+              <TableHeader label="Paciente" field="nome" sortField={sortField} sortDirection={sortDirection} onSort={handleSort} />
+              <TableHeader label="Médico" field="medico" sortField={sortField} sortDirection={sortDirection} onSort={handleSort} />
+              <TableHeader label="Tipo de Consulta" field="tipo" sortField={sortField} sortDirection={sortDirection} onSort={handleSort} />
+              <TableHeader label="Data - Hora" field="horario" sortField={sortField} sortDirection={sortDirection} onSort={handleSort} />
+              <TableHeader label="Diagnóstico/Motivo" field="motivo" sortField={sortField} sortDirection={sortDirection} onSort={handleSort} />
+              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider bg-slate-800 text-slate-200 w-28">
+                Ações
+              </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          <tbody className="bg-white divide-y divide-slate-100">
             {currentItems.length ? (
               currentItems.map((item) => (
                 <TableRow
@@ -455,12 +377,12 @@ const RegistroAtendimento = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-200 p-6">
-      <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-md p-6">
+    <div className="min-h-screen bg-slate-50 p-6">
+      <div className="max-w-6xl mx-auto bg-white rounded-lg border border-slate-200 shadow-sm p-6">
         <HeaderSection />
         <button
           onClick={handleDownloadRelatorio}
-          className="inline-flex items-center mt-6 gap-2 rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700 transition-colors"
+          className="inline-flex items-center mt-6 gap-2 rounded-md bg-blue-700 px-4 py-2 text-sm font-medium text-white hover:bg-blue-800 transition-colors"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -479,7 +401,7 @@ const RegistroAtendimento = () => {
           Baixar Relatório de Atendimentos
         </button>
         {error && (
-          <div className="mt-6 p-4 text-sm text-red-700 bg-red-100 rounded-lg border border-red-300">
+          <div className="mt-6 flex items-start gap-2.5 p-3.5 bg-red-50 border border-red-200 rounded-md text-sm text-red-700">
             {error}
           </div>
         )}

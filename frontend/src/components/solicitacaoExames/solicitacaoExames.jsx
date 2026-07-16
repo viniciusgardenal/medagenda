@@ -12,6 +12,8 @@ import TabelaSolicitacaoExames from "./tabelaSolicitacaoExames";
 import ModalEditarSolicitacaoExames from "./modalEditarSolicitacaoExames";
 import ModalDetalhesSolicitacaoExames from "./modalDetalhesSolicitacaoExames";
 
+import Pagination from "../util/Pagination";
+
 // Função para normalizar strings (remover acentos e espaços extras)
 const normalizarString = (str) => {
   if (!str) return "";
@@ -44,6 +46,8 @@ const SolicitacaoExames = () => {
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(8);
+  const [sortField, setSortField] = useState("exame");
+  const [sortDirection, setSortDirection] = useState("asc");
 
   const loadSolicitacaoExames = async () => {
     try {
@@ -120,57 +124,43 @@ const SolicitacaoExames = () => {
     );
   });
 
+  const handleSort = (field) => {
+    if (field === sortField) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortField(field);
+      setSortDirection("asc");
+    }
+    setCurrentPage(1);
+  };
+
+  const sortSolicitacoes = (lista) => {
+    return [...lista].sort((a, b) => {
+      const fieldMap = {
+        exame: (item) => (item.tipoExame?.nomeTipoExame || item.nomeTipoExame || "").toLowerCase(),
+        paciente: (item) => `${item.paciente?.nome || ""} ${item.paciente?.sobrenome || ""}`.trim().toLowerCase(),
+        periodo: (item) => (item.periodo || "").toLowerCase(),
+        dataSolicitacao: (item) => (item.dataSolicitacao || "").toLowerCase(),
+        dataRetorno: (item) => (item.dataRetorno || "").toLowerCase(),
+        status: (item) => (item.status || "").toLowerCase(),
+      };
+      const valueA = fieldMap[sortField] ? fieldMap[sortField](a) : "";
+      const valueB = fieldMap[sortField] ? fieldMap[sortField](b) : "";
+      const direction = sortDirection === "asc" ? 1 : -1;
+      return valueA.localeCompare(valueB) * direction;
+    });
+  };
+
+  const solicitacaoExamesOrdenados = sortSolicitacoes(solicitacaoExamesFiltrados);
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentSolicitacoes = solicitacaoExamesFiltrados.slice(
+  const currentSolicitacoes = solicitacaoExamesOrdenados.slice(
     indexOfFirstItem,
     indexOfLastItem
   );
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
-  };
-
-  const renderPagination = () => {
-    const totalPages = Math.ceil(solicitacaoExamesFiltrados.length / itemsPerPage);
-    const pageNumbers = [];
-    for (let i = 1; i <= totalPages; i++) {
-      pageNumbers.push(i);
-    }
-
-    return (
-      <div className="mt-6">
-        <nav className="inline-flex rounded-lg shadow-md">
-          <button
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-            className="px-4 py-2 bg-white border border-gray-200 rounded-l-lg text-sm font-semibold text-gray-700 hover:bg-blue-50 disabled:opacity-50 transition-colors"
-          >
-            Anterior
-          </button>
-          {pageNumbers.map((number) => (
-            <button
-              key={number}
-              onClick={() => handlePageChange(number)}
-              className={`px-4 py-2 border border-gray-200 text-sm font-semibold ${
-                currentPage === number
-                  ? "bg-blue-600 text-white"
-                  : "bg-white text-gray-700 hover:bg-blue-50 transition-colors"
-              }`}
-            >
-              {number}
-            </button>
-          ))}
-          <button
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            className="px-4 py-2 bg-white border border-gray-200 rounded-r-lg text-sm font-semibold text-gray-700 hover:bg-blue-50 disabled:opacity-50 transition-colors"
-          >
-            Próximo
-          </button>
-        </nav>
-      </div>
-    );
   };
 
   const handleDelete = (id) => {
@@ -249,33 +239,20 @@ const SolicitacaoExames = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-200 p-6">
-      <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-md p-6">
-        <div className="border-b pb-4 flex justify-between items-center">
-          <h2 className="text-3xl font-bold text-blue-600 flex items-center gap-3">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-8 w-8"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
-              />
-            </svg>
-            Solicitações de Exames
-          </h2>
+    <div className="min-h-screen bg-slate-50 p-6">
+      <div className="max-w-6xl mx-auto bg-white rounded-lg border border-slate-200 shadow-sm p-6">
+        <div className="border-b border-slate-200 pb-4 flex justify-between items-center">
+          <div>
+            <h2 className="text-xl font-bold text-slate-800">Solicitação de Exames</h2>
+            <p className="text-sm text-slate-500 mt-0.5">Requisições e pedidos de exames clínicos</p>
+          </div>
           <button
             onClick={() => setIsModalOpenAdd(true)}
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700 transition-colors"
+            className="inline-flex items-center justify-center gap-2 rounded-md bg-blue-700 px-4 py-2 text-sm font-medium text-white hover:bg-blue-800 transition-colors"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
+              className="h-4 w-4"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -292,7 +269,7 @@ const SolicitacaoExames = () => {
         </div>
 
         {error && (
-          <div className="mt-6 p-4 text-sm text-red-700 bg-red-100 rounded-lg border border-red-300">
+          <div className="mt-6 flex items-start gap-2.5 p-3.5 bg-red-50 border border-red-200 rounded-md text-sm text-red-700">
             {error}
           </div>
         )}
@@ -318,7 +295,7 @@ const SolicitacaoExames = () => {
 
         <div className="flex flex-col md:flex-row gap-4 mt-6">
           <div className="flex-1">
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">
               Nome do Paciente
             </label>
             <div className="relative">
@@ -327,7 +304,7 @@ const SolicitacaoExames = () => {
                 name="paciente"
                 value={filtros.paciente}
                 onChange={handleFiltroChange}
-                className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-md bg-white text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:border-blue-700 transition-colors"
                 placeholder="Filtrar por paciente"
               />
               {filtros.paciente && (
@@ -352,7 +329,7 @@ const SolicitacaoExames = () => {
             </div>
           </div>
           <div className="flex-1">
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">
               Tipo de Exame
             </label>
             <div className="relative">
@@ -361,7 +338,7 @@ const SolicitacaoExames = () => {
                 name="tipoExame"
                 value={filtros.tipoExame}
                 onChange={handleFiltroChange}
-                className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-md bg-white text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:border-blue-700 transition-colors"
                 placeholder="Filtrar por tipo de exame"
               />
               {filtros.tipoExame && (
@@ -386,7 +363,7 @@ const SolicitacaoExames = () => {
             </div>
           </div>
           <div className="flex-1">
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">
               Período
             </label>
             <div className="relative">
@@ -395,7 +372,7 @@ const SolicitacaoExames = () => {
                 name="periodo"
                 value={filtros.periodo}
                 onChange={handleFiltroChange}
-                className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-md bg-white text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:border-blue-700 transition-colors"
                 placeholder="Filtrar por período"
               />
               {filtros.periodo && (
@@ -420,7 +397,7 @@ const SolicitacaoExames = () => {
             </div>
           </div>
           <div className="flex-1">
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">
               Data de Retorno
             </label>
             <div className="relative">
@@ -429,7 +406,7 @@ const SolicitacaoExames = () => {
                 name="dataRetorno"
                 value={filtros.dataRetorno}
                 onChange={handleFiltroChange}
-                className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-md bg-white text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:border-blue-700 transition-colors"
                 placeholder="Filtrar por data de retorno"
               />
               {filtros.dataRetorno && (
@@ -455,7 +432,7 @@ const SolicitacaoExames = () => {
           </div>
         </div>
 
-        <div className="mt-6 overflow-x-auto rounded-lg shadow-md">
+        <div className="mt-6 overflow-x-auto rounded-md border border-slate-200">
           {solicitacaoExames.length === 0 ? (
             <p className="text-center text-gray-500 py-4 text-sm bg-white">
               Nenhuma solicitação de exame encontrada.
@@ -470,11 +447,24 @@ const SolicitacaoExames = () => {
               onExcluir={handleDelete}
               onEditar={handleEditar}
               onDetalhes={handleDetalhes}
+              sortField={sortField}
+              sortDirection={sortDirection}
+              onSort={handleSort}
             />
           )}
         </div>
 
-        {solicitacaoExamesFiltrados.length > 0 && renderPagination()}
+        {solicitacaoExamesFiltrados.length > 0 && (
+          <div className="mt-6">
+            <Pagination
+              totalItems={solicitacaoExamesFiltrados.length}
+              itemsPerPage={itemsPerPage}
+              currentPage={currentPage}
+              onPageChange={handlePageChange}
+              maxPageButtons={5}
+            />
+          </div>
+        )}
 
         {isModalOpenAdd && (
           <ModalSolicitacaoExames

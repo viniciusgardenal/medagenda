@@ -1,115 +1,161 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Users, Calendar, FileText } from "lucide-react";
+import {
+  Users, Calendar, FileText, Activity, Stethoscope,
+  ClipboardList, Pill, FlaskConical, CreditCard, ClipboardCheck,
+  FileBadge, Clock, CalendarCheck, FlaskRound, Skull
+} from "lucide-react";
 import { useAuthContext } from "../../context/authContext";
+
+const quickLinksConfig = [
+  { label: "Profissionais", to: "/profissionais", icon: Stethoscope, roles: ["Diretor"], desc: "Cadastro e gestão de profissionais" },
+  { label: "Pacientes", to: "/pacientes", icon: Users, roles: ["Diretor", "Atendente"], desc: "Registro e histórico de pacientes" },
+  { label: "Medicamentos", to: "/medicamentos", icon: Pill, roles: ["Diretor", "Médico"], desc: "Controle do estoque de medicamentos" },
+  { label: "Tipos de Exames", to: "/tiposExames", icon: FlaskConical, roles: ["Diretor", "Médico"], desc: "Gerenciar categorias de exames" },
+  { label: "Planos de Saúde", to: "/planoDeSaude", icon: CreditCard, roles: ["Diretor"], desc: "Convênios e planos cadastrados" },
+  { label: "Consultas", to: "/consultas", icon: Calendar, roles: ["Diretor", "Médico", "Atendente"], desc: "Agendamento de consultas" },
+  { label: "Check-in", to: "/checkin-pacientes", icon: ClipboardCheck, roles: ["Diretor", "Médico", "Atendente"], desc: "Chegada e triagem de pacientes" },
+  { label: "Atendimentos", to: "/atendimentos", icon: Activity, roles: ["Diretor", "Médico"], desc: "Registrar atendimentos clínicos" },
+  { label: "Receitas", to: "/emitir-receitas", icon: FileText, roles: ["Diretor", "Médico"], desc: "Emissão de prescrições médicas" },
+  { label: "Atestados", to: "/emitir-atestados", icon: FileBadge, roles: ["Diretor", "Médico"], desc: "Geração de atestados médicos" },
+];
+
+const statConfig = [
+  {
+    icon: Users,
+    label: "Gestão de Pacientes",
+    desc: "Histórico completo, dados clínicos e agendamentos centralizados.",
+    color: "text-blue-700",
+    bg: "bg-blue-50",
+  },
+  {
+    icon: Calendar,
+    label: "Agenda Eficiente",
+    desc: "Consultas, horários e check-ins organizados em tempo real.",
+    color: "text-emerald-700",
+    bg: "bg-emerald-50",
+  },
+  {
+    icon: FileText,
+    label: "Documentos Clínicos",
+    desc: "Receitas, atestados e exames gerados e arquivados digitalmente.",
+    color: "text-violet-700",
+    bg: "bg-violet-50",
+  },
+];
 
 const HomeScreen = () => {
   const { user } = useAuthContext();
 
-  // Filtra as opções de acesso rápido conforme a role do usuário
-  const quickLinks = [
-    { label: "Profissionais", to: "/profissionais", roles: ["Diretor"] },
-    { label: "Pacientes", to: "/pacientes", roles: ["Diretor", "Atendente"] },
-    { label: "Medicamentos", to: "/medicamentos", roles: ["Diretor", "Médico"] },
-    { label: "Tipos de Exames", to: "/tiposExames", roles: ["Diretor", "Médico"] },
-    { label: "Planos de Saúde", to: "/planoDeSaude", roles: ["Diretor"] },
-    { label: "Consultas", to: "/consultas", roles: ["Diretor", "Médico", "Atendente"] },
-  ].filter((link) => !user || link.roles.includes(user.role));
+  const quickLinks = quickLinksConfig.filter(
+    (link) => !user || link.roles.includes(user.role)
+  );
 
-  // Ajusta a quantidade de colunas no grid conforme o número de itens disponíveis
-  const getGridClass = () => {
-    switch (quickLinks.length) {
-      case 1:
-        return "grid-cols-1 max-w-xs mx-auto";
-      case 2:
-        return "grid-cols-2 max-w-md mx-auto";
-      case 3:
-        return "grid-cols-1 sm:grid-cols-3 max-w-2xl mx-auto";
-      case 4:
-        return "grid-cols-2 max-w-2xl mx-auto";
-      default:
-        return "grid-cols-2 md:grid-cols-3";
-    }
+  const getGridCols = () => {
+    if (quickLinks.length <= 2) return "grid-cols-1 sm:grid-cols-2";
+    if (quickLinks.length <= 4) return "grid-cols-2 sm:grid-cols-2";
+    if (quickLinks.length <= 6) return "grid-cols-2 sm:grid-cols-3";
+    return "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4";
   };
 
+  const roleLabels = {
+    Diretor: { label: "Diretor", color: "bg-blue-50 text-blue-700 ring-1 ring-blue-200" },
+    Médico: { label: "Médico", color: "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200" },
+    Atendente: { label: "Atendente", color: "bg-amber-50 text-amber-700 ring-1 ring-amber-200" },
+  };
+
+  const roleInfo = user?.role ? roleLabels[user.role] : null;
+
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 flex flex-col transition-colors duration-150">
-      {/* Cabeçalho */}
-      <header className="bg-blue-900 dark:bg-gray-950 text-white py-16 px-6 flex items-center justify-center transition-colors duration-150">
-        <div className="text-center max-w-3xl">
-          <h1 className="text-4xl font-semibold mb-4">MedAgenda</h1>
-          <p className="text-lg font-light text-blue-100 dark:text-gray-300">
-            Sistema de gerenciamento médico-administrativo para otimizar processos e melhorar o atendimento ao paciente.
-          </p>
+    <div className="min-h-screen bg-slate-50">
+      {/* Header institucional */}
+      <div className="bg-white border-b border-slate-200">
+        <div className="max-w-6xl mx-auto px-6 py-6">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h1 className="text-2xl font-bold text-slate-800 tracking-tight">
+                Olá, {user?.nome?.split(" ")[0] || "Usuário"} 👋
+              </h1>
+              <p className="text-slate-500 text-sm mt-0.5">
+                Bem-vindo ao painel do MedAgenda. Selecione uma função para começar.
+              </p>
+            </div>
+            {roleInfo && (
+              <span className={`shrink-0 inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold ${roleInfo.color}`}>
+                {roleInfo.label}
+              </span>
+            )}
+          </div>
         </div>
-      </header>
+      </div>
 
-      {/* Conteúdo Principal */}
-      <main className="flex-1 flex flex-col items-center justify-center py-12 px-6">
-        {/* Links Rápidos */}
-        <section className="w-full max-w-4xl mb-12">
-          <h2 className="text-2xl font-medium text-gray-700 dark:text-gray-300 mb-6 text-center">
-            Acesso Rápido
-          </h2>
-          <div className={`grid gap-4 ${getGridClass()}`}>
-            {quickLinks.map((link, index) => (
-              <Link
-                key={index}
-                to={link.to}
-                className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 px-4 py-3 rounded-md text-center text-sm font-medium hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-150 no-underline block shadow-sm hover:shadow"
-              >
-                {link.label}
-              </Link>
-            ))}
+      <div className="max-w-6xl mx-auto px-6 py-8 space-y-10">
+        {/* Acesso Rápido */}
+        <section>
+          <div className="flex items-center gap-2 mb-5">
+            <h2 className="text-base font-semibold text-slate-700">Acesso Rápido</h2>
+            <span className="text-xs text-slate-400 bg-slate-100 rounded-md px-2 py-0.5">
+              {quickLinks.length} módulos disponíveis
+            </span>
+          </div>
+          <div className={`grid gap-3 ${getGridCols()}`}>
+            {quickLinks.map((link, index) => {
+              const Icon = link.icon;
+              return (
+                <Link
+                  key={index}
+                  to={link.to}
+                  className="group bg-white border border-slate-200 rounded-lg p-4 no-underline flex items-start gap-3.5 hover:border-blue-300 hover:shadow-sm transition-all duration-150"
+                >
+                  <div className="w-9 h-9 rounded-md bg-slate-100 group-hover:bg-blue-50 flex items-center justify-center shrink-0 transition-colors">
+                    <Icon size={17} className="text-slate-500 group-hover:text-blue-700 transition-colors" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-slate-700 group-hover:text-blue-700 transition-colors leading-tight">
+                      {link.label}
+                    </p>
+                    <p className="text-xs text-slate-400 mt-0.5 leading-tight">{link.desc}</p>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         </section>
 
-        {/* Benefícios */}
-        <section className="w-full max-w-5xl">
-          <h2 className="text-2xl font-medium text-gray-700 dark:text-gray-300 mb-6 text-center">
-            Benefícios
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="flex items-start space-x-4 p-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-sm">
-              <Users size={24} className="text-blue-500 dark:text-blue-400 flex-shrink-0" />
-              <div>
-                <h3 className="text-lg font-medium text-gray-800 dark:text-gray-200">
-                  Gestão de Equipe
-                </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Organize profissionais e suas agendas com facilidade.
-                </p>
-              </div>
-            </div>
-            <div className="flex items-start space-x-4 p-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-sm">
-              <Calendar size={24} className="text-blue-500 dark:text-blue-400 flex-shrink-0" />
-              <div>
-                <h3 className="text-lg font-medium text-gray-800 dark:text-gray-200">
-                  Agendamento Simples
-                </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Programe consultas de forma rápida e eficiente.
-                </p>
-              </div>
-            </div>
-            <div className="flex items-start space-x-4 p-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-sm">
-              <FileText size={24} className="text-blue-500 dark:text-blue-400 flex-shrink-0" />
-              <div>
-                <h3 className="text-lg font-medium text-gray-800 dark:text-gray-200">
-                  Controle de Documentos
-                </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Gerencie exames e prescrições em um só lugar.
-                </p>
-              </div>
-            </div>
+        {/* Divisor */}
+        <div className="border-t border-slate-200" />
+
+        {/* Sobre o sistema */}
+        <section>
+          <h2 className="text-base font-semibold text-slate-700 mb-5">Sobre o Sistema</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {statConfig.map((stat, i) => {
+              const Icon = stat.icon;
+              return (
+                <div
+                  key={i}
+                  className="bg-white border border-slate-200 rounded-lg p-5 flex items-start gap-4"
+                >
+                  <div className={`w-10 h-10 rounded-md ${stat.bg} flex items-center justify-center shrink-0`}>
+                    <Icon size={18} className={stat.color} />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold text-slate-800 mb-1">{stat.label}</h3>
+                    <p className="text-xs text-slate-500 leading-relaxed">{stat.desc}</p>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </section>
-      </main>
+      </div>
 
       {/* Rodapé */}
-      <footer className="bg-blue-900 dark:bg-gray-950 text-white py-6 text-center text-sm transition-colors duration-150">
-        <p>MedAgenda © 2025 - Todos os direitos reservados</p>
+      <footer className="border-t border-slate-200 bg-white mt-auto">
+        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+          <p className="text-xs text-slate-400">MedAgenda © {new Date().getFullYear()} — Todos os direitos reservados</p>
+          <p className="text-xs text-slate-400">Sistema de Gestão de Saúde</p>
+        </div>
       </footer>
     </div>
   );

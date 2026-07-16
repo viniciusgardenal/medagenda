@@ -1,16 +1,19 @@
 const HeaderSection = ({ openAddModal, isLoading }) => (
-  <div className="border-b pb-4 flex justify-between items-center">
-    <h2 className="text-3xl font-bold text-blue-600">
-      Agendamento de Consultas
-    </h2>
+  <div className="border-b border-slate-200 pb-4 flex justify-between items-center">
+    <div>
+      <h2 className="text-xl font-bold text-slate-800">
+        Agendamento de Consultas
+      </h2>
+      <p className="text-sm text-slate-500 mt-0.5">Gerenciar consultas agendadas, em atendimento e realizadas</p>
+    </div>
     <div className="flex gap-3">
       <button
         onClick={openAddModal}
         disabled={isLoading}
-        className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-white shadow transition ${
+        className={`inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium text-white transition ${
           isLoading
             ? "bg-gray-400 cursor-not-allowed"
-            : "bg-blue-600 hover:bg-blue-700"
+            : "bg-blue-700 hover:bg-blue-800"
         }`}
       >
         <svg

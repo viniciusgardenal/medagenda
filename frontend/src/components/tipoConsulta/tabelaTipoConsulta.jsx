@@ -1,102 +1,75 @@
 import React from 'react';
+import { Eye, Pencil, Trash2 } from 'lucide-react';
 import TableHeader from '../util/TableHeader';
 
 const TabelaTipoConsulta = ({ tpc, onEditar, onExcluir, onDetalhes, sortField, sortDirection, onSort }) => {
+  const renderStatusBadge = (status) => {
+    const s = (status || "").toLowerCase();
+    if (s === "ativo") {
+      return (
+        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200">
+          Ativo
+        </span>
+      );
+    }
+    return (
+      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-500 ring-1 ring-slate-200">
+        {status || "Inativo"}
+      </span>
+    );
+  };
+
   return (
-    <table className="min-w-full divide-y divide-gray-200">
-      <thead className="bg-blue-600 text-white">
+    <table className="min-w-full bg-white">
+      <thead>
         <tr>
           <TableHeader label="Nome da Consulta" field="nomeTipoConsulta" sortField={sortField} sortDirection={sortDirection} onSort={onSort} />
           <TableHeader label="Descrição" field="descricao" sortField={sortField} sortDirection={sortDirection} onSort={onSort} />
           <TableHeader label="Prioridade" field="prioridade" sortField={sortField} sortDirection={sortDirection} onSort={onSort} />
           <TableHeader label="Status" field="status" sortField={sortField} sortDirection={sortDirection} onSort={onSort} />
-          <th className="px-6 py-3.5 text-left text-sm font-semibold uppercase tracking-wide text-white bg-blue-600">Ações</th>
+          <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider bg-slate-800 text-slate-200 w-28">Ações</th>
         </tr>
       </thead>
-      <tbody className="divide-y divide-gray-200">
+      <tbody className="bg-white divide-y divide-slate-100">
         {tpc.length === 0 ? (
           <tr>
-            <td
-              colSpan="5"
-              className="px-6 py-4 text-center text-gray-500 text-sm"
-            >
-              Nenhum tipo de consulta encontrado após filtragem.
+            <td colSpan="5" className="px-4 py-8 text-center text-slate-400 text-sm">
+              Nenhum tipo de consulta encontrado.
             </td>
           </tr>
         ) : (
           tpc.map((tipoConsulta) => (
-            <tr key={tipoConsulta.idTipoConsulta} className="hover:bg-blue-50 transition-colors">
-              <td className="px-6 py-4 text-sm text-gray-700">{tipoConsulta.nomeTipoConsulta}</td>
-              <td className="px-6 py-4 text-sm text-gray-700">{tipoConsulta.descricao}</td>
-              <td className="px-6 py-4 text-sm text-gray-700">{tipoConsulta.prioridade}</td>
-              <td className="px-6 py-4 text-sm text-gray-700">{tipoConsulta.status}</td>
-              <td className="px-6 py-4 text-sm flex gap-3">
-                <button
-                  onClick={() => onDetalhes(tipoConsulta.idTipoConsulta)}
-                  className="text-blue-600 hover:text-blue-700 transition-colors"
-                  title="Visualizar"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
+            <tr key={tipoConsulta.idTipoConsulta} className="hover:bg-slate-50 transition-colors">
+              <td className="px-4 py-3.5 text-sm font-medium text-slate-700">{tipoConsulta.nomeTipoConsulta}</td>
+              <td className="px-4 py-3.5 text-sm text-slate-600">{tipoConsulta.descricao}</td>
+              <td className="px-4 py-3.5 text-sm text-slate-600">{tipoConsulta.prioridade}</td>
+              <td className="px-4 py-3.5 text-sm">
+                {renderStatusBadge(tipoConsulta.status)}
+              </td>
+              <td className="px-4 py-3.5">
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => onDetalhes(tipoConsulta.idTipoConsulta)}
+                    className="p-1.5 rounded-md text-slate-500 hover:text-blue-700 hover:bg-blue-50 transition-colors"
+                    title="Visualizar"
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                    />
-                  </svg>
-                </button>
-                <button
-                  onClick={() => onEditar(tipoConsulta.idTipoConsulta)}
-                  className="text-yellow-500 hover:text-yellow-700 transition-colors"
-                  title="Editar"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
+                    <Eye size={15} />
+                  </button>
+                  <button
+                    onClick={() => onEditar(tipoConsulta.idTipoConsulta)}
+                    className="p-1.5 rounded-md text-slate-500 hover:text-amber-600 hover:bg-amber-50 transition-colors"
+                    title="Editar"
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                    />
-                  </svg>
-                </button>
-                <button
-                  onClick={() => onExcluir(tipoConsulta.idTipoConsulta)}
-                  className="text-red-600 hover:text-red-700 transition-colors"
-                  title="Excluir"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
+                    <Pencil size={15} />
+                  </button>
+                  <button
+                    onClick={() => onExcluir(tipoConsulta.idTipoConsulta)}
+                    className="p-1.5 rounded-md text-slate-500 hover:text-red-600 hover:bg-red-50 transition-colors"
+                    title="Excluir"
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5-4h4m-4 4v12m4-12v12"
-                    />
-                  </svg>
-                </button>
+                    <Trash2 size={15} />
+                  </button>
+                </div>
               </td>
             </tr>
           ))

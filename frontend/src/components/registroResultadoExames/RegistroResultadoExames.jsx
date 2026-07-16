@@ -8,77 +8,64 @@ import ModalAddObservacao from "./modalAddObservacao";
 import ModalViewObservacao from "./ModalViewObservacao";
 import FiltroRegistroResultadoExames from "./filtroRegistroResultadoExames";
 import Pagination from "../util/Pagination";
-// FaEdit e FaEye serão substituídos por SVGs. FaSyncAlt parece não utilizado.
-import { FaPlus, FaCheckCircle, /*FaEdit, FaEye, FaSyncAlt,*/ FaFileMedical } from "react-icons/fa";
+import { FaPlus, FaCheckCircle, FaFileMedical } from "react-icons/fa";
+import { Eye, Pencil, Check, Plus } from "lucide-react";
+import TableHeader from "../util/TableHeader";
 
-// Componente SVG para o ícone de Visualizar
-const ViewIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-  </svg>
-);
-
-// Componente SVG para o ícone de Editar
-const EditIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-  </svg>
-);
-
-// Componente para cada linha da tabela
 const TableRow = ({ registro, onAdd, onEdit, onView }) => {
   const resultadoDefinido =
     registro.observacoes && registro.observacoes.trim() !== "";
 
   return (
-    <tr className="hover:bg-blue-50 transition-colors">
-      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 font-medium">{registro.idRegistro}</td>
-      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+    <tr className="hover:bg-slate-50 transition-colors">
+      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-700">{registro.idRegistro}</td>
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
         {registro.solicitacaoExame?.tipoExame.nomeTipoExame || "N/A"}
       </td>
-      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
         {new Date(registro.solicitacaoExame.dataSolicitacao).toLocaleDateString("pt-BR")}
       </td>
-      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
         {registro.profissional.nome || "N/A"}
       </td>
-      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
         {registro.paciente.nome || "N/A"}
       </td>
-      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+      <td className="px-6 py-4 whitespace-nowrap text-sm">
         {resultadoDefinido ? (
-          <span className="inline-flex items-center gap-1 rounded-full bg-green-600 px-2 py-1 text-xs font-semibold text-white shadow-sm">
-            <FaCheckCircle className="h-4 w-4" />
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-xs font-semibold bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200">
+            <Check size={12} />
             Registrado
           </span>
         ) : (
           <button
             onClick={() => onAdd(registro)}
-            className="inline-flex items-center gap-1 rounded-full bg-orange-500 px-2 py-1 text-xs font-semibold text-white shadow-sm hover:bg-orange-600 transition"
+            className="inline-flex items-center gap-1 rounded-md bg-amber-700 px-2.5 py-1 text-xs font-medium text-white hover:bg-amber-800 transition-colors"
           >
-            <FaPlus className="h-4 w-4" />
+            <Plus size={12} />
             Definir
           </button>
         )}
       </td>
-      <td className="px-6 py-4 whitespace-nowrap text-sm flex gap-3">
-        <button
-          onClick={() => onEdit(registro)}
-          className="text-yellow-500 hover:text-yellow-700 transition-colors"
-          title="Editar Resultado"
-          aria-label="Editar resultado do exame"
-        >
-          <EditIcon />
-        </button>
-        <button
-          onClick={() => onView(registro)}
-          className="text-blue-600 hover:text-blue-700 transition-colors"
-          title="Visualizar Resultado"
-          aria-label="Visualizar resultado do exame"
-        >
-          <ViewIcon />
-        </button>
+      <td className="px-6 py-4 whitespace-nowrap text-sm">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => onEdit(registro)}
+            className="p-1.5 rounded-md text-slate-500 hover:text-amber-600 hover:bg-amber-50 transition-colors"
+            title="Editar Resultado"
+            aria-label="Editar resultado do exame"
+          >
+            <Pencil size={15} />
+          </button>
+          <button
+            onClick={() => onView(registro)}
+            className="p-1.5 rounded-md text-slate-500 hover:text-blue-700 hover:bg-blue-50 transition-colors"
+            title="Visualizar Resultado"
+            aria-label="Visualizar resultado do exame"
+          >
+            <Eye size={15} />
+          </button>
+        </div>
       </td>
     </tr>
   );
@@ -248,19 +235,19 @@ const RegistroResultadoExames = () => {
 
 
   return (
-    <div className="min-h-screen bg-gray-200 p-6">
-      <section className="max-w-6xl mx-auto bg-white rounded-2xl shadow-md p-6">
+    <div className="min-h-screen bg-slate-50 p-6">
+      <section className="max-w-6xl mx-auto bg-white rounded-lg border border-slate-200 shadow-sm p-6">
         {/* Cabeçalho */}
-        <div className="border-b pb-4 flex justify-between items-center">
-          <h2 className="text-3xl font-bold text-blue-600 flex items-center gap-3">
-            <FaFileMedical className="h-7 w-7" />
-            Resultados de Exames
-          </h2>
+        <div className="border-b border-slate-200 pb-4 flex justify-between items-center">
+          <div>
+            <h2 className="text-xl font-bold text-slate-800">Resultados de Exames</h2>
+            <p className="text-sm text-slate-500 mt-0.5">Lançamento e controle de resultados</p>
+          </div>
         </div>
 
         {/* Mensagem de Erro */}
         {error && (
-          <div className="mt-6 p-4 text-sm text-red-700 bg-red-100 rounded-lg border border-red-300" role="alert">
+          <div className="mt-6 flex items-start gap-2.5 p-3.5 bg-red-50 border border-red-200 rounded-md text-sm text-red-700" role="alert">
             {error}
           </div>
         )}
@@ -293,30 +280,25 @@ const RegistroResultadoExames = () => {
         </div>
 
         {/* Tabela de Registros */}
-        <div className="mt-6 overflow-x-auto rounded-lg shadow-md">
+        <div className="mt-6 overflow-x-auto rounded-md border border-slate-200">
           {isLoading ? (
             <p className="text-center text-gray-500 py-4 text-sm">Carregando registros...</p>
           ) : (
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-blue-600 text-white">
+            <table className="min-w-full bg-white">
+              <thead>
                 <tr>
-                  {tableHeaders.map((header, index) => (
-                    <th
-                      key={header}
-                      onClick={() => sortableFields[index] && handleSort(sortableFields[index])}
-                      className={`px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider ${sortableFields[index] ? 'cursor-pointer' : ''}`}
-                    >
-                      {header}
-                      {sortableFields[index] && sortField === sortableFields[index] && (
-                        <span className="ml-2">
-                          {sortDirection === "asc" ? "↑" : "↓"}
-                        </span>
-                      )}
-                    </th>
-                  ))}
+                  <TableHeader label="ID Registro" field="idRegistro" sortField={sortField} sortDirection={sortDirection} onSort={handleSort} />
+                  <TableHeader label="Nome do Exame" field="nomeExame" sortField={sortField} sortDirection={sortDirection} onSort={handleSort} />
+                  <TableHeader label="Data da Solicitação" field="dataSolicitacao" sortField={sortField} sortDirection={sortDirection} onSort={handleSort} />
+                  <TableHeader label="Profissional" field="profissional" sortField={sortField} sortDirection={sortDirection} onSort={handleSort} />
+                  <TableHeader label="Paciente" field="paciente" sortField={sortField} sortDirection={sortDirection} onSort={handleSort} />
+                  <TableHeader label="Status Resultado" field="status" sortField={sortField} sortDirection={sortDirection} onSort={handleSort} />
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider bg-slate-800 text-slate-200 w-28">
+                    Ações
+                  </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-white divide-y divide-slate-100">
                 {currentRegistros.length === 0 ? (
                   <tr>
                     <td

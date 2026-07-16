@@ -140,40 +140,41 @@ const TipoConsulta = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-200 p-6">
-      <section className="max-w-6xl mx-auto bg-white rounded-2xl shadow-md p-6">
-        <div className="border-b pb-4 flex justify-between items-center">
-          <h2 className="text-3xl font-bold text-blue-600 flex items-center gap-3">
-            Gerenciar Tipos de Consultas
-          </h2>
+    <div className="min-h-screen bg-slate-50 p-6">
+      <section className="max-w-6xl mx-auto bg-white rounded-lg border border-slate-200 shadow-sm p-6">
+        <div className="border-b border-slate-200 pb-4 flex justify-between items-center">
+          <div>
+            <h2 className="text-xl font-bold text-slate-800">Tipos de Consulta</h2>
+            <p className="text-sm text-slate-500 mt-0.5">Categorias de consultas disponíveis</p>
+          </div>
           <button
             onClick={() => setIsModalOpenAdd(true)}
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700 transition-colors"
+            className="inline-flex items-center justify-center gap-2 rounded-md bg-blue-700 px-4 py-2 text-sm font-medium text-white hover:bg-blue-800 transition-colors"
           >
-            <FaPlus className="h-5 w-5" />
+            <FaPlus className="h-4 w-4" />
             Adicionar Tipo de Consulta
           </button>
         </div>
 
         {showAlert && (
-          <div className="mt-6 p-4 text-sm text-red-700 bg-red-100 rounded-lg border border-red-300">
+          <div className="mt-6 p-4 text-sm text-amber-800 bg-amber-50 rounded-md border border-amber-200">
             Item excluído com sucesso.
           </div>
         )}
         {showSuccessAlert && (
-          <div className="mt-6 p-4 text-sm text-green-700 bg-green-100 rounded-lg border border-red-300">
+          <div className="mt-6 p-4 text-sm text-emerald-800 bg-emerald-50 rounded-md border border-emerald-200">
             Tipo de consulta adicionado com sucesso!
           </div>
         )}
         {showEditSuccessAlert && (
-          <div className="mt-6 p-4 text-sm text-green-700 bg-green-100 rounded-lg border border-red-300">
+          <div className="mt-6 p-4 text-sm text-emerald-800 bg-emerald-50 rounded-md border border-emerald-200">
             Tipo de consulta editado com sucesso!
           </div>
         )}
 
         <div className="flex flex-col md:flex-row gap-4 mt-6">
           <div className="flex-1">
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">
               Busca por Nome do Tipo de Consulta
             </label>
             <div className="relative">
@@ -182,7 +183,7 @@ const TipoConsulta = () => {
                 type="text"
                 value={filtro}
                 onChange={handleFiltroChange}
-                className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-md bg-white text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:border-blue-700 transition-colors"
                 placeholder="Filtrar por nome do tipo de consulta"
               />
               {filtro && (
@@ -208,7 +209,7 @@ const TipoConsulta = () => {
           </div>
         </div>
 
-        <div className="mt-6 overflow-x-auto rounded-lg shadow-md">
+        <div className="mt-6 overflow-x-auto rounded-md border border-slate-200">
           {tipoConsultaFiltrados.length === 0 ? (
             <p className="text-center text-gray-500 py-4 text-sm bg-white">
               Nenhum tipo de consulta encontrado.

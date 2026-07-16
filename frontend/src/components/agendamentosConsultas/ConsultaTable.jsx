@@ -1,7 +1,8 @@
 import Pagination from "../util/Pagination";
 import TableRow from "./TableRow";
+import TableHeader from "../util/TableHeader";
 import { useState } from "react";
-import { enviarConfirmacaoConsulta } from "../../config/apiServices"; // Importe a nova função
+import { enviarConfirmacaoConsulta } from "../../config/apiServices";
 
 const ConsultaTable = ({
   consultas,
@@ -17,19 +18,12 @@ const ConsultaTable = ({
   itemsPerPage,
 }) => {
   const sortConsultas = (consultas) => {
-    // console.log(" Consulta Table consultas", consultas); // Este log foi muito útil!
-
     return [...consultas].sort((a, b) => {
       let valueA, valueB;
       const fieldMap = {
         nome: (item) => item.paciente.nome.toLowerCase(),
-        // --- CORREÇÃO APLICADA ABAIXO ---
         medico: (item) =>
           `${item.medico.nome} ${item.medico.crm}`.toLowerCase(),
-        // item.medico.nome.toLowerCase(),
-        // Se quiser incluir o CRM na ordenação, poderia ser:
-        // medico:
-        // --- FIM DA CORREÇÃO ---
         tipo: (item) => item.tipoConsulta.nomeTipoConsulta.toLowerCase(),
         horario: (item) => item.horaConsulta,
         motivo: (item) => item.motivo.toLowerCase(),
@@ -49,23 +43,15 @@ const ConsultaTable = ({
     indexOfFirstItem,
     indexOfLastItem
   );
-  const [enviandoEmailId, setEnviandoEmailId] = useState(null); // Para feedback no botão
+  const [enviandoEmailId, setEnviandoEmailId] = useState(null);
 
   const handleEnviarEmailConfirmacao = async (consulta) => {
-    if (enviandoEmailId === consulta.id) return; // Evitar cliques duplos
-
+    if (enviandoEmailId === consulta.id) return;
     setEnviandoEmailId(consulta.id);
-    // Se você tem um estado de erro global, limpe-o
-    // setError(null);
-
     try {
       const response = await enviarConfirmacaoConsulta(consulta.id);
       alert(response.message || "E-mail de confirmação enviado com sucesso!");
-      // Opcional: você pode querer atualizar o estado da consulta na lista
-      // para indicar que o e-mail foi enviado (ex: um campo 'confirmacaoEnviada')
-      // Se for o caso, você precisaria de um re-fetch ou uma atualização otimista.
     } catch (err) {
-      // setError(err.error || "Não foi possível enviar o e-mail de confirmação.");
       alert(err.error || "Não foi possível enviar o e-mail de confirmação.");
       console.error("Falha ao enviar email de confirmação:", err);
     } finally {
@@ -76,84 +62,33 @@ const ConsultaTable = ({
   return (
     <>
       {isLoading ? (
-        <div className="text-center py-4">
-          <p className="text-sm text-gray-500">Carregando consultas...</p>
+        <div className="flex items-center justify-center py-12 text-slate-400">
+          <svg className="animate-spin h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+          </svg>
+          <span className="text-sm">Carregando consultas...</span>
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-lg shadow-md">
-          <table className="min-w-full divide-y divide-gray-200 bg-white">
-            <thead className="bg-blue-600 text-white">
+        <div className="overflow-x-auto rounded-md border border-slate-200">
+          <table className="min-w-full bg-white">
+            <thead>
               <tr>
-                {[
-                  "Paciente",
-                  "Médico",
-                  "Tipo de Consulta",
-                  "Data - Hora",
-                  "Motivo",
-                  "Status",
-                  "Ações",
-                ].map((header, index) => (
-                  <th
-                    key={header}
-                    onClick={() =>
-                      ["nome", "medico", "tipo", "horario", "motivo", "status"][
-                        index
-                      ] &&
-                      handleSort(
-                        [
-                          "nome",
-                          "medico",
-                          "tipo",
-                          "horario",
-                          "motivo",
-                          "status",
-                        ][index]
-                      )
-                    }
-                    className={`px-4 py-3 text-left text-sm font-semibold cursor-pointer ${
-                      index === 0 ? "rounded-tl-lg" : ""
-                    } ${index === 6 ? "rounded-tr-lg" : ""} ${
-                      [
-                        "nome",
-                        "medico",
-                        "tipo",
-                        "horario",
-                        "motivo",
-                        "status",
-                      ].includes(sortField) &&
-                      sortField ===
-                        [
-                          "nome",
-                          "medico",
-                          "tipo",
-                          "horario",
-                          "motivo",
-                          "status",
-                        ][index]
-                        ? "bg-blue-700"
-                        : ""
-                    }`}
-                  >
-                    {header}
-                    {sortField ===
-                      ["nome", "medico", "tipo", "horario", "motivo", "status"][
-                        index
-                      ] && (
-                      <span className="ml-1">
-                        {sortDirection === "asc" ? "↑" : "↓"}
-                      </span>
-                    )}
-                  </th>
-                ))}
+                <TableHeader label="Paciente" field="nome" sortField={sortField} sortDirection={sortDirection} onSort={handleSort} />
+                <TableHeader label="Médico" field="medico" sortField={sortField} sortDirection={sortDirection} onSort={handleSort} />
+                <TableHeader label="Tipo de Consulta" field="tipo" sortField={sortField} sortDirection={sortDirection} onSort={handleSort} />
+                <TableHeader label="Data - Hora" field="horario" sortField={sortField} sortDirection={sortDirection} onSort={handleSort} />
+                <TableHeader label="Motivo" field="motivo" sortField={sortField} sortDirection={sortDirection} onSort={handleSort} />
+                <TableHeader label="Status" field="status" sortField={sortField} sortDirection={sortDirection} onSort={handleSort} />
+                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider bg-slate-800 text-slate-200 w-28">
+                  Ações
+                </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className="bg-white divide-y divide-slate-100">
               {currentConsultas.length === 0 ? (
                 <tr>
-                  <td
-                    colSpan="7"
-                    className="px-4 py-4 text-center text-gray-500"
-                  >
+                  <td colSpan="7" className="px-4 py-8 text-center text-slate-400 text-sm">
                     Nenhuma consulta encontrada.
                   </td>
                 </tr>
@@ -165,8 +100,8 @@ const ConsultaTable = ({
                     onView={openViewModal}
                     onCancel={handleCancelConsulta}
                     formatarDataHoraBR={formatarDataHoraBR}
-                    onEnviarConfirmacaoEmail={handleEnviarEmailConfirmacao} // Passa a função
-                    enviandoEmailId={enviandoEmailId} // Passa o estado de carregamento
+                    onEnviarConfirmacaoEmail={handleEnviarEmailConfirmacao}
+                    enviandoEmailId={enviandoEmailId}
                   />
                 ))
               )}

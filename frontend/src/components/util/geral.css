@@ -1,132 +1,175 @@
-/* Modal geral baseada em medicamentos-add-form com grid em duas colunas */
+/* =============================================
+   MODAL OVERLAY — Enterprise UI
+   ============================================= */
 .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5); /* Fundo escuro semitransparente */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(15, 23, 42, 0.6); /* slate-900/60 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 16px;
 }
 
+/* =============================================
+   MODAL CONTENT — Card Branco Profissional
+   ============================================= */
 .modal-content {
-    position: relative;
-    background-color: #ddd; /* Fundo claro */
-    border-radius: 10px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 600px;
-    padding: 20px;
-    box-sizing: border-box;
-    overflow: auto;
-    max-height: 90vh; /* Evita que a modal ultrapasse a altura da tela */
+  position: relative;
+  background-color: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0; /* slate-200 */
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  max-width: 600px;
+  padding: 24px;
+  box-sizing: border-box;
+  overflow: auto;
+  max-height: 90vh;
+  animation: modalFadeIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+/* =============================================
+   BOTÃO DE FECHAR MODAL
+   ============================================= */
 .modal-close-button {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: none;
-    border: none;
-    font-size: 18px;
-    font-weight: bold;
-    cursor: pointer;
-    color: #333;
-    transition: color 0.3s ease;
-    width: 30px;
-    height: 30px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: none;
+  border: none;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  color: #94a3b8; /* slate-400 */
+  transition: color 0.15s ease;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 6px;
 }
 
+.modal-close-button:hover {
+  color: #475569; /* slate-600 */
+  background-color: #f1f5f9; /* slate-100 */
+}
+
+/* =============================================
+   TÍTULO DO MODAL
+   ============================================= */
 .modal-content h2 {
-    margin-bottom: 20px;
-    text-align: center;
-    font-size: 1.5em;
-    color: #001233;
+  margin-bottom: 20px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1e293b; /* slate-800 */
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e2e8f0; /* slate-200 */
 }
 
+/* =============================================
+   GRID DE FORMULÁRIO DO MODAL
+   ============================================= */
 .modal-add {
-    display: grid; /* Layout grid */
-    grid-template-columns: 250px 250px; /* Duas colunas iguais */
-    gap: 0px 30px; /* Espaçamento entre colunas e linhas */
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 24px;
 }
 
 .modal-add > div {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 
 .modal-add label {
-    margin-bottom: 5px;
-    font-weight: bold;
+  margin-bottom: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #475569; /* slate-600 */
 }
 
+/* =============================================
+   INPUTS DO MODAL
+   ============================================= */
 .modal-add input,
 .modal-add select,
 .modal-add textarea {
-    padding: 12px; /* Uniformiza o padding */
-    border-radius: 4px;
-    border: 1px solid #ccc;
-    font-size: 14px;
-    background-color: #fff;
-    transition: border-color 0.3s ease;
-    width: 100%;
-    resize: none; /* Remove o redimensionamento dos textareas */
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1; /* slate-300 */
+  font-size: 0.875rem;
+  color: #1e293b; /* slate-800 */
+  background-color: #ffffff;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  width: 100%;
+  resize: none;
 }
 
 .modal-add input:focus,
 .modal-add select:focus,
 .modal-add textarea:focus {
-    border-color: #424b54;
-    outline: none;
+  border-color: #1d4ed8; /* blue-700 */
+  box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.12);
+  outline: none;
 }
 
+.modal-add input::placeholder,
+.modal-add textarea::placeholder {
+  color: #94a3b8; /* slate-400 */
+}
+
+/* =============================================
+   MENSAGENS DE VALIDAÇÃO
+   ============================================= */
 .modal-add small.error {
-    color: red;
-    font-size: 12px;
+  color: #dc2626; /* red-600 */
+  font-size: 0.75rem;
+  margin-top: 4px;
 }
 
-/* Estilos para botões */
+/* =============================================
+   BOTÃO PRIMÁRIO DO MODAL
+   ============================================= */
 .modal-add button {
-    grid-column: span 2; /* O botão ocupa duas colunas */
-    padding: 12px 20px;
-    border-radius: 8px;
-    background-color: #f1f1f1;
-    color: #001233;
-    border: 1px solid #001233;
-    font-weight: bold;
-    font-size: 1em;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
+  grid-column: span 2;
+  padding: 9px 20px;
+  border-radius: 6px;
+  background-color: #1d4ed8; /* blue-700 */
+  color: #ffffff;
+  border: none;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  margin-top: 8px;
 }
 
 .modal-add button:hover {
-    background-color: #001233;
-    color: #fff;
-    transform: scale(1.05);
+  background-color: #1e40af; /* blue-800 */
 }
 
 .modal-add button:active {
-    background-color: #001233cc;
-    transform: scale(1);
+  background-color: #1e3a8a; /* blue-900 */
 }
 
-/* Responsividade */
-@media (max-width: 768px) {
-    .modal-content {
-        padding: 15px;
-    }
+/* =============================================
+   RESPONSIVIDADE
+   ============================================= */
+@media (max-width: 640px) {
+  .modal-content {
+    padding: 16px;
+  }
 
-    .modal-add {
-        grid-template-columns: 1fr; /* Ajusta para coluna única em telas pequenas */
-    }
+  .modal-add {
+    grid-template-columns: 1fr;
+  }
 
-    .modal-add button {
-        grid-column: span 1; /* Ocupa apenas uma coluna em telas pequenas */
-    }
+  .modal-add button {
+    grid-column: span 1;
+  }
 }

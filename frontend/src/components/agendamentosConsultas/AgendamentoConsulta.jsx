@@ -76,8 +76,8 @@ const AgendamentoConsulta = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-200 p-6">
-      <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-md p-6 space-y-6 relative z-10">
+    <div className="min-h-screen bg-slate-50 p-6">
+      <div className="max-w-6xl mx-auto bg-white rounded-lg border border-slate-200 shadow-sm p-6 space-y-6 relative z-10">
         <HeaderSection
           openAddModal={openAddModal}
           isLoading={isLoading}
@@ -86,7 +86,7 @@ const AgendamentoConsulta = () => {
         />
 
         {error && (
-          <div className="p-4 text-sm text-red-700 bg-red-100 rounded-lg border border-red-300">
+          <div className="flex items-start gap-2.5 p-3.5 bg-red-50 border border-red-200 rounded-md text-sm text-red-700">
             {error}
           </div>
         )}

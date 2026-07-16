@@ -1,140 +1,76 @@
 import React from "react";
-import TableHeader from "./TableHeader";
+import { ChevronUp, ChevronDown } from "lucide-react";
+import { Eye, Pencil, Trash2 } from "lucide-react";
 
-const TabelaMedicamentos = ({
-  medicamentos,
-  onExcluir,
-  onEditar,
-  onDetalhes,
-  sortField,
-  sortDirection,
-  onSort,
-}) => {
+const TableHeader = ({ label, field, sortField, sortDirection, onSort }) => {
+  const isActive = sortField === field;
   return (
-    <table className="min-w-full divide-y divide-gray-200">
-      <thead className="bg-blue-600 text-white">
+    <th
+      onClick={() => onSort(field)}
+      className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider cursor-pointer select-none whitespace-nowrap transition-colors bg-slate-800 text-slate-200 hover:bg-slate-700"
+    >
+      <div className="flex items-center gap-1.5">
+        <span>{label}</span>
+        <span className="flex flex-col -space-y-0.5">
+          <ChevronUp size={10} className={isActive && sortDirection === "asc" ? "text-white" : "text-slate-600"} />
+          <ChevronDown size={10} className={isActive && sortDirection === "desc" ? "text-white" : "text-slate-600"} />
+        </span>
+      </div>
+    </th>
+  );
+};
+
+const TabelaMedicamentos = ({ medicamentos, onExcluir, onEditar, onDetalhes, sortField, sortDirection, onSort }) => {
+  const controlledBadge = (value) => {
+    const v = (value || "").toLowerCase();
+    if (v === "sim" || v === "s") return <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-50 text-red-700 ring-1 ring-red-200">Sim</span>;
+    if (v === "não" || v === "nao" || v === "n") return <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-600 ring-1 ring-slate-200">Não</span>;
+    return <span className="text-slate-500 text-sm">{value || "—"}</span>;
+  };
+
+  return (
+    <table className="min-w-full">
+      <thead>
         <tr>
-          <TableHeader
-            label="Nome do Medicamento"
-            field="nomeMedicamento"
-            sortField={sortField}
-            sortDirection={sortDirection}
-            onSort={onSort}
-            className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider"
-          />
-          <TableHeader
-            label="Fabricante"
-            field="nomeFabricante"
-            sortField={sortField}
-            sortDirection={sortDirection}
-            onSort={onSort}
-            className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider"
-          />
-          <TableHeader
-            label="Controlado"
-            field="controlado"
-            sortField={sortField}
-            sortDirection={sortDirection}
-            onSort={onSort}
-            className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider"
-          />
-          <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">
+          <TableHeader label="Nome do Medicamento" field="nomeMedicamento" sortField={sortField} sortDirection={sortDirection} onSort={onSort} />
+          <TableHeader label="Fabricante" field="nomeFabricante" sortField={sortField} sortDirection={sortDirection} onSort={onSort} />
+          <TableHeader label="Controlado" field="controlado" sortField={sortField} sortDirection={sortDirection} onSort={onSort} />
+          <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider bg-slate-800 text-slate-200 w-28">
             Ações
           </th>
         </tr>
       </thead>
-      <tbody className="divide-y divide-gray-200">
+      <tbody className="bg-white divide-y divide-slate-100">
         {medicamentos.length === 0 ? (
           <tr>
-            <td
-              colSpan="4"
-              className="px-6 py-4 text-center text-gray-500 text-sm"
-            >
-              Nenhum medicamento encontrado após filtragem.
+            <td colSpan="4" className="px-4 py-8 text-center text-slate-400 text-sm">
+              Nenhum medicamento encontrado.
             </td>
           </tr>
         ) : (
           medicamentos.map((medicamento) => (
-            <tr
-              key={medicamento.idMedicamento}
-              className="hover:bg-blue-50 transition-colors"
-            >
-              <td className="px-6 py-4 text-sm text-gray-700">
-                {medicamento.nomeMedicamento || "N/A"}
+            <tr key={medicamento.idMedicamento} className="hover:bg-slate-50 transition-colors">
+              <td className="px-4 py-3.5 text-sm text-slate-700 font-medium">
+                {medicamento.nomeMedicamento || "—"}
               </td>
-              <td className="px-6 py-4 text-sm text-gray-700">
-                {medicamento.nomeFabricante || "N/A"}
+              <td className="px-4 py-3.5 text-sm text-slate-600">
+                {medicamento.nomeFabricante || "—"}
               </td>
-              <td className="px-6 py-4 text-sm text-gray-700">
-                {medicamento.controlado || "N/A"}
+              <td className="px-4 py-3.5">
+                {controlledBadge(medicamento.controlado)}
               </td>
-              <td className="px-6 py-4 text-sm flex gap-3">
-                <button
-                  onClick={() => onDetalhes(medicamento.idMedicamento)}
-                  className="text-blue-600 hover:text-blue-700 transition-colors"
-                  title="Ver Detalhes"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                    />
-                  </svg>
-                </button>
-                <button
-                  onClick={() => onEditar(medicamento.idMedicamento)}
-                  className="text-yellow-500 hover:text-yellow-700 transition-colors"
-                  title="Editar"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                    />
-                  </svg>
-                </button>
-                <button
-                  onClick={() => onExcluir(medicamento.idMedicamento)}
-                  className="text-red-600 hover:text-red-700 transition-colors"
-                  title="Excluir"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5-4h4m-4 4v12m4-12v12"
-                    />
-                  </svg>
-                </button>
+              <td className="px-4 py-3.5">
+                <div className="flex items-center gap-2">
+                  <button onClick={() => onDetalhes(medicamento.idMedicamento)} className="p-1.5 rounded-md text-slate-500 hover:text-blue-700 hover:bg-blue-50 transition-colors" title="Ver detalhes">
+                    <Eye size={15} />
+                  </button>
+                  <button onClick={() => onEditar(medicamento.idMedicamento)} className="p-1.5 rounded-md text-slate-500 hover:text-amber-600 hover:bg-amber-50 transition-colors" title="Editar">
+                    <Pencil size={15} />
+                  </button>
+                  <button onClick={() => onExcluir(medicamento.idMedicamento)} className="p-1.5 rounded-md text-slate-500 hover:text-red-600 hover:bg-red-50 transition-colors" title="Excluir">
+                    <Trash2 size={15} />
+                  </button>
+                </div>
               </td>
             </tr>
           ))

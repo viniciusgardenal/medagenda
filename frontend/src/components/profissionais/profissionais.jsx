@@ -161,40 +161,41 @@ const Profissionais = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-200 p-6">
-      <section className="max-w-6xl mx-auto bg-white rounded-2xl shadow-md p-6">
-        <div className="border-b pb-4 flex justify-between items-center">
-          <h2 className="text-3xl font-bold text-blue-600 flex items-center gap-3">
-            Gerenciar Profissionais
-          </h2>
+    <div className="min-h-screen bg-slate-50 p-6">
+      <section className="max-w-6xl mx-auto bg-white rounded-lg border border-slate-200 shadow-sm p-6">
+        <div className="border-b border-slate-200 pb-4 flex justify-between items-center">
+          <div>
+            <h2 className="text-xl font-bold text-slate-800">Gerenciar Profissionais</h2>
+            <p className="text-sm text-slate-500 mt-0.5">Cadastro e gestão da equipe médica</p>
+          </div>
           <button
             onClick={() => setIsModalOpenAdd(true)}
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700 transition-colors"
+            className="inline-flex items-center justify-center gap-2 rounded-md bg-blue-700 px-4 py-2 text-sm font-medium text-white hover:bg-blue-800 transition-colors"
           >
-            <FaPlus className="h-5 w-5" />
-            Cadastrar Profissional
+            <FaPlus className="h-4 w-4" />
+            Adicionar Profissional
           </button>
         </div>
 
         {showAlert && (
-          <div className="mt-6 p-4 text-sm text-red-700 bg-red-100 rounded-lg border border-red-300">
+          <div className="mt-6 p-4 text-sm text-amber-800 bg-amber-50 rounded-md border border-amber-200">
             Excluído com sucesso.
           </div>
         )}
         {showSuccessAlert && (
-          <div className="mt-6 p-4 text-sm text-green-700 bg-green-100 rounded-lg border border-green-300">
+          <div className="mt-6 p-4 text-sm text-emerald-800 bg-emerald-50 rounded-md border border-emerald-200">
             Adicionado com sucesso!
           </div>
         )}
         {showEditSuccessAlert && (
-          <div className="mt-6 p-4 text-sm text-green-700 bg-green-100 rounded-lg border border-green-300">
+          <div className="mt-6 p-4 text-sm text-emerald-800 bg-emerald-50 rounded-md border border-emerald-200">
             Editado com sucesso!
           </div>
         )}
 
         <div className="flex flex-col md:flex-row gap-4 mt-6">
           <div className="flex-1">
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">
               Busca por Nome, E-mail, Telefone ou Profissional
             </label>
             <div className="relative">
@@ -203,7 +204,7 @@ const Profissionais = () => {
                 type="text"
                 value={filtro}
                 onChange={handleFiltroChange}
-                className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-md bg-white text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:border-blue-700 transition-colors"
                 placeholder="Filtrar por nome, e-mail, telefone ou profissional"
               />
               {filtro && (
@@ -229,7 +230,7 @@ const Profissionais = () => {
           </div>
         </div>
 
-        <div className="mt-6 overflow-x-auto rounded-lg shadow-md">
+        <div className="mt-6 overflow-x-auto rounded-md border border-slate-200">
           {profissionais.length === 0 ? (
             <p className="text-center text-gray-500 py-4 text-sm bg-white">
               Nenhum profissional encontrado.

@@ -41,9 +41,39 @@ const Pacientes = () => {
     loadPacientes();
   }, []);
 
+  const [sortField, setSortField] = useState("nome");
+  const [sortDirection, setSortDirection] = useState("asc");
+
   const handleFiltroChange = (e) => {
     setFiltro(e.target.value);
     setCurrentPage(1);
+  };
+
+  const handleSort = (field) => {
+    if (field === sortField) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortField(field);
+      setSortDirection("asc");
+    }
+  };
+
+  const sortPacientes = (lista) => {
+    return [...lista].sort((a, b) => {
+      let valueA = a[sortField];
+      let valueB = b[sortField];
+
+      if (sortField === "nome") {
+        valueA = `${a.nome || ""} ${a.sobrenome || ""}`.trim().toLowerCase();
+        valueB = `${b.nome || ""} ${b.sobrenome || ""}`.trim().toLowerCase();
+      } else {
+        valueA = (valueA || "").toString().toLowerCase();
+        valueB = (valueB || "").toString().toLowerCase();
+      }
+
+      const direction = sortDirection === "asc" ? 1 : -1;
+      return valueA.localeCompare(valueB) * direction;
+    });
   };
 
   const pacientesFiltrados = pacientes.filter((paciente) => {
@@ -56,9 +86,11 @@ const Pacientes = () => {
     );
   });
 
+  const pacientesOrdenados = sortPacientes(pacientesFiltrados);
+
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentPacientes = pacientesFiltrados.slice(
+  const currentPacientes = pacientesOrdenados.slice(
     indexOfFirstItem,
     indexOfLastItem
   );
@@ -196,6 +228,9 @@ const Pacientes = () => {
             onExcluir={handleDelete}
             onEditar={handleEditar}
             onDetalhes={handleDetalhes}
+            sortField={sortField}
+            sortDirection={sortDirection}
+            onSort={handleSort}
           />
         </div>
 

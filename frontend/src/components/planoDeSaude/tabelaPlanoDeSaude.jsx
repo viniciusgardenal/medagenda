@@ -1,15 +1,16 @@
 import React from "react";
+import TableHeader from "../util/TableHeader";
 
-const TabelaPlanoDeSaude = ({ planos, onEditar, onExcluir, onDetalhes }) => {
+const TabelaPlanoDeSaude = ({ planos, onEditar, onExcluir, onDetalhes, sortField, sortDirection, onSort }) => {
   return (
     <table className="min-w-full divide-y divide-gray-200">
       <thead className="bg-blue-600 text-white">
         <tr>
-          <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">Nome da Operadora</th>
-          <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">Código do Plano</th>
-          <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">Tipo do Plano</th>
-          <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">Status</th>
-          <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">Ações</th>
+          <TableHeader label="Nome da Operadora" field="nomeOperadora" sortField={sortField} sortDirection={sortDirection} onSort={onSort} />
+          <TableHeader label="Código do Plano" field="codigoPlano" sortField={sortField} sortDirection={sortDirection} onSort={onSort} />
+          <TableHeader label="Tipo do Plano" field="tipoPlano" sortField={sortField} sortDirection={sortDirection} onSort={onSort} />
+          <TableHeader label="Status" field="status" sortField={sortField} sortDirection={sortDirection} onSort={onSort} />
+          <th className="px-6 py-3.5 text-left text-sm font-semibold uppercase tracking-wide text-white bg-blue-600">Ações</th>
         </tr>
       </thead>
       <tbody className="divide-y divide-gray-200">

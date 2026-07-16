@@ -55,7 +55,6 @@ app.use("/", autenticar, medicamentoRoutes);
 app.use("/", autenticar, planoDeSaudeRoutes);
 
 //Funções Fundamentais
-app.use("/", medicamentoRoutes);
 app.use("/", autenticar, solicitacaoExamesRoutes);
 app.use("/", autenticar, receitasRoutes);
 app.use("/", autenticar, gerarAtestados);
@@ -81,7 +80,7 @@ Permissao.belongsToMany(Roles, {
 
 // Sincronização do banco de dados com o Sequelize
 const inicializarDados = require("./services/iniciarlizarPermissaoRoles");
-const inicializarFuncionarioPadrao = require("./services/inicializarFuncionarioPadrao ");
+const inicializarFuncionarioPadrao = require("./services/inicializarFuncionarioPadrao");
 const Consulta = require("./model/consulta");
 sequelize
   .sync({ force: false })

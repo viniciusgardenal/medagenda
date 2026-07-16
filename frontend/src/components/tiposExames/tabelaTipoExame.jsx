@@ -1,14 +1,15 @@
 import React from 'react';
+import TableHeader from '../util/TableHeader';
 
-const TabelaTiposExames = ({ tiposExames, onEditar, onExcluir, onDetalhes }) => {
+const TabelaTiposExames = ({ tiposExames, onEditar, onExcluir, onDetalhes, sortField, sortDirection, onSort }) => {
   return (
     <table className="min-w-full divide-y divide-gray-200">
       <thead className="bg-blue-600 text-white">
         <tr>
-          <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">Nome do Exame</th>
-          <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">Material Coletado</th>
-          <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">Categoria</th>
-          <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">Ações</th>
+          <TableHeader label="Nome do Exame" field="nomeTipoExame" sortField={sortField} sortDirection={sortDirection} onSort={onSort} />
+          <TableHeader label="Material Coletado" field="materialColetado" sortField={sortField} sortDirection={sortDirection} onSort={onSort} />
+          <TableHeader label="Categoria" field="categoria" sortField={sortField} sortDirection={sortDirection} onSort={onSort} />
+          <th className="px-6 py-3.5 text-left text-sm font-semibold uppercase tracking-wide text-white bg-blue-600">Ações</th>
         </tr>
       </thead>
       <tbody className="divide-y divide-gray-200">

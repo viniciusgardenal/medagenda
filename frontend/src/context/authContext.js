@@ -12,6 +12,8 @@ export const AuthProvider = ({ children }) => {
       const decoded = jwtDecode(token);
       // //console.log("Decoded token:", decoded); // Verifica o que está sendo decodificado
       setUser(decoded);
+    } else {
+      setUser(false);
     }
   }, []);
 

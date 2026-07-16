@@ -1,5 +1,5 @@
 import api from "./axiosConfig";
-const apiUrl = "http://localhost:5000";
+const apiUrl = "";
 
 export const cancelarConsulta = async (id, motivoCancelamento) => {
   try {

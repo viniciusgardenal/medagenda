@@ -41,18 +41,42 @@ const TipoConsulta = () => {
     loadTipoConsulta();
   }, []);
 
+  const [sortField, setSortField] = useState("nomeTipoConsulta");
+  const [sortDirection, setSortDirection] = useState("asc");
+
   const handleFiltroChange = (e) => {
     setFiltro(e.target.value);
     setCurrentPage(1);
+  };
+
+  const handleSort = (field) => {
+    if (field === sortField) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortField(field);
+      setSortDirection("asc");
+    }
+    setCurrentPage(1);
+  };
+
+  const sortTiposConsulta = (lista) => {
+    return [...lista].sort((a, b) => {
+      const valueA = (a[sortField] || "").toString().toLowerCase();
+      const valueB = (b[sortField] || "").toString().toLowerCase();
+      const direction = sortDirection === "asc" ? 1 : -1;
+      return valueA.localeCompare(valueB) * direction;
+    });
   };
 
   const tipoConsultaFiltrados = tipoConsulta.filter((tpc) =>
     tpc.nomeTipoConsulta.toLowerCase().includes(filtro.toLowerCase())
   );
 
+  const tipoConsultaOrdenados = sortTiposConsulta(tipoConsultaFiltrados);
+
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = tipoConsultaFiltrados.slice(
+  const currentItems = tipoConsultaOrdenados.slice(
     indexOfFirstItem,
     indexOfLastItem
   );
@@ -195,6 +219,9 @@ const TipoConsulta = () => {
               onExcluir={handleDelete}
               onEditar={handleEditar}
               onDetalhes={handleDetalhes}
+              sortField={sortField}
+              sortDirection={sortDirection}
+              onSort={handleSort}
             />
           )}
         </div>

@@ -1,18 +1,14 @@
-import SortIcon from "./SortIcon";
+import React from "react";
 
 const TableHeader = ({ label, field, sortField, sortDirection, onSort }) => (
   <th
     onClick={() => onSort(field)}
-    className="py-3 px-2 text-white font-semibold text-xs uppercase tracking-wider cursor-pointer  select-none"
+    className="px-6 py-3.5 text-left text-sm font-semibold uppercase tracking-wide cursor-pointer text-white bg-blue-600 hover:bg-blue-700 transition-colors select-none"
   >
-    <div className="flex items-center">
-      {label}{" "}
-      <SortIcon
-        field={field}
-        sortField={sortField}
-        sortDirection={sortDirection}
-      />
-    </div>
+    {label}
+    {sortField === field && (
+      <span className="ml-2">{sortDirection === "asc" ? "↑" : "↓"}</span>
+    )}
   </th>
 );
 

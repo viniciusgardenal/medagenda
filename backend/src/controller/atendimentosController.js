@@ -115,7 +115,8 @@ const getAtendimentoPorId = async (req, res) => {
       return res.status(404).json({ error: "Atendimento não encontrado." });
     }
 
-    if (req.user && req.user.id !== atendimento.consulta.medicoId) {
+    const isDiretor = req.user && req.user.role && req.user.role.toLowerCase() === "diretor";
+    if (req.user && !isDiretor && req.user.id !== atendimento.consulta.medicoId) {
       return res.status(403).json({ error: "Acesso negado." });
     }
 
@@ -173,7 +174,8 @@ const excluirAtendimento = async (req, res) => {
     }
 
     const consulta = await Consulta.findByPk(atendimento.consultaId);
-    if (req.user && req.user.id !== consulta.medicoId) {
+    const isDiretor = req.user && req.user.role && req.user.role.toLowerCase() === "diretor";
+    if (req.user && !isDiretor && req.user.id !== consulta.medicoId) {
       return res.status(403).json({
         error: "Apenas o médico responsável pode excluir o atendimento.",
       });

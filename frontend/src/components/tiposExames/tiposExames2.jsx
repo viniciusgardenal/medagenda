@@ -33,8 +33,29 @@ const TiposExames = () => {
     loadTiposExames();
   }, []);
 
+  const [sortField, setSortField] = useState("nomeTipoExame");
+  const [sortDirection, setSortDirection] = useState("asc");
+
   const handleFiltroChange = (e) => {
     setFiltro(e.target.value);
+  };
+
+  const handleSort = (field) => {
+    if (field === sortField) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortField(field);
+      setSortDirection("asc");
+    }
+  };
+
+  const sortTiposExames = (lista) => {
+    return [...lista].sort((a, b) => {
+      const valueA = (a[sortField] || "").toString().toLowerCase();
+      const valueB = (b[sortField] || "").toString().toLowerCase();
+      const direction = sortDirection === "asc" ? 1 : -1;
+      return valueA.localeCompare(valueB) * direction;
+    });
   };
 
   const tiposExamesFiltrados = tiposExames.filter((tipoExame) => {
@@ -45,6 +66,8 @@ const TiposExames = () => {
       tipoExame.categoria.toLowerCase().includes(pesquisa)
     );
   });
+
+  const tiposExamesOrdenados = sortTiposExames(tiposExamesFiltrados);
 
   const handleDelete = (id) => {
     setIdToDelete(id);
@@ -176,10 +199,13 @@ const TiposExames = () => {
             </p>
           ) : (
             <TabelaTiposExames
-              tiposExames={tiposExamesFiltrados}
+              tiposExames={tiposExamesOrdenados}
               onExcluir={handleDelete}
               onEditar={handleEditar}
               onDetalhes={handleDetalhes}
+              sortField={sortField}
+              sortDirection={sortDirection}
+              onSort={handleSort}
             />
           )}
         </div>

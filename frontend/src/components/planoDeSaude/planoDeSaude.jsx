@@ -46,18 +46,42 @@ const PlanoSaude = () => {
     loadPlanosSaude();
   }, []);
 
+  const [sortField, setSortField] = useState("nomeOperadora");
+  const [sortDirection, setSortDirection] = useState("asc");
+
   const handleFiltroChange = (e) => {
     setFiltro(e.target.value);
     setCurrentPage(1);
+  };
+
+  const handleSort = (field) => {
+    if (field === sortField) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortField(field);
+      setSortDirection("asc");
+    }
+    setCurrentPage(1);
+  };
+
+  const sortPlanos = (lista) => {
+    return [...lista].sort((a, b) => {
+      const valueA = (a[sortField] || "").toString().toLowerCase();
+      const valueB = (b[sortField] || "").toString().toLowerCase();
+      const direction = sortDirection === "asc" ? 1 : -1;
+      return valueA.localeCompare(valueB) * direction;
+    });
   };
 
   const planosSaudeFiltrados = planosSaude.filter((ps) =>
     ps.nomeOperadora.toLowerCase().includes(filtro.toLowerCase())
   );
 
+  const planosOrdenados = sortPlanos(planosSaudeFiltrados);
+
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = planosSaudeFiltrados.slice(
+  const currentItems = planosOrdenados.slice(
     indexOfFirstItem,
     indexOfLastItem
   );
@@ -199,6 +223,9 @@ const PlanoSaude = () => {
               onExcluir={handleDelete}
               onEditar={handleEditar}
               onDetalhes={handleDetalhes}
+              sortField={sortField}
+              sortDirection={sortDirection}
+              onSort={handleSort}
             />
           )}
         </div>

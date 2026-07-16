@@ -37,56 +37,75 @@ Este projeto foi construído com um stack moderno e amplamente utilizado no dese
 
 O sistema está **finalizado**, com as principais funcionalidades de cadastro de pacientes, agendamento e interface básica já implementadas.
 
-## Instalação
+## Instalação e Execução
 
-Siga os passos abaixo para rodar o projeto localmente:
+### Pré-requisito:
+- Node.js (versão 16 ou superior) instalado.
 
-### Pré-requisitos:
-- Node.js (versão 16 ou superior)
-- MySQL (ou XAMPP para ambiente local)
-- Git
+---
 
-### Passos:
+### Método Rápido (Recomendado para Windows)
 
-1. Clone o repositório:
+Criamos um script automatizador `iniciar.bat` na raiz do projeto que realiza toda a instalação de dependências, cria a base de dados SQLite local e inicia a aplicação de forma unificada.
+
+1. Baixe/clone o projeto em seu computador.
+2. Dê um duplo clique no arquivo **`iniciar.bat`** na raiz do projeto.
+3. Pronto! O script instalará as dependências, gerará o banco SQLite local (`backend/database.sqlite`), criará os dados de demonstração automaticamente e abrirá a aplicação em seu navegador.
+
+---
+
+### Método Manual (Passo a Passo)
+
+Caso queira executar os comandos manualmente:
+
+1. **Clone o repositório:**
    ```bash
    git clone https://github.com/viniciusgardenal/medagenda.git
    cd medagenda
+   ```
 
-2. Instale as dependências do backend:
-    ```bash
-    cd backend
-    npm install
+2. **Configure o arquivo de ambiente do Backend:**
+   - Acesse a pasta `backend/` e crie um arquivo chamado **`.env.development`**.
+   - Defina o SQLite como banco de dados:
+     ```env
+     JWT_SECRET=medagenda_secret_key_123
+     PORT=5000
+     DB_DIALECT=sqlite
+     ```
 
-3. Configure o banco de dados:
-    
-    - Crie um banco de dados MySQL chamado medagenda.
-    - Importe o arquivo database.sql (disponível no diretório /backend) para criar as tabelas necessárias.
-    - Atualize as credenciais no arquivo  com suas configurações locais
-    ```bash
-    DB_HOST=localhost
-    DB_USER=seu_usuario
-    DB_PASS=sua_senha
-    DB_NAME=medagenda
-    
-4. Instale as dependências do front-end:
-    ```bash
-    cd ../frontend
-    npm install
+3. **Instale e rode o Backend:**
+   ```bash
+   cd backend
+   npm install
+   npm start
+   ```
 
-5. Inicie o Backend:
-    ```bash
-    cd backend
-    npm start
+4. **Instale e rode o Frontend:**
+   - Em uma nova aba/janela do terminal:
+   ```bash
+   cd frontend
+   npm install
+   npm start
+   ```
 
-6. Inicie o Front-end:
-    ```bash
-    cd frontend
-    npm start
+5. **Acesso ao Sistema:**
+   - Acesse **`http://localhost:3000`** no seu navegador.
+   - **E-mail de acesso:** `diretor@medagenda.com`
+   - **Senha de acesso:** `abc123`
 
-7. Acesse o sistema em http://localhost:3000 no seu navegador.
+---
 
-8. Use o login e senha abaixo para acessar o sistema:
-    ```bash
-    E-mail: diretor@medagenda.com
-    Senha: abc123
+### Método Avançado (Usando MySQL/XAMPP se desejado)
+
+Se possuir o MySQL/XAMPP configurado e desejar usá-lo em vez do SQLite, basta atualizar o arquivo `backend/.env.development` para:
+```env
+JWT_SECRET=sua_chave_secreta
+PORT=5000
+DB_DIALECT=mysql
+DB_HOST=localhost
+DB_NAME=medagenda
+DB_USER=root
+DB_PASSWORD=sua_senha
+```
+Em seguida, crie o banco de dados `medagenda` no phpMyAdmin e importe o script `backend/src/config/medagenda.sql`.
+

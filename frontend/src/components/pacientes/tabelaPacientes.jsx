@@ -1,15 +1,16 @@
 import React from 'react';
+import TableHeader from '../util/TableHeader';
 
-const TabelaPacientes = ({ pacientes, onEditar, onExcluir, onDetalhes }) => {
+const TabelaPacientes = ({ pacientes, onEditar, onExcluir, onDetalhes, sortField, sortDirection, onSort }) => {
   return (
     <table className="min-w-full divide-y divide-gray-200">
       <thead className="bg-blue-600 text-white">
         <tr>
-          <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">Nome Completo</th>
-          <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">CPF</th>
-          <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">Sexo</th>
-          <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">Data de Nascimento</th>
-          <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">Ações</th>
+          <TableHeader label="Nome Completo" field="nome" sortField={sortField} sortDirection={sortDirection} onSort={onSort} />
+          <TableHeader label="CPF" field="cpf" sortField={sortField} sortDirection={sortDirection} onSort={onSort} />
+          <TableHeader label="Sexo" field="sexo" sortField={sortField} sortDirection={sortDirection} onSort={onSort} />
+          <TableHeader label="Data de Nascimento" field="dataNascimento" sortField={sortField} sortDirection={sortDirection} onSort={onSort} />
+          <th className="px-6 py-3.5 text-left text-sm font-semibold uppercase tracking-wide text-white bg-blue-600">Ações</th>
         </tr>
       </thead>
       <tbody className="divide-y divide-gray-200">

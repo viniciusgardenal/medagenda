@@ -4,6 +4,13 @@ import App from "./app";
 import reportWebVitals from "./reportWebVitals";
 import { AuthProvider } from "./context/authContext";
 
+// Inicializa o tema (Modo Escuro / Claro)
+if (localStorage.getItem("darkMode") === "true") {
+  document.documentElement.classList.add("dark");
+} else {
+  document.documentElement.classList.remove("dark");
+}
+
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <AuthProvider>

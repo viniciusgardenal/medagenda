@@ -1,17 +1,18 @@
 import React from 'react';
 import { Eye, Edit, Trash } from 'lucide-react';
+import TableHeader from '../util/TableHeader';
 
-const TabelaProfissionais = ({ profissionais, onEditar, onExcluir, onDetalhes }) => {
+const TabelaProfissionais = ({ profissionais, onEditar, onExcluir, onDetalhes, sortField, sortDirection, onSort }) => {
   return (
     <table className="w-full text-left text-sm text-gray-700">
       <thead className="bg-blue-600 text-white">
         <tr>
-          <th className="px-4 py-3 font-medium">Nome</th>
-          <th className="px-4 py-3 font-medium">E-mail</th>
-          <th className="px-4 py-3 font-medium">Telefone</th>
-          <th className="px-4 py-3 font-medium">Profissional</th>
-          <th className="px-4 py-3 font-medium">Data de Nascimento</th>
-          <th className="px-4 py-3 font-medium">Ações</th>
+          <TableHeader label="Nome" field="nome" sortField={sortField} sortDirection={sortDirection} onSort={onSort} />
+          <TableHeader label="E-mail" field="email" sortField={sortField} sortDirection={sortDirection} onSort={onSort} />
+          <TableHeader label="Telefone" field="telefone" sortField={sortField} sortDirection={sortDirection} onSort={onSort} />
+          <TableHeader label="Profissional" field="tipoProfissional" sortField={sortField} sortDirection={sortDirection} onSort={onSort} />
+          <TableHeader label="Data de Nascimento" field="dataNascimento" sortField={sortField} sortDirection={sortDirection} onSort={onSort} />
+          <th className="px-4 py-3.5 font-semibold text-white bg-blue-600 uppercase tracking-wide">Ações</th>
         </tr>
       </thead>
       <tbody>

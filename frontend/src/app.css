@@ -5,8 +5,8 @@
 @tailwind components;
 @tailwind base;
 
-* {
-  font-family: "Ubuntu", sans-serif;
+*, body, input, button, select, textarea, span, p, div, h1, h2, h3, h4, h5, h6, table, th, td {
+  font-family: "Ubuntu", sans-serif !important;
 }
 
 .app-container {
@@ -15,8 +15,8 @@
 }
 
 .content-container {
+  @apply bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-100;
   flex-grow: 1;
-  background-color:  rgb(229 231 235);;
   background-attachment: fixed;
 }
 
@@ -24,3 +24,218 @@
   min-width: 250px; /* Define uma largura fixa para a sidebar */
   /* Ajuste a cor da sidebar conforme necessário */
 }
+
+/* ==========================================
+   Modo Escuro Global (Estilos de Fallback)
+   ========================================== */
+
+.dark body {
+  background-color: #0f172a !important; /* gray-900 */
+  color: #f1f5f9 !important; /* gray-100 */
+}
+
+.dark .content-container {
+  background-color: #0f172a !important; /* slate-900 */
+}
+
+/* Modificar bg-white, bg-gray-50, etc em containers */
+.dark .bg-white,
+.dark .modal-content,
+.dark .card,
+.dark div.bg-white {
+  background-color: #1e293b !important; /* slate-800 */
+  color: #f1f5f9 !important;
+  border-color: #334155 !important; /* slate-700 */
+}
+
+.dark .bg-gray-50,
+.dark .bg-gray-100,
+.dark .bg-gray-200 {
+  background-color: #0f172a !important; /* slate-900 */
+  border-color: #334155 !important;
+}
+
+/* Textos */
+.dark .text-gray-800,
+.dark .text-gray-700,
+.dark .text-gray-600,
+.dark .text-gray-500 {
+  color: #cbd5e1 !important; /* slate-300 */
+}
+
+.dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6,
+.dark .text-gray-900,
+.dark .font-bold {
+  color: #f8fafc !important; /* slate-50 */
+}
+
+/* Tabelas */
+.dark table,
+.dark .table {
+  border-color: #334155 !important;
+  background-color: #1e293b !important;
+}
+
+.dark thead {
+  background-color: #1e3a8a !important; /* azul escuro */
+}
+
+.dark th {
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+.dark td {
+  color: #cbd5e1 !important;
+  border-color: #334155 !important;
+}
+
+.dark tr:hover,
+.dark tr.hover\:bg-blue-50:hover {
+  background-color: #334155 !important; /* slate-700 */
+}
+
+.dark .divide-y > * + * {
+  border-color: #334155 !important;
+}
+
+/* Inputs, Selects e Textareas */
+.dark input,
+.dark select,
+.dark textarea {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+  border-color: #475569 !important;
+}
+
+.dark input::placeholder {
+  color: #64748b !important;
+}
+
+/* Modais do Bootstrap (se houver) */
+.dark .modal-header,
+.dark .modal-footer {
+  border-color: #334155 !important;
+  background-color: #1e293b !important;
+}
+
+.dark .modal-body {
+  background-color: #1e293b !important;
+}
+
+.dark .close,
+.dark button.close {
+  color: #f8fafc !important;
+}
+
+/* Ajustes finos para links e botões */
+.dark .text-blue-600 {
+  color: #60a5fa !important; /* azul claro */
+}
+
+.dark .hover\:text-blue-700:hover {
+  color: #93c5fd !important;
+}
+
+/* ==========================================
+   Melhorias Visuais e Micro-Interações Refinadas
+   ========================================== */
+
+/* Barra de rolagem customizada e elegante */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+/* Animação suave de entrada para Modais/Popups (Fade-in e Escala) */
+@keyframes modalScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.modal-content,
+div[role="dialog"] {
+  animation: modalScaleIn 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1) !important;
+}
+
+.dark .modal-content,
+.dark div[role="dialog"] {
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.3), 0 8px 10px -6px rgb(0 0 0 / 0.3) !important;
+}
+
+/* Transições suaves e anéis de foco profissionais nos Inputs */
+input, select, textarea, button {
+  transition: all 0.15s ease-in-out;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none !important;
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15) !important;
+}
+
+.dark input:focus,
+.dark select:focus,
+.dark textarea:focus {
+  border-color: #60a5fa !important;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.15) !important;
+}
+
+/* Efeito de destaque ao pairar sobre linhas de tabelas */
+tbody tr {
+  transition: background-color 0.15s ease;
+}
+
+tbody tr:hover {
+  background-color: rgba(59, 130, 246, 0.03) !important;
+}
+
+.dark tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.02) !important;
+}
+
+/* Bordas de tabelas arredondadas e limpas */
+table {
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+}
+
+table th:first-child {
+  border-top-left-radius: 8px;
+}
+
+table th:last-child {
+  border-top-right-radius: 8px;
+}
+
+

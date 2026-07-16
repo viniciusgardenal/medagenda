@@ -61,8 +61,8 @@ const verificarEEnviarLembretes = async () => {
 
     for (const consulta of consultasParaLembrar) {
       await enviarEmailDeLembrete(consulta);
-      // Opcional: Marcar que o lembrete foi enviado para não enviar de novo
-      // await consulta.update({ lembreteEnviado: true });
+      // Marcar que o lembrete foi enviado para não enviar de novo
+      await consulta.update({ lembreteEnviado: true });
     }
   } catch (error) {
     console.error("Erro ao executar o job de lembretes:", error);
@@ -74,7 +74,7 @@ const verificarEEnviarLembretes = async () => {
  * O padrão '0 * * * *' significa "no minuto 0 de cada hora".
  */
 const initLembreteJob = () => {
-  cron.schedule("0 7 * * *", verificarEEnviarLembretes, {
+  cron.schedule("0 * * * *", verificarEEnviarLembretes, {
     scheduled: true,
     timezone: "America/Sao_Paulo",
   });

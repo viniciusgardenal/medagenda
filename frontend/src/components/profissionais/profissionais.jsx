@@ -3,6 +3,7 @@ import { FaPlus } from "react-icons/fa";
 import ConfirmationModal from "../util/confirmationModal";
 import AlertMessage from "../util/alertMessage";
 import SuccessAlert from "../util/successAlert";
+import TableHeader from "../util/TableHeader";
 import {
   getProfissionais,
   getProfissionaisId,
@@ -237,28 +238,12 @@ const Profissionais = () => {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-blue-600 text-white">
                 <tr>
-                  {["Nome", "E-mail", "Telefone", "Tipo Profissional", "Data de Nascimento"].map(
-                    (header, index) => (
-                      <th
-                        key={header}
-                        onClick={() =>
-                          handleSort(
-                            ["nome", "email", "telefone", "tipoProfissional", "dataNascimento"][index]
-                          )
-                        }
-                        className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider cursor-pointer"
-                      >
-                        {header}
-                        {sortField ===
-                          ["nome", "email", "telefone", "tipoProfissional", "dataNascimento"][index] && (
-                          <span className="ml-2">
-                            {sortDirection === "asc" ? "↑" : "↓"}
-                          </span>
-                        )}
-                      </th>
-                    )
-                  )}
-                  <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">
+                  <TableHeader label="Nome" field="nome" sortField={sortField} sortDirection={sortDirection} onSort={handleSort} />
+                  <TableHeader label="E-mail" field="email" sortField={sortField} sortDirection={sortDirection} onSort={handleSort} />
+                  <TableHeader label="Telefone" field="telefone" sortField={sortField} sortDirection={sortDirection} onSort={handleSort} />
+                  <TableHeader label="Tipo Profissional" field="tipoProfissional" sortField={sortField} sortDirection={sortDirection} onSort={handleSort} />
+                  <TableHeader label="Data de Nascimento" field="dataNascimento" sortField={sortField} sortDirection={sortDirection} onSort={handleSort} />
+                  <th className="px-6 py-3.5 text-left text-sm font-semibold uppercase tracking-wide text-white bg-blue-600">
                     Ações
                   </th>
                 </tr>

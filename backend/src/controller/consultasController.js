@@ -48,8 +48,8 @@ const criarConsulta = async (req, res) => {
       prioridade = 0,
     } = req.body;
 
-    // 1. Validação dos dados de entrada (continua igual)
-    if (!cpfPaciente || !medicoId /* ... etc ... */) {
+    // 1. Validação dos dados de entrada
+    if (!cpfPaciente || !medicoId || !idTipoConsulta || !dataConsulta || !horaConsulta || !motivo || !responsavelAgendamento) {
       return res
         .status(400)
         .json({ error: "Todos os campos são obrigatórios." });
@@ -118,7 +118,7 @@ const listarConsultasDoDia = async (req, res) => {
     if (status) {
       whereClause.status = status;
     }
-    if (req.user.role === "medico") {
+    if (req.user.role && (req.user.role.toLowerCase() === "médico" || req.user.role.toLowerCase() === "medico")) {
       whereClause.medicoId = req.user.id;
     }
 
@@ -162,7 +162,7 @@ const listarConsultas = async (req, res) => {
     const whereClause = {};
 
     // Restrict to medico's own consultations if role is "medico"
-    if (req.user.role === "medico") {
+    if (req.user.role && (req.user.role.toLowerCase() === "médico" || req.user.role.toLowerCase() === "medico")) {
       whereClause.medicoId = req.user.id;
     }
 
